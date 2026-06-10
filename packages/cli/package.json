@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@craftdag/core": "workspace:*",
+    "@craftdag/exporter-schem": "workspace:*",
     "commander": "^12.1.0"
   }
 }
