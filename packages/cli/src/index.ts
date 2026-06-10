@@ -126,6 +126,7 @@ program
   .argument("<file>", "path to the CraftDAG JSON file")
   .option("-f, --format <format>", "export format (default: schem)", "schem")
   .requiredOption("-o, --out <outputFile>", "path to save the exported file")
+  .option("--data-version <number>", "Minecraft DataVersion", "3463")
   .action((file, options) => {
     const doc = readJsonFile(file);
     try {
@@ -133,7 +134,8 @@ program
         throw new Error(`Unsupported export format: ${options.format}`);
       }
       const plan = compileDocument(doc);
-      const buffer = exportToSchematic(plan);
+      const dataVersion = options.dataVersion ? Number(options.dataVersion) : undefined;
+      const buffer = exportToSchematic(plan, { dataVersion });
       fs.writeFileSync(path.resolve(options.out), buffer);
       console.log(`✓ Sponge schematic exported successfully to ${options.out}`);
     } catch (err: any) {
