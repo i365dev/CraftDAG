@@ -90,3 +90,18 @@ export interface CraftDagDocument {
   palette?: Record<string, string>;
   nodes: CraftDagNode[];
 }
+
+export interface VoxelBlock {
+  pos: Vec3;
+  block: BlockState;
+  sourceNodeId?: string;
+}
+
+export interface VoxelPlan {
+  version: "0.1";
+  name: string;
+  size: Vec3;
+  origin: Vec3;
+  blocks: VoxelBlock[];
+}
+
