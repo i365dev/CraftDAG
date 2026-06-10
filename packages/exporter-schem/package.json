@@ -12,5 +12,8 @@
   "dependencies": {
     "@craftdag/core": "workspace:*",
     "prismarine-nbt": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7"
   }
 }
