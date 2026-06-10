@@ -1,0 +1,17 @@
+{
+  "name": "@craftdag/cli",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "bin": {
+    "craftdag": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --dts",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@craftdag/core": "workspace:*",
+    "commander": "^12.1.0"
+  }
+}
