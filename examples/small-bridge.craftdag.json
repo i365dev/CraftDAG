@@ -1,0 +1,60 @@
+{
+  "version": "0.1",
+  "name": "small-bridge",
+  "size": [15, 6, 5],
+  "palette": {
+    "support": "minecraft:stone_bricks",
+    "decking": "minecraft:oak_planks",
+    "guardrail": "minecraft:spruce_fence"
+  },
+  "nodes": [
+    {
+      "id": "pillar_left",
+      "type": "Column",
+      "params": {
+        "from": [3, 0, 2],
+        "to": [3, 2, 2],
+        "block": "support"
+      }
+    },
+    {
+      "id": "pillar_right",
+      "type": "Column",
+      "params": {
+        "from": [11, 0, 2],
+        "to": [11, 2, 2],
+        "block": "support"
+      }
+    },
+    {
+      "id": "deck",
+      "type": "Floor",
+      "inputs": [{ "ref": "pillar_left" }, { "ref": "pillar_right" }],
+      "params": {
+        "from": [0, 3, 1],
+        "to": [14, 3, 3],
+        "block": "decking"
+      }
+    },
+    {
+      "id": "railing_left",
+      "type": "Wall",
+      "inputs": [{ "ref": "deck" }],
+      "params": {
+        "from": [0, 4, 1],
+        "to": [14, 4, 1],
+        "block": "guardrail"
+      }
+    },
+    {
+      "id": "railing_right",
+      "type": "Wall",
+      "inputs": [{ "ref": "deck" }],
+      "params": {
+        "from": [0, 4, 3],
+        "to": [14, 4, 3],
+        "block": "guardrail"
+      }
+    }
+  ]
+}

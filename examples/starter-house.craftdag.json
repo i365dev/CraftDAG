@@ -1,0 +1,71 @@
+{
+  "version": "0.1",
+  "name": "starter-house",
+  "size": [9, 10, 9],
+  "palette": {
+    "foundation_block": "minecraft:stone_bricks",
+    "wall_block": "minecraft:oak_planks",
+    "roof_block": "minecraft:spruce_planks"
+  },
+  "nodes": [
+    {
+      "id": "foundation",
+      "type": "SolidBox",
+      "params": {
+        "from": [0, 0, 0],
+        "to": [8, 0, 8],
+        "block": "foundation_block"
+      }
+    },
+    {
+      "id": "walls",
+      "type": "HollowBox",
+      "inputs": [{ "ref": "foundation" }],
+      "params": {
+        "from": [0, 1, 0],
+        "to": [8, 5, 8],
+        "block": "wall_block"
+      }
+    },
+    {
+      "id": "roof",
+      "type": "GableRoof",
+      "inputs": [{ "ref": "walls" }],
+      "params": {
+        "from": [0, 6, 0],
+        "to": [8, 9, 8],
+        "block": "roof_block",
+        "direction": "x"
+      }
+    },
+    {
+      "id": "front_door",
+      "type": "Doorway",
+      "inputs": [{ "ref": "walls" }],
+      "params": {
+        "from": [4, 1, 0],
+        "to": [4, 2, 0]
+      }
+    },
+    {
+      "id": "left_window",
+      "type": "Window",
+      "inputs": [{ "ref": "walls" }],
+      "params": {
+        "from": [2, 3, 0],
+        "to": [2, 3, 0],
+        "block": "minecraft:glass_pane"
+      }
+    },
+    {
+      "id": "right_window",
+      "type": "Window",
+      "inputs": [{ "ref": "walls" }],
+      "params": {
+        "from": [6, 3, 0],
+        "to": [6, 3, 0],
+        "block": "minecraft:glass_pane"
+      }
+    }
+  ]
+}

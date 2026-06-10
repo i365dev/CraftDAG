@@ -1,0 +1,98 @@
+{
+  "version": "0.1",
+  "name": "watchtower",
+  "size": [7, 15, 7],
+  "palette": {
+    "base": "minecraft:cobblestone",
+    "floor": "minecraft:oak_planks",
+    "pillar": "minecraft:oak_log",
+    "roof": "minecraft:dark_oak_planks"
+  },
+  "nodes": [
+    {
+      "id": "foundation",
+      "type": "SolidBox",
+      "params": {
+        "from": [1, 0, 1],
+        "to": [5, 0, 5],
+        "block": "base"
+      }
+    },
+    {
+      "id": "body",
+      "type": "HollowBox",
+      "inputs": [{ "ref": "foundation" }],
+      "params": {
+        "from": [1, 1, 1],
+        "to": [5, 10, 5],
+        "block": "base"
+      }
+    },
+    {
+      "id": "top_floor",
+      "type": "Floor",
+      "inputs": [{ "ref": "body" }],
+      "params": {
+        "from": [1, 10, 1],
+        "to": [5, 10, 5],
+        "block": "floor"
+      }
+    },
+    {
+      "id": "pillar_nw",
+      "type": "Column",
+      "inputs": [{ "ref": "top_floor" }],
+      "params": {
+        "from": [1, 11, 1],
+        "to": [1, 13, 1],
+        "block": "pillar"
+      }
+    },
+    {
+      "id": "pillar_ne",
+      "type": "Column",
+      "inputs": [{ "ref": "top_floor" }],
+      "params": {
+        "from": [5, 11, 1],
+        "to": [5, 13, 1],
+        "block": "pillar"
+      }
+    },
+    {
+      "id": "pillar_sw",
+      "type": "Column",
+      "inputs": [{ "ref": "top_floor" }],
+      "params": {
+        "from": [1, 11, 5],
+        "to": [1, 13, 5],
+        "block": "pillar"
+      }
+    },
+    {
+      "id": "pillar_se",
+      "type": "Column",
+      "inputs": [{ "ref": "top_floor" }],
+      "params": {
+        "from": [5, 11, 5],
+        "to": [5, 13, 5],
+        "block": "pillar"
+      }
+    },
+    {
+      "id": "roof",
+      "type": "GableRoof",
+      "inputs": [
+        { "ref": "pillar_nw" },
+        { "ref": "pillar_ne" },
+        { "ref": "pillar_sw" },
+        { "ref": "pillar_se" }
+      ],
+      "params": {
+        "from": [1, 14, 1],
+        "to": [5, 14, 5],
+        "block": "roof",
+        "direction": "z"
+      }
+    }
+  ]
+}
