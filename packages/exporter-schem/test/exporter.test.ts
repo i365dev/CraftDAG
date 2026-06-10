@@ -41,4 +41,12 @@ describe("Schematic Exporter", () => {
     // Since VarInt encoding is used and IDs are small, each block is 1 byte, so 6 bytes total
     expect(simplified.BlockData.length).toBe(6);
   });
+
+  it("should support custom DataVersion options", async () => {
+    const buffer = exportToSchematic(mockPlan, { dataVersion: 3578 });
+    const unzipped = zlib.gunzipSync(buffer);
+    const { parsed } = await nbt.parse(unzipped);
+    const simplified = nbt.simplify(parsed) as any;
+    expect(simplified.DataVersion).toBe(3578);
+  });
 });

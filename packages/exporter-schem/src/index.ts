@@ -16,11 +16,16 @@ function writeVarInt(value: number): number[] {
   return bytes;
 }
 
+export interface ExportOptions {
+  dataVersion?: number;
+}
+
 /**
  * Converts a CraftDAG VoxelPlan into a Sponge Schematic v2 (.schem) file buffer,
  * which is Gzip-compressed NBT.
  */
-export function exportToSchematic(plan: VoxelPlan): Buffer {
+export function exportToSchematic(plan: VoxelPlan, options?: ExportOptions): Buffer {
+  const dataVersion = options?.dataVersion ?? 3463; // Default to Minecraft 1.20.1 (3463)
   const [width, height, length] = plan.size;
 
   // Build the palette map and reverse map
@@ -69,7 +74,7 @@ export function exportToSchematic(plan: VoxelPlan): Buffer {
     name: "Schematic",
     value: {
       Version: { type: "int" as const, value: 2 },
-      DataVersion: { type: "int" as const, value: 3463 }, // Minecraft 1.20.1
+      DataVersion: { type: "int" as const, value: dataVersion },
       Width: { type: "short" as const, value: width },
       Height: { type: "short" as const, value: height },
       Length: { type: "short" as const, value: length },
