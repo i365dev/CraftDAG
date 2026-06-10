@@ -42,18 +42,13 @@ Log into your Minecraft world, look at the ground where you want to paste the st
 
 Once the structure is pasted, run through this inspection checklist to verify correct export:
 
-- [ ] **Bounding Box / Dimensions**: Does the structure size match the document size? (e.g., `starter-house` is 10×10×10). Ensure no blocks are cropped or shifted.
-- [ ] **Block Palette Match**: Check if the physical blocks match the palette mapping.
-  - Stone bricks for foundation/walls.
-  - Oak planks/stairs for roof and details.
-  - Oak door for doorway.
-  - Glass blocks/panes for windows.
+- [ ] **Bounding Box / Dimensions**: Does the structure size match the document size? (e.g., `starter-house` is 9×10×9). Ensure no blocks are cropped or shifted.
+- [ ] **Block Palette Match**: Check if the physical blocks match the palette mapping defined in the JSON document.
 - [ ] **Openings & Air Spaces**:
-  - Walk through the door to ensure it is carved open and not filled with solid wall blocks.
-  - Look through the windows to ensure the glass block replaced the wall correctly and there are no extra solid wall blocks behind it.
+  - Verify that doorways and windows are correctly carved open and/or replaced with the designated blocks defined in the plan.
 - [ ] **Gable Roof Profile**:
-  - Inspect the roof. It should be a solid triangular prism.
+  - Inspect the roof. It should be a solid triangular prism (fills from `minY` to peak `Y`).
   - Ensure the roof slopes correctly along the specified axis (e.g. Z or X).
-  - Verify that there are no empty air gaps inside the roof volume (unless HollowBox was used underneath).
+  - Verify that there are no empty air gaps inside the roof volume.
 - [ ] **Rotations and Facing Properties**:
-  - Check blocks that have properties (like stairs `facing=north`, doors `half=bottom`, etc.). Verify that they render with correct directions/properties in Minecraft.
+  - Check blocks that have properties (like `facing=north`, etc.). Verify that they render with correct directions/properties in Minecraft.

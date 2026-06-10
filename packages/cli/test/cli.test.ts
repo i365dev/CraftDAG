@@ -71,4 +71,10 @@ describe("CLI Integration", () => {
     expect(fs.existsSync(tempSchemPath)).toBe(true);
     expect(fs.statSync(tempSchemPath).size).toBeGreaterThan(0);
   });
+
+  it("should support custom --data-version option in export", () => {
+    const output = execSync(`node ${cliPath} export ${tempJsonPath} --format schem --out ${tempSchemPath} --data-version 3578`).toString();
+    expect(output).toContain("✓ Sponge schematic exported successfully to");
+    expect(fs.existsSync(tempSchemPath)).toBe(true);
+  });
 });
