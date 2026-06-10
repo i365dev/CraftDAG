@@ -1,0 +1,2656 @@
+{
+  "version": "0.1",
+  "name": "watchtower",
+  "size": [
+    7,
+    15,
+    7
+  ],
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "blocks": [
+    {
+      "pos": [
+        1,
+        0,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        1,
+        0,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        1,
+        0,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        1,
+        0,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        1,
+        0,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        2,
+        0,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        2,
+        0,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        2,
+        0,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        2,
+        0,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        2,
+        0,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        3,
+        0,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        3,
+        0,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        3,
+        0,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        3,
+        0,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        3,
+        0,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        4,
+        0,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        4,
+        0,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        4,
+        0,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        4,
+        0,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        4,
+        0,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        5,
+        0,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        5,
+        0,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        5,
+        0,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        5,
+        0,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        5,
+        0,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "foundation"
+    },
+    {
+      "pos": [
+        1,
+        1,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        1,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        1,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        1,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        1,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        2,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        2,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        2,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        2,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        2,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        3,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        3,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        3,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        3,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        3,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        4,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        4,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        4,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        4,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        4,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        5,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        5,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        5,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        5,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        5,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        6,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        6,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        6,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        6,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        6,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        7,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        7,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        7,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        7,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        7,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        8,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        8,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        8,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        8,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        8,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        9,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        9,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        9,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        9,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        9,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        1,
+        10,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        1,
+        10,
+        2
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        1,
+        10,
+        3
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        1,
+        10,
+        4
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        1,
+        10,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        2,
+        1,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        1,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        1,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        1,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        1,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        2,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        2,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        3,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        3,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        4,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        4,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        5,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        5,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        6,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        6,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        7,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        7,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        8,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        8,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        9,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        9,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        2,
+        10,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        2,
+        10,
+        2
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        2,
+        10,
+        3
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        2,
+        10,
+        4
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        2,
+        10,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        3,
+        1,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        1,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        1,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        1,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        1,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        2,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        2,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        3,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        3,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        4,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        4,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        5,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        5,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        6,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        6,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        7,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        7,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        8,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        8,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        9,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        9,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        3,
+        10,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        3,
+        10,
+        2
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        3,
+        10,
+        3
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        3,
+        10,
+        4
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        3,
+        10,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        4,
+        1,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        1,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        1,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        1,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        1,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        2,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        2,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        3,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        3,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        4,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        4,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        5,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        5,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        6,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        6,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        7,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        7,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        8,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        8,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        9,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        9,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        4,
+        10,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        4,
+        10,
+        2
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        4,
+        10,
+        3
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        4,
+        10,
+        4
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        4,
+        10,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        5,
+        1,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        1,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        1,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        1,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        1,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        2,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        2,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        2,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        2,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        2,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        3,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        3,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        3,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        3,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        3,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        4,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        4,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        4,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        4,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        4,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        5,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        5,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        5,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        5,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        5,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        6,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        6,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        6,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        6,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        6,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        7,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        7,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        7,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        7,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        7,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        8,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        8,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        8,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        8,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        8,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        9,
+        1
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        9,
+        2
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        9,
+        3
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        9,
+        4
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        9,
+        5
+      ],
+      "block": {
+        "name": "minecraft:cobblestone"
+      },
+      "sourceNodeId": "body"
+    },
+    {
+      "pos": [
+        5,
+        10,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        5,
+        10,
+        2
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        5,
+        10,
+        3
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        5,
+        10,
+        4
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        5,
+        10,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_planks"
+      },
+      "sourceNodeId": "top_floor"
+    },
+    {
+      "pos": [
+        1,
+        11,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_nw"
+    },
+    {
+      "pos": [
+        1,
+        12,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_nw"
+    },
+    {
+      "pos": [
+        1,
+        13,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_nw"
+    },
+    {
+      "pos": [
+        5,
+        11,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_ne"
+    },
+    {
+      "pos": [
+        5,
+        12,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_ne"
+    },
+    {
+      "pos": [
+        5,
+        13,
+        1
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_ne"
+    },
+    {
+      "pos": [
+        1,
+        11,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_sw"
+    },
+    {
+      "pos": [
+        1,
+        12,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_sw"
+    },
+    {
+      "pos": [
+        1,
+        13,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_sw"
+    },
+    {
+      "pos": [
+        5,
+        11,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_se"
+    },
+    {
+      "pos": [
+        5,
+        12,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_se"
+    },
+    {
+      "pos": [
+        5,
+        13,
+        5
+      ],
+      "block": {
+        "name": "minecraft:oak_log"
+      },
+      "sourceNodeId": "pillar_se"
+    },
+    {
+      "pos": [
+        1,
+        14,
+        1
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        1,
+        14,
+        2
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        1,
+        14,
+        3
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        1,
+        14,
+        4
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        1,
+        14,
+        5
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        2,
+        14,
+        1
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        2,
+        14,
+        2
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        2,
+        14,
+        3
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        2,
+        14,
+        4
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        2,
+        14,
+        5
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        3,
+        14,
+        1
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        3,
+        14,
+        2
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        3,
+        14,
+        3
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        3,
+        14,
+        4
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        3,
+        14,
+        5
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        4,
+        14,
+        1
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        4,
+        14,
+        2
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        4,
+        14,
+        3
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        4,
+        14,
+        4
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        4,
+        14,
+        5
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        5,
+        14,
+        1
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        5,
+        14,
+        2
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        5,
+        14,
+        3
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        5,
+        14,
+        4
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    },
+    {
+      "pos": [
+        5,
+        14,
+        5
+      ],
+      "block": {
+        "name": "minecraft:dark_oak_planks"
+      },
+      "sourceNodeId": "roof"
+    }
+  ]
+}

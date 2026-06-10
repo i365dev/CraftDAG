@@ -52,3 +52,12 @@ Once the structure is pasted, run through this inspection checklist to verify co
   - Verify that there are no empty air gaps inside the roof volume.
 - [ ] **Rotations and Facing Properties**:
   - Check blocks that have properties (like `facing=north`, etc.). Verify that they render with correct directions/properties in Minecraft.
+
+## Manual Verification Log / Results
+
+Use the following log to record the outcomes of importing and pasting exported schematics in a live Minecraft game:
+
+| Date | Minecraft Version | WorldEdit / FAWE Version | Schematic File | Load Status | Paste Status | Dimensions Correct | Openings Correct | Roof Profile Correct | Notes / Comments |
+|------|-------------------|--------------------------|----------------|-------------|--------------|--------------------|------------------|----------------------|------------------|
+| 2026-06-10 | Java 1.20.1 | WorldEdit 7.3.0 / FAWE | `starter-house.schem` | [ ] Pending | [ ] Pending | [ ] Pending | [ ] Pending | [ ] Pending | To be verified in-game |
+
