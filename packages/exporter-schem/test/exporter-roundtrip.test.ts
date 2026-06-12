@@ -1,7 +1,7 @@
 import zlib from "zlib";
 import nbt from "prismarine-nbt";
 import { describe, it, expect } from "vitest";
-import { compileDocument, VoxelPlan, stringifyBlockState } from "@craftdag/core";
+import { compileDocument, VoxelPlan, stringifyBlockState } from "@i365dev/craftdag-core";
 import { exportToSchematic } from "../src/index.js";
 import fs from "fs";
 import path from "path";

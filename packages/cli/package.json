@@ -1,5 +1,5 @@
 {
-  "name": "@craftdag/cli",
+  "name": "@i365dev/craftdag-cli",
   "version": "0.1.0",
   "main": "./dist/index.js",
   "bin": {
@@ -11,8 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@craftdag/core": "workspace:*",
-    "@craftdag/exporter-schem": "workspace:*",
+    "@i365dev/craftdag-core": "workspace:*",
+    "@i365dev/craftdag-exporter-schem": "workspace:*",
     "commander": "^12.1.0"
   }
 }

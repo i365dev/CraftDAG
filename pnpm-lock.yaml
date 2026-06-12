@@ -32,10 +32,10 @@ importers:
 
   packages/cli:
     dependencies:
-      '@craftdag/core':
+      '@i365dev/craftdag-core':
         specifier: workspace:*
         version: link:../core
-      '@craftdag/exporter-schem':
+      '@i365dev/craftdag-exporter-schem':
         specifier: workspace:*
         version: link:../exporter-schem
       commander:
@@ -50,7 +50,7 @@ importers:
 
   packages/exporter-schem:
     dependencies:
-      '@craftdag/core':
+      '@i365dev/craftdag-core':
         specifier: workspace:*
         version: link:../core
       prismarine-nbt:

@@ -1,7 +1,7 @@
 import zlib from "zlib";
 import nbt from "prismarine-nbt";
 import { describe, it, expect } from "vitest";
-import { VoxelPlan } from "@craftdag/core";
+import { VoxelPlan } from "@i365dev/craftdag-core";
 import { exportToSchematic } from "../src/index.js";
 
 describe("Schematic Exporter", () => {
