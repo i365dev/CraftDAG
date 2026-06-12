@@ -1,6 +1,6 @@
 import zlib from "zlib";
 import nbt from "prismarine-nbt";
-import { VoxelPlan, stringifyBlockState } from "@craftdag/core";
+import { VoxelPlan, stringifyBlockState } from "@i365dev/craftdag-core";
 
 /**
  * Encodes a number as a VarInt byte array.

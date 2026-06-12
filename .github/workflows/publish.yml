@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@craftdag'
+          scope: '@i365dev'
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -41,12 +41,12 @@ jobs:
       - name: Run Tests
         run: pnpm test
 
-      - name: Publish @craftdag/core
-        run: pnpm publish --filter @craftdag/core --no-git-checks
+      - name: Publish @i365dev/craftdag-core
+        run: pnpm --filter @i365dev/craftdag-core publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish @craftdag/exporter-schem
-        run: pnpm publish --filter @craftdag/exporter-schem --no-git-checks
+      - name: Publish @i365dev/craftdag-exporter-schem
+        run: pnpm --filter @i365dev/craftdag-exporter-schem publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

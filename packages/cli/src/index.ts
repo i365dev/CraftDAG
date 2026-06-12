@@ -8,8 +8,8 @@ import {
   generateMaterialList,
   generateLayerGuide,
   stringifyBlockState,
-} from "@craftdag/core";
-import { exportToSchematic } from "@craftdag/exporter-schem";
+} from "@i365dev/craftdag-core";
+import { exportToSchematic } from "@i365dev/craftdag-exporter-schem";
 
 const program = new Command();
 

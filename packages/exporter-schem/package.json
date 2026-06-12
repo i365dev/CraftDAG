@@ -1,14 +1,22 @@
 {
-  "name": "@craftdag/exporter-schem",
+  "name": "@i365dev/craftdag-exporter-schem",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i365dev/CraftDAG.git",
+    "directory": "packages/exporter-schem"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
   "publishConfig": {
@@ -21,7 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@craftdag/core": "0.1.0",
+    "@i365dev/craftdag-core": "workspace:*",
     "prismarine-nbt": "^2.6.0"
   },
   "devDependencies": {
