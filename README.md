@@ -29,6 +29,7 @@ Start here:
 - [Project Brief](docs/PROJECT_BRIEF.md)
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
 - [ComponentPlan v0.1 Spec](docs/COMPONENT_PLAN_SPEC.md)
+- [LLM Authoring Contract](docs/LLM_AUTHORING_CONTRACT.md)
 
 ## Relationship with MinePilot
 
