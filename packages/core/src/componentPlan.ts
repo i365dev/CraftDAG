@@ -413,6 +413,7 @@ function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<stri
 
     const isWithinWall =
       component.placement.offset + width <= lengthAlongWall &&
+      component.placement.y >= target.placement.anchor.y &&
       component.placement.y + height <= target.placement.anchor.y + target.placement.size.height;
 
     if (!isWithinWall) {

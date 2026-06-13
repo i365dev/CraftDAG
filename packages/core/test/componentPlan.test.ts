@@ -218,6 +218,40 @@ describe("ComponentPlan", () => {
     expect(() => validateComponentPlan(invalid)).toThrow("unknown material");
   });
 
+  it("rejects wall attachments below the target wall anchor", () => {
+    const invalid: ComponentPlanDocument = {
+      ...starterCabin,
+      components: starterCabin.components.map((component) => {
+        if (component.id !== "front_door" || component.type !== "Door") {
+          return component;
+        }
+
+        return {
+          ...component,
+          placement: {
+            ...component.placement,
+            y: 0,
+          },
+        };
+      }),
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "ATTACHMENT_OUT_OF_BOUNDS",
+          componentId: "front_door",
+        }),
+      ]);
+    }
+  });
+
   it("expands scaled SupportPost components as solid post volumes", () => {
     const plan: ComponentPlanDocument = {
       version: "0.1",
