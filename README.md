@@ -10,6 +10,7 @@ CraftDAG is the open core engine behind MinePilot.
 
 ```text
 Natural language idea
+→ ComponentPlan
 → CraftDAG building plan
 → schema validation
 → graph validation
@@ -19,12 +20,15 @@ Natural language idea
 
 CraftDAG is not a general Minecraft agent. It is a deterministic build-plan engine.
 
+ComponentPlan is the recommended authoring layer for LLMs and agents. CraftDAG is the lower-level compiler IR that ComponentPlan expands into.
+
 ## Key docs
 
 Start here:
 
 - [Project Brief](docs/PROJECT_BRIEF.md)
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
+- [ComponentPlan v0.1 Spec](docs/COMPONENT_PLAN_SPEC.md)
 
 ## Relationship with MinePilot
 

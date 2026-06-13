@@ -22,6 +22,33 @@ CraftDAG JSON
 
 Do not implement Mineflayer, Litematica, Bedrock, redstone, or survival automation in the first pass.
 
+## Next implementation goal
+
+After the raw CraftDAG compiler and schematic exporter are working, the next engine milestone is ComponentPlan:
+
+```text
+ComponentPlan JSON
+→ validate component schema
+→ validate semantic component DAG
+→ expand to CraftDAG JSON
+→ validate CraftDAG
+→ compile primitives
+→ Voxel Plan
+```
+
+ComponentPlan is the preferred authoring layer for agents and LLMs. CraftDAG remains the deterministic compiler IR.
+
+The first ComponentPlan implementation should stay deliberately small:
+
+- `Foundation`
+- `RoomShell`
+- `Door`
+- `Window`
+- `GableRoof`
+- optional `SupportPost`
+
+Do not start with a broad component marketplace. The priority is a reliable authoring contract, deterministic expansion, structured validation errors, and clear preview/debug stages.
+
 ## Recommended repository structure
 
 ```text
@@ -36,6 +63,15 @@ packages/
         VoxelGrid.ts
         types.ts
       compiler/
+        components/
+          expandComponentPlan.ts
+          components/
+            foundation.ts
+            roomShell.ts
+            door.ts
+            window.ts
+            gableRoof.ts
+            supportPost.ts
         compileDocument.ts
         primitives/
           solidBox.ts
@@ -153,6 +189,33 @@ Initial primitive nodes:
 
 Use discriminated unions.
 
+## Step 2.5: ComponentPlan types
+
+Add a higher-level document type for agent-authored plans. See `docs/COMPONENT_PLAN_SPEC.md` for the full contract.
+
+Recommended shape:
+
+```ts
+type ComponentPlanDocument = {
+  version: "0.1"
+  name: string
+  grid?: {
+    unitBlocks?: 1 | 2
+  }
+  bounds: {
+    width: number
+    height: number
+    length: number
+  }
+  palette: Record<string, string>
+  components: ComponentNode[]
+}
+```
+
+All component placements use logical units. The expander converts logical units to block coordinates. `grid.unitBlocks` defaults to `1`.
+
+Scaling should happen during ComponentPlan expansion, not by post-scaling the final Voxel Plan. Component-aware scaling lets the engine keep doors, windows, roofs, and openings coherent.
+
 ## Step 3: schema validation
 
 Use Zod or an equivalent library.
@@ -167,6 +230,16 @@ Validation should reject:
 - invalid document version
 
 Schema validation does not need to detect cycles. That belongs to graph validation.
+
+For ComponentPlan, validation should return structured repairable errors:
+
+- validation stage
+- stable error code
+- component ID when applicable
+- JSON path
+- human-readable message
+- repair hint
+- available alternatives when useful
 
 ## Step 4: graph validation
 
@@ -183,6 +256,8 @@ Array order is not execution order. Dependencies decide order.
 If a node references another node in `inputs`, the referenced node must compile first.
 
 Return clear domain errors. Do not just throw generic strings.
+
+ComponentPlan has semantic graph validation before expansion. `components[].inputs` means "attaches to", "cuts into", "covers", or "depends on" at the architectural level. The expander owns the mapping from those semantic dependencies to low-level CraftDAG node inputs and overwrite order.
 
 ## Step 5: Voxel Plan
 
