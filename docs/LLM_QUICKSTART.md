@@ -1,19 +1,31 @@
 # CraftDAG LLM Quickstart Guide
 
-This guide is designed for LLMs (such as Gemini, GPT, Kimi) to generate valid CraftDAG `v0.1` building plans for Minecraft-oriented construction.
+This guide is designed for LLMs (such as Gemini, GPT, Kimi) to generate valid low-level CraftDAG `v0.1` building plans for Minecraft-oriented construction.
+
+For product generation and agent workflows, prefer `docs/COMPONENT_PLAN_SPEC.md`.
+
+Use this raw CraftDAG guide for:
+
+- fixtures
+- compiler tests
+- advanced debugging
+- fallback generation while ComponentPlan support is being implemented
+
+Do not treat raw CraftDAG as the long-term primary authoring language for agents.
 
 ---
 
 ## Mental Model
 
-1. **Declarative and Bounded**: CraftDAG is a deterministic desired-state plan, not a series of active actions or execution scripts. Every plan specifies a strict bounding box `size: [width, height, length]` relative to the local origin `[0,0,0]`.
-2. **Local Non-Negative Coordinates**: **CRITICAL**: Coordinate indices in `from` and `to` are `[X, Y, Z]` vectors. Every coordinate index must be a non-negative integer satisfying:
+1. **Compiler IR, Not Product Authoring Layer**: CraftDAG is the deterministic low-level compiler IR. Agents should usually author ComponentPlan first, then let the engine expand it to CraftDAG.
+2. **Declarative and Bounded**: CraftDAG is a deterministic desired-state plan, not a series of active actions or execution scripts. Every plan specifies a strict bounding box `size: [width, height, length]` relative to the local origin `[0,0,0]`.
+3. **Local Non-Negative Coordinates**: **CRITICAL**: Coordinate indices in `from` and `to` are `[X, Y, Z]` vectors. Every coordinate index must be a non-negative integer satisfying:
    - `0 <= X < size[0]`
    - `0 <= Y < size[1]`
    - `0 <= Z < size[2]`
    Negative coordinates or absolute world coordinate offsets are **strictly forbidden** in v0.1.
-3. **Dependency Graph (DAG)**: Nodes in CraftDAG represent semantic construction primitives. The array order does *not* determine compile order. Instead, the `inputs` field defines the graph dependencies. If Node B has an input referencing Node A, Node A will always compile before Node B.
-4. **Deterministic Overwrites**: A node compiled later in topological order can overwrite/clear blocks from earlier nodes. Use `Doorway` and `Window` to carve openings into compiled `Wall` or `HollowBox` nodes.
+4. **Dependency Graph (DAG)**: Nodes in CraftDAG represent semantic construction primitives. The array order does *not* determine compile order. Instead, the `inputs` field defines the graph dependencies. If Node B has an input referencing Node A, Node A will always compile before Node B.
+5. **Deterministic Overwrites**: A node compiled later in topological order can overwrite/clear blocks from earlier nodes. Use `Doorway` and `Window` to carve openings into compiled `Wall` or `HollowBox` nodes.
 
 ---
 
@@ -22,6 +34,7 @@ This guide is designed for LLMs (such as Gemini, GPT, Kimi) to generate valid Cr
 - **Return only valid CraftDAG JSON**.
 - Never wrap the JSON in markdown code blocks unless requested.
 - Do not output commentary, explanations, or code alongside the JSON.
+- If the caller supports ComponentPlan, return ComponentPlan instead of raw CraftDAG.
 
 ---
 

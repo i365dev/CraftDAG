@@ -12,6 +12,7 @@ CraftDAG takes a different approach:
 
 ```text
 Natural language idea
+→ ComponentPlan
 → CraftDAG building plan
 → schema validation
 → graph validation
@@ -19,15 +20,16 @@ Natural language idea
 → preview / material list / layer guide / file output / future executor
 ```
 
-The model should not directly write Mineflayer code, WorldEdit commands, or raw block placement commands. The model should produce a constrained, inspectable, repairable building plan. The deterministic engine does the rest.
+The model should not directly write Mineflayer code, WorldEdit commands, or raw block placement commands. For most agent workflows, the model should produce a constrained, inspectable, repairable ComponentPlan. The deterministic engine expands that plan to CraftDAG and compiles it to Voxel Plan.
 
 ## Core philosophy
 
 1. LLMs are for intent translation, style selection, and plan generation.
-2. CraftDAG is for structure, validation, determinism, and repeatability.
-3. Voxel Plan is the compiled target state.
-4. Exporters and executors consume Voxel Plan, not raw model output.
-5. The first version should be small, boring, and reliable.
+2. ComponentPlan is the preferred agent-authored architectural DSL.
+3. CraftDAG is the low-level compiler IR for structure, validation, determinism, and repeatability.
+4. Voxel Plan is the compiled target state.
+5. Exporters and executors consume Voxel Plan, not raw model output.
+6. The first version should be small, boring, and reliable.
 
 This is closer to Terraform or Kubernetes desired-state thinking than to an autonomous game bot.
 
@@ -36,6 +38,7 @@ This is closer to Terraform or Kubernetes desired-state thinking than to an auto
 CraftDAG is:
 
 - a declarative DSL for small Minecraft building plans
+- an expansion target for higher-level ComponentPlan documents
 - a schema-validated document format
 - a dependency graph of semantic building primitives
 - a compiler from semantic primitives to voxel target state
@@ -93,8 +96,11 @@ Avoid first:
 ## Recommended architecture
 
 ```text
+ComponentPlan document
+  ↓ component schema validation
+  ↓ deterministic expansion
 CraftDAG document
-  ↓ schema validation
+  ↓ CraftDAG schema validation
 Validated document
   ↓ graph validation + topological sort
 Semantic DAG
@@ -160,7 +166,9 @@ Optional later package. Converts Voxel Plan into a simple renderable data shape 
 
 ## CraftDAG document model
 
-The document is intentionally high level. It should describe semantic building components, not every final block.
+CraftDAG is the low-level compiler IR. It should describe semantic primitives, not every final block, but it is still more coordinate-oriented than the agent-facing ComponentPlan layer.
+
+For LLM authoring guidance, start with `docs/COMPONENT_PLAN_SPEC.md`. Use raw CraftDAG generation only for low-level tests, fixtures, and advanced debugging.
 
 Initial shape:
 

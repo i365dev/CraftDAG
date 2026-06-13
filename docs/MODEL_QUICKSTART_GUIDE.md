@@ -1,13 +1,16 @@
 # CraftDAG Model Quickstart Guide
 
-This guide describes how to generate valid CraftDAG `v0.1` building plans for Minecraft-oriented construction.
+This guide describes how to generate valid low-level CraftDAG `v0.1` building plans for Minecraft-oriented construction.
+
+For agent-authored product generation, prefer `docs/COMPONENT_PLAN_SPEC.md`. ComponentPlan is the higher-level architectural DSL intended for LLMs. CraftDAG is the deterministic compiler IR.
 
 ## Core Concepts
 
-1. **Declarative and Bounded**: CraftDAG is a deterministic desired-state plan, not a series of active actions or scripts. Every document specifies a strict bounding box `size: [width, height, length]` relative to the local origin `[0,0,0]`. All blocks must stay within `0 <= coordinate < size[dimension]`.
-2. **Dependency Graph (DAG)**: Nodes in CraftDAG represent semantic construction primitives. The array order does *not* determine compile order. Instead, the `inputs` field defines the graph dependencies. If Node B has an input referencing Node A, Node A will always compile before Node B.
-3. **No Code Generation**: **CRITICAL RULE**: Never generate JavaScript, WorldEdit commands, or Mineflayer bot scripts. Only generate valid CraftDAG JSON.
-4. **Deterministic Overwrites**: A node compiled later in topological order can overwrite/clear blocks from earlier nodes. Use `Doorway` and `Window` to carve openings into compiled `Wall` or `HollowBox` nodes.
+1. **Compiler IR**: CraftDAG is deterministic and inspectable, but it is lower-level than ComponentPlan. Use raw CraftDAG for fixtures, tests, debugging, and fallback generation.
+2. **Declarative and Bounded**: CraftDAG is a deterministic desired-state plan, not a series of active actions or scripts. Every document specifies a strict bounding box `size: [width, height, length]` relative to the local origin `[0,0,0]`. All blocks must stay within `0 <= coordinate < size[dimension]`.
+3. **Dependency Graph (DAG)**: Nodes in CraftDAG represent semantic construction primitives. The array order does *not* determine compile order. Instead, the `inputs` field defines the graph dependencies. If Node B has an input referencing Node A, Node A will always compile before Node B.
+4. **No Code Generation**: **CRITICAL RULE**: Never generate JavaScript, WorldEdit commands, or Mineflayer bot scripts. Only generate valid CraftDAG JSON.
+5. **Deterministic Overwrites**: A node compiled later in topological order can overwrite/clear blocks from earlier nodes. Use `Doorway` and `Window` to carve openings into compiled `Wall` or `HollowBox` nodes.
 
 ## Node Inputs Rule
 
