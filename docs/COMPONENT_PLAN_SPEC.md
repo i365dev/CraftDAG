@@ -168,6 +168,7 @@ Start with a small component vocabulary:
 - `GableRoof`
 - `FlatRoof`
 - `SupportPost`
+- `Repeat`
 
 Avoid broad component catalogs until the repair loop and preview workflow are stable.
 
@@ -180,6 +181,8 @@ Use `Beam` for semantic spans, lintels, horizontal trim, rafters, or other recta
 Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnings, tower caps, simple flat roofs, and other one-logical-unit-thick covers.
 
 Use `Door` only for literal door-sized entrances. Use `Window` for glazed wall openings. Use `Opening` for semantic pass-throughs, gates, large cutouts, and other unfilled rectangular wall openings. Use `Portal` for filled vertical portal planes inside a wall or frame.
+
+Use `Repeat` for bounded repetition of an existing anchored source component, such as a column run, facade rhythm, bridge support sequence, or repeated shell bay. `Repeat` is not a free-form loop and is not a standalone physical component.
 
 ## Placement Model
 
@@ -227,6 +230,25 @@ type CoverPlacement = {
 `GableRoof` uses `direction` to choose the roof ridge direction. `FlatRoof` ignores `direction`; include only `over` and optional `overhang`.
 
 For both roof components, `overhang` is clipped symmetrically to stay within global bounds.
+
+Repeating components use bounded linear repetition.
+
+```ts
+type RepeatPlacement = {
+  source: string
+  axis: "x" | "y" | "z"
+  count: number
+  step: number
+}
+```
+
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, and `SupportPost`.
+
+Repeated clone IDs are stable:
+
+```text
+<repeatId>__<sourceId>_<index>__<partName>
+```
 
 Agents should not calculate raw `from` and `to` coordinates for attached components when a semantic placement is available.
 
@@ -332,6 +354,8 @@ ComponentPlan validation should reject:
 - dependency cycles
 - placements outside logical bounds
 - bounds, component counts, or estimated expanded blocks over the active `policy.sizeTier` budget
+- repeat sources that are missing, non-anchored, or unsupported
+- repeated clones outside logical bounds
 - unsupported `grid.unitBlocks`
 - unknown material role references
 - attached components that reference non-attachable targets

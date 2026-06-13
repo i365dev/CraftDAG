@@ -54,6 +54,13 @@ const CoverPlacementSchema = z.object({
   direction: z.enum(["x", "z"]).optional(),
 }).strict();
 
+const RepeatPlacementSchema = z.object({
+  source: z.string().min(1),
+  axis: z.enum(["x", "y", "z"]),
+  count: z.number().int().min(2),
+  step: PositiveIntSchema,
+}).strict();
+
 const FoundationComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Foundation"),
@@ -146,6 +153,13 @@ const SupportPostComponentSchema = z.object({
   materials: MaterialsSchema,
 }).strict();
 
+const RepeatComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Repeat"),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: RepeatPlacementSchema,
+}).strict();
+
 const ComponentNodeSchema = z.discriminatedUnion("type", [
   FoundationComponentSchema,
   PlatformComponentSchema,
@@ -158,6 +172,7 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   GableRoofComponentSchema,
   FlatRoofComponentSchema,
   SupportPostComponentSchema,
+  RepeatComponentSchema,
 ]);
 
 const ComponentPlanSchema = z.object({
@@ -175,6 +190,9 @@ const ComponentPlanSchema = z.object({
 }).strict();
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
+type RepeatableComponent = Extract<ComponentNode, {
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "SupportPost";
+}>;
 
 interface ComponentBudget {
   maxBounds: ComponentSize;
@@ -243,8 +261,17 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
 
   for (const component of parsed.components) {
     for (const input of component.inputs ?? []) {
-      if (!componentMap.has(input.ref)) {
+      const inputTarget = componentMap.get(input.ref);
+      if (!inputTarget) {
         throw unknownRefError(component, `inputs ref "${input.ref}"`, input.ref, componentMap);
+      }
+      if (inputTarget.type === "Repeat") {
+        throw componentValidationError({
+          code: "INVALID_REPEAT_REFERENCE",
+          componentId: component.id,
+          message: `Component "${component.id}" cannot reference Repeat component "${input.ref}".`,
+          repairHint: "Reference the repeated source component or a concrete component instead.",
+        });
       }
     }
 
@@ -258,6 +285,10 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
       throw unknownRefError(component, `over "${component.placement.over}"`, component.placement.over, componentMap);
     }
 
+    if (component.type === "Repeat" && !componentMap.has(component.placement.source)) {
+      throw unknownRefError(component, `source "${component.placement.source}"`, component.placement.source, componentMap);
+    }
+
     if (isAnchoredComponent(component)) {
       validateAnchoredBounds(parsed.bounds, component);
     }
@@ -269,6 +300,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   validateAttachments(parsed, componentMap);
   validateCovers(parsed, componentMap);
   validateBudgetPolicy(parsed, componentMap);
+  validateRepeats(parsed, componentMap);
 
   return parsed;
 }
@@ -408,6 +440,9 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
           },
         });
         break;
+      case "Repeat":
+        craftDagNodes.push(...expandRepeat(component, componentMap, unit));
+        break;
       default: {
         const _exhaustiveCheck: never = component;
         throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -480,6 +515,9 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
     }
     if (isCoverComponent(component)) {
       refs.add(component.placement.over);
+    }
+    if (component.type === "Repeat") {
+      refs.add(component.placement.source);
     }
 
     for (const ref of refs) {
@@ -690,6 +728,14 @@ function estimateComponentBlocks(
       const scaledHeight = geometry.scaledMaxY - geometry.baseY * unit;
       return width * unit * length * unit * scaledHeight;
     }
+    case "Repeat": {
+      const source = componentMap.get(component.placement.source);
+      if (!source) {
+        return 0;
+      }
+      const singleVolume = estimateComponentBlocks(source, componentMap, bounds, unit);
+      return singleVolume * (component.placement.count - 1);
+    }
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -701,6 +747,43 @@ function componentVolume(size: ComponentSize): number {
   return size.width * size.height * size.length;
 }
 
+function validateRepeats(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
+  for (const component of plan.components) {
+    if (component.type !== "Repeat") {
+      continue;
+    }
+
+    const source = componentMap.get(component.placement.source);
+    if (!source || !isRepeatableComponent(source)) {
+      throw componentValidationError({
+        code: "INVALID_REPEAT_SOURCE",
+        componentId: component.id,
+        message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, or SupportPost component.",
+      });
+    }
+
+    for (let index = 1; index < component.placement.count; index += 1) {
+      const shifted = shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index);
+      const clone = { ...source, id: `${component.id}__${source.id}_${index}`, placement: shifted };
+
+      const { anchor, size } = clone.placement;
+      const isWithinBounds =
+        anchor.x + size.width <= plan.bounds.width &&
+        anchor.y + size.height <= plan.bounds.height &&
+        anchor.z + size.length <= plan.bounds.length;
+
+      if (!isWithinBounds) {
+        throw componentValidationError({
+          code: "COMPONENT_OUT_OF_BOUNDS",
+          componentId: component.id,
+          message: `Repeat "${component.id}" clone ${index} (${clone.id}) placement exceeds ComponentPlan bounds.`,
+          repairHint: `Reduce Repeat count, reduce step size, or increase plan bounds to fit all ${component.placement.count} repetitions.`,
+        });
+      }
+    }
+  }
+}
 function validateComponentMaterials(plan: ComponentPlanDocument, component: ComponentNode): void {
   for (const value of Object.values(component.materials ?? {})) {
     if (!isKnownBlockRef(plan, value)) {
@@ -748,6 +831,8 @@ function requiredFallbackMaterial(component: ComponentNode): { role: string; val
       return { role: "roof", value: "roof" };
     case "SupportPost":
       return { role: "main", value: "trim" };
+    case "Repeat":
+      return undefined;
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -768,6 +853,10 @@ function expandInputs(component: ComponentNode, componentMap: Map<string, Compon
 
   if (isCoverComponent(component)) {
     refs.add(component.placement.over);
+  }
+
+  if (component.type === "Repeat") {
+    refs.add(component.placement.source);
   }
 
   return [...refs].map((ref) => ({
@@ -801,6 +890,8 @@ function outputPart(component: ComponentNode): string {
       return "flat_roof";
     case "SupportPost":
       return "post";
+    case "Repeat":
+      return "repeat";
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -808,8 +899,123 @@ function outputPart(component: ComponentNode): string {
   }
 }
 
+function expandRepeat(
+  component: Extract<ComponentNode, { type: "Repeat" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2
+): CraftDagNode[] {
+  const source = componentMap.get(component.placement.source);
+  if (!source || !isRepeatableComponent(source)) {
+    throw componentValidationError({
+      code: "INVALID_REPEAT_SOURCE",
+      componentId: component.id,
+      message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, or SupportPost component.",
+    });
+  }
+
+  const nodes: CraftDagNode[] = [];
+  for (let index = 1; index < component.placement.count; index += 1) {
+    const repeatedId = `${component.id}__${source.id}_${index}`;
+    const shifted = {
+      ...source,
+      id: repeatedId,
+      placement: shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index),
+    } as RepeatableComponent;
+
+    nodes.push(expandRepeatableComponent(shifted, source, componentMap, unit));
+  }
+
+  return nodes;
+}
+
+function expandRepeatableComponent(
+  repeated: RepeatableComponent,
+  source: RepeatableComponent,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2
+): CraftDagNode {
+  const inputs = [
+    ...expandInputs(source, componentMap),
+    { ref: nodeId(source.id, outputPart(source)) },
+  ];
+
+  switch (repeated.type) {
+    case "Foundation":
+      return {
+        id: nodeId(repeated.id, "solid"),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "main", "foundation"),
+        },
+      };
+    case "Platform":
+      return {
+        id: nodeId(repeated.id, "platform"),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "main", "floor"),
+        },
+      };
+    case "Beam":
+      return {
+        id: nodeId(repeated.id, "beam"),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "main", "trim"),
+        },
+      };
+    case "RoomShell":
+      return {
+        id: nodeId(repeated.id, "shell"),
+        type: "HollowBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "wall", "wall"),
+          includeFloor: source.options?.includeFloor,
+          includeCeiling: source.options?.includeCeiling,
+        },
+      };
+    case "SupportPost":
+      return {
+        id: nodeId(repeated.id, "post"),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "main", "trim"),
+        },
+      };
+    default: {
+      const _exhaustiveCheck: never = repeated;
+      throw new ValidationError(`Unhandled repeatable component type: ${(_exhaustiveCheck as any).type}`);
+    }
+  }
+}
+
 function material(component: ComponentNode, role: string, fallback: string): string {
   return component.materials?.[role] ?? fallback;
+}
+
+function shiftAnchoredPlacement(
+  placement: RepeatableComponent["placement"],
+  axis: "x" | "y" | "z",
+  distance: number
+): RepeatableComponent["placement"] {
+  return {
+    ...placement,
+    anchor: {
+      ...placement.anchor,
+      [axis]: placement.anchor[axis] + distance,
+    },
+  };
 }
 
 function scaledBox(
@@ -1015,4 +1221,14 @@ function defaultAttachmentHeight(componentType: "Door" | "Window" | "Opening" | 
       throw new ValidationError(`Unhandled attachment component type: ${_exhaustiveCheck}`);
     }
   }
+}
+
+function isRepeatableComponent(component: ComponentNode): component is RepeatableComponent {
+  return (
+    component.type === "Foundation" ||
+    component.type === "Platform" ||
+    component.type === "Beam" ||
+    component.type === "RoomShell" ||
+    component.type === "SupportPost"
+  );
 }

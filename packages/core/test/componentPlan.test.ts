@@ -672,6 +672,83 @@ describe("ComponentPlan", () => {
     expect(() => compileComponentPlan(plan)).not.toThrow();
   });
 
+  it("expands Repeat components into bounded repeated source clones", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Column Rhythm",
+      grid: { unitBlocks: 2 },
+      bounds: { width: 9, height: 4, length: 3 },
+      palette: {
+        trim: "minecraft:oak_log",
+      },
+      components: [
+        {
+          id: "column",
+          type: "SupportPost",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 1, height: 4, length: 1 },
+          },
+        },
+        {
+          id: "column_run",
+          type: "Repeat",
+          placement: {
+            source: "column",
+            axis: "x",
+            count: 4,
+            step: 2,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes).toEqual([
+      expect.objectContaining({
+        id: "column__post",
+        type: "SolidBox",
+        params: {
+          from: [2, 0, 2],
+          to: [3, 7, 3],
+          block: "trim",
+        },
+      }),
+      expect.objectContaining({
+        id: "column_run__column_1__post",
+        type: "SolidBox",
+        inputs: [{ ref: "column__post" }],
+        params: {
+          from: [6, 0, 2],
+          to: [7, 7, 3],
+          block: "trim",
+        },
+      }),
+      expect.objectContaining({
+        id: "column_run__column_2__post",
+        type: "SolidBox",
+        inputs: [{ ref: "column__post" }],
+        params: {
+          from: [10, 0, 2],
+          to: [11, 7, 3],
+          block: "trim",
+        },
+      }),
+      expect.objectContaining({
+        id: "column_run__column_3__post",
+        type: "SolidBox",
+        inputs: [{ ref: "column__post" }],
+        params: {
+          from: [14, 0, 2],
+          to: [15, 7, 3],
+          block: "trim",
+        },
+      }),
+    ]);
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
   it("rejects FlatRoof covers that start outside height bounds", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",
@@ -851,6 +928,52 @@ describe("ComponentPlan", () => {
         expect.objectContaining({
           stage: "component-validation",
           code: "PLAN_ESTIMATED_BLOCKS_OVER_BUDGET",
+        }),
+      ]);
+    }
+  });
+
+  it("rejects Repeat clones that exceed ComponentPlan bounds", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Run Out Of Bounds",
+      bounds: { width: 5, height: 4, length: 3 },
+      palette: {
+        trim: "minecraft:oak_log",
+      },
+      components: [
+        {
+          id: "column",
+          type: "SupportPost",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 1, height: 4, length: 1 },
+          },
+        },
+        {
+          id: "column_run",
+          type: "Repeat",
+          placement: {
+            source: "column",
+            axis: "x",
+            count: 4,
+            step: 2,
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "COMPONENT_OUT_OF_BOUNDS",
+          componentId: "column_run",
         }),
       ]);
     }

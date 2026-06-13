@@ -137,6 +137,13 @@ export interface CoverPlacement {
   direction?: "x" | "z";
 }
 
+export interface RepeatPlacement {
+  source: string;
+  axis: "x" | "y" | "z";
+  count: number;
+  step: number;
+}
+
 export interface ComponentInput {
   ref: string;
 }
@@ -167,6 +174,7 @@ export type PortalComponent = BaseComponentNode<"Portal", WallAttachmentPlacemen
 export type GableRoofComponent = BaseComponentNode<"GableRoof", CoverPlacement>;
 export type FlatRoofComponent = BaseComponentNode<"FlatRoof", CoverPlacement>;
 export type SupportPostComponent = BaseComponentNode<"SupportPost", AnchoredComponentPlacement>;
+export type RepeatComponent = BaseComponentNode<"Repeat", RepeatPlacement>;
 
 export type ComponentNode =
   | FoundationComponent
@@ -179,7 +187,8 @@ export type ComponentNode =
   | PortalComponent
   | GableRoofComponent
   | FlatRoofComponent
-  | SupportPostComponent;
+  | SupportPostComponent
+  | RepeatComponent;
 
 export interface ComponentPlanDocument {
   version: "0.1";

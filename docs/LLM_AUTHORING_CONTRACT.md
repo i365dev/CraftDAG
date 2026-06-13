@@ -79,12 +79,15 @@ Allowed ComponentPlan v0.1 components:
 - `GableRoof`
 - `FlatRoof`
 - `SupportPost`
+- `Repeat`
 
 Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, counters, bridge decks, canopy plates, and other horizontal surfaces that are not foundations. Use `Beam` for lintels, horizontal spans, trim, rafters, or beam-like masses.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 
 Use `Door` for literal doors, `Window` for glazed openings, `Opening` for unfilled pass-throughs or gate cutouts, and `Portal` for filled vertical portal planes.
+
+Use `Repeat` for bounded linear repetition of anchored components, such as columns, support posts, beams, room bays, or bridge supports. Prefer `Repeat` over manually listing many near-identical components.
 
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 
@@ -373,7 +376,6 @@ The following are expected future directions, not current allowed output:
 - hip roofs, stair/slab roof materialization, and explicit pitch controls
 - railings and fence lines
 - hierarchical assemblies
-- bounded repetition
 - vision/reference-image decomposition
 
 Until these exist in the schema, describe the closest supported simplified structure or reduce scope.
