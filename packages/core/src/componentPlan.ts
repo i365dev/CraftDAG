@@ -113,6 +113,14 @@ const GableRoofComponentSchema = z.object({
   materials: MaterialsSchema,
 }).strict();
 
+const FlatRoofComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("FlatRoof"),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: CoverPlacementSchema,
+  materials: MaterialsSchema,
+}).strict();
+
 const SupportPostComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("SupportPost"),
@@ -129,6 +137,7 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   DoorComponentSchema,
   WindowComponentSchema,
   GableRoofComponentSchema,
+  FlatRoofComponentSchema,
   SupportPostComponentSchema,
 ]);
 
@@ -199,7 +208,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
       }
     }
 
-    if (component.type === "GableRoof" && !componentMap.has(component.placement.over)) {
+    if (isCoverComponent(component) && !componentMap.has(component.placement.over)) {
       throw unknownRefError(component, `over "${component.placement.over}"`, component.placement.over, componentMap);
     }
 
@@ -308,6 +317,17 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
           },
         });
         break;
+      case "FlatRoof":
+        craftDagNodes.push({
+          id: nodeId(component.id, "flat_roof"),
+          type: "SolidBox",
+          inputs: expandInputs(component, componentMap),
+          params: {
+            ...scaledFlatRoofBox(component, componentMap, plan.bounds, unit),
+            block: material(component, "roof", "roof"),
+          },
+        });
+        break;
       case "SupportPost":
         craftDagNodes.push({
           id: nodeId(component.id, "post"),
@@ -389,7 +409,7 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
     if (component.type === "Door" || component.type === "Window") {
       refs.add(component.placement.target);
     }
-    if (component.type === "GableRoof") {
+    if (isCoverComponent(component)) {
       refs.add(component.placement.over);
     }
 
@@ -471,7 +491,7 @@ function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, C
   const unit = plan.grid?.unitBlocks ?? 1;
 
   for (const component of plan.components) {
-    if (component.type !== "GableRoof") {
+    if (!isCoverComponent(component)) {
       continue;
     }
 
@@ -480,27 +500,31 @@ function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, C
       throw componentValidationError({
         code: "INVALID_COVER_TARGET",
         componentId: component.id,
-        message: `GableRoof "${component.id}" must cover an anchored component.`,
+        message: `${component.type} "${component.id}" must cover an anchored component.`,
         repairHint: "Set placement.over to a RoomShell or another anchored component.",
       });
     }
 
-    const geometry = roofGeometry(component, target, plan.bounds, unit);
+    const geometry = component.type === "GableRoof"
+      ? roofGeometry(component, target, plan.bounds, unit)
+      : flatRoofGeometry(component, target, plan.bounds, unit);
+
     if (geometry.baseY >= plan.bounds.height) {
       throw componentValidationError({
         code: "COVER_OUT_OF_BOUNDS",
         componentId: component.id,
-        message: `GableRoof "${component.id}" starts outside ComponentPlan height bounds.`,
+        message: `${component.type} "${component.id}" starts outside ComponentPlan height bounds.`,
         repairHint: "Increase bounds.height or lower the covered component.",
       });
     }
 
     if (geometry.scaledMaxY > plan.bounds.height * unit) {
+      const requiredHeight = Math.ceil(geometry.scaledMaxY / unit);
       throw componentValidationError({
-        code: "ROOF_HEIGHT_OUT_OF_BOUNDS",
+        code: component.type === "GableRoof" ? "ROOF_HEIGHT_OUT_OF_BOUNDS" : "COVER_OUT_OF_BOUNDS",
         componentId: component.id,
-        message: `GableRoof "${component.id}" exceeds ComponentPlan height bounds.`,
-        repairHint: "Increase bounds.height, reduce the covered span, or remove roof overhang.",
+        message: `${component.type} "${component.id}" exceeds ComponentPlan height bounds.`,
+        repairHint: `Increase bounds.height to at least ${requiredHeight}, reduce the covered span, reduce overhang, or lower the covered component.`,
       });
     }
   }
@@ -545,6 +569,8 @@ function requiredFallbackMaterial(component: ComponentNode): { role: string; val
       return { role: "glass", value: "glass" };
     case "GableRoof":
       return { role: "roof", value: "roof" };
+    case "FlatRoof":
+      return { role: "roof", value: "roof" };
     case "SupportPost":
       return { role: "main", value: "trim" };
     default: {
@@ -565,7 +591,7 @@ function expandInputs(component: ComponentNode, componentMap: Map<string, Compon
     refs.add(component.placement.target);
   }
 
-  if (component.type === "GableRoof") {
+  if (isCoverComponent(component)) {
     refs.add(component.placement.over);
   }
 
@@ -593,6 +619,8 @@ function outputPart(component: ComponentNode): string {
       return "opening";
     case "GableRoof":
       return "gable";
+    case "FlatRoof":
+      return "flat_roof";
     case "SupportPost":
       return "post";
     default: {
@@ -690,11 +718,61 @@ function scaledRoofBox(
   };
 }
 
+function scaledFlatRoofBox(
+  component: Extract<ComponentNode, { type: "FlatRoof" }>,
+  componentMap: Map<string, ComponentNode>,
+  bounds: ComponentSize,
+  unit: 1 | 2
+): { from: Vec3; to: Vec3 } {
+  const target = componentMap.get(component.placement.over);
+  if (!target || !isAnchoredComponent(target)) {
+    throw componentValidationError({
+      code: "INVALID_COVER_TARGET",
+      componentId: component.id,
+      message: `FlatRoof "${component.id}" must cover an anchored component.`,
+      repairHint: "Set placement.over to a RoomShell or another anchored component.",
+    });
+  }
+
+  const geometry = flatRoofGeometry(component, target, bounds, unit);
+
+  return {
+    from: [geometry.minX * unit, geometry.baseY * unit, geometry.minZ * unit],
+    to: [geometry.maxX * unit - 1, geometry.scaledMaxY - 1, geometry.maxZ * unit - 1],
+  };
+}
+
 function roofGeometry(
   component: Extract<ComponentNode, { type: "GableRoof" }>,
   target: AnchoredComponent,
   bounds: ComponentSize,
   unit: 1 | 2
+) {
+  const cover = coverGeometry(component, target, bounds);
+  const slopeSpan = component.placement.direction === "z" ? cover.maxX - cover.minX : cover.maxZ - cover.minZ;
+  const scaledSlopeSpan = slopeSpan * unit;
+  const scaledRoofHeight = Math.max(1, Math.ceil(scaledSlopeSpan / 2));
+  const scaledMaxY = cover.baseY * unit + scaledRoofHeight;
+
+  return { ...cover, scaledMaxY };
+}
+
+function flatRoofGeometry(
+  component: Extract<ComponentNode, { type: "FlatRoof" }>,
+  target: AnchoredComponent,
+  bounds: ComponentSize,
+  unit: 1 | 2
+) {
+  const cover = coverGeometry(component, target, bounds);
+  const scaledMaxY = (cover.baseY + 1) * unit;
+
+  return { ...cover, scaledMaxY };
+}
+
+function coverGeometry(
+  component: Extract<ComponentNode, { type: "GableRoof" | "FlatRoof" }>,
+  target: AnchoredComponent,
+  bounds: ComponentSize
 ) {
   const requestedOverhang = component.placement.overhang ?? 0;
   const maxSymmetricOverhang = Math.min(
@@ -710,14 +788,16 @@ function roofGeometry(
   const maxX = target.placement.anchor.x + target.placement.size.width + overhang;
   const maxZ = target.placement.anchor.z + target.placement.size.length + overhang;
   const baseY = target.placement.anchor.y + target.placement.size.height;
-  const slopeSpan = component.placement.direction === "z" ? maxX - minX : maxZ - minZ;
-  const scaledSlopeSpan = slopeSpan * unit;
-  const scaledRoofHeight = Math.max(1, Math.ceil(scaledSlopeSpan / 2));
-  const scaledMaxY = baseY * unit + scaledRoofHeight;
 
-  return { minX, minZ, maxX, maxZ, baseY, scaledMaxY };
+  return { minX, minZ, maxX, maxZ, baseY };
 }
 
 function isAnchoredComponent(component: ComponentNode): component is AnchoredComponent {
   return "anchor" in component.placement && "size" in component.placement;
+}
+
+function isCoverComponent(
+  component: ComponentNode
+): component is Extract<ComponentNode, { type: "GableRoof" | "FlatRoof" }> {
+  return component.type === "GableRoof" || component.type === "FlatRoof";
 }

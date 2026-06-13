@@ -245,6 +245,7 @@ describe("ComponentPlan", () => {
           stage: "component-validation",
           code: "ROOF_HEIGHT_OUT_OF_BOUNDS",
           componentId: "roof",
+          repairHint: expect.stringContaining("at least 8"),
         }),
       ]);
     }
@@ -475,6 +476,101 @@ describe("ComponentPlan", () => {
           stage: "component-validation",
           code: "UNKNOWN_MATERIAL_REF",
           componentId: "deck",
+        }),
+      ]);
+    }
+  });
+
+  it("expands FlatRoof as a low one-unit cover with implicit dependency", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Market Canopy",
+      grid: { unitBlocks: 2 },
+      bounds: { width: 9, height: 6, length: 7 },
+      palette: {
+        trim: "minecraft:oak_log",
+        roof: "minecraft:red_wool",
+      },
+      components: [
+        {
+          id: "canopy_frame",
+          type: "Beam",
+          placement: {
+            anchor: { x: 2, y: 3, z: 2 },
+            size: { width: 5, height: 1, length: 3 },
+          },
+        },
+        {
+          id: "canopy_roof",
+          type: "FlatRoof",
+          placement: {
+            over: "canopy_frame",
+            overhang: 1,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes).toEqual([
+      expect.objectContaining({
+        id: "canopy_frame__beam",
+        type: "SolidBox",
+      }),
+      expect.objectContaining({
+        id: "canopy_roof__flat_roof",
+        type: "SolidBox",
+        inputs: [{ ref: "canopy_frame__beam" }],
+        params: {
+          from: [2, 8, 2],
+          to: [15, 9, 11],
+          block: "roof",
+        },
+      }),
+    ]);
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects FlatRoof covers that start outside height bounds", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Flat Roof Too High",
+      bounds: { width: 4, height: 3, length: 4 },
+      palette: {
+        trim: "minecraft:oak_log",
+        roof: "minecraft:spruce_planks",
+      },
+      components: [
+        {
+          id: "frame",
+          type: "Beam",
+          placement: {
+            anchor: { x: 0, y: 2, z: 0 },
+            size: { width: 4, height: 1, length: 4 },
+          },
+        },
+        {
+          id: "cap",
+          type: "FlatRoof",
+          placement: {
+            over: "frame",
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "COVER_OUT_OF_BOUNDS",
+          componentId: "cap",
         }),
       ]);
     }

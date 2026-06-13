@@ -75,9 +75,12 @@ Allowed ComponentPlan v0.1 components:
 - `Door`
 - `Window`
 - `GableRoof`
+- `FlatRoof`
 - `SupportPost`
 
 Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, counters, bridge decks, canopy plates, and other horizontal surfaces that are not foundations. Use `Beam` for lintels, horizontal spans, trim, rafters, or beam-like masses.
+
+Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 
@@ -244,6 +247,8 @@ Generate a simplified medium cathedral-inspired build that preserves a nave, two
 
 `GableRoof` v0.1 creates a solid triangular roof volume. It is not a stair/slab roof.
 
+`FlatRoof` creates a one-logical-unit-thick flat cover directly above its covered component. Prefer `FlatRoof` for low canopies, awnings, tower caps, and simple flat roofs.
+
 Always reserve enough `bounds.height` for the covered component plus roof slope.
 
 For a `GableRoof`, the plan must satisfy:
@@ -266,7 +271,8 @@ If validation reports that a roof exceeds bounds:
 1. Increase `bounds.height`.
 2. Reduce the covered component width/length.
 3. Remove or reduce `overhang`.
-4. Choose a smaller size tier.
+4. Use `FlatRoof` if the intended shape is a low cover rather than a pitched roof.
+5. Choose a smaller size tier.
 
 Do not bypass validation.
 
@@ -345,7 +351,7 @@ Common repairs:
 | Broken `ref` | Reference an existing component or define the missing component. |
 | Out-of-bounds anchor/size | Move the component, shrink it, or increase bounds within policy. |
 | Door/window exceeds target wall | Reduce offset, width, or height; choose a larger target. |
-| Roof exceeds bounds | Reserve more height, reduce span, reduce overhang, or downscope. |
+| Roof exceeds bounds | Reserve more height, reduce span, reduce overhang, use `FlatRoof` for low covers, or downscope. |
 | Plan too large | Split into sections, simplify details, or choose a smaller size tier. |
 | Unsupported landmark detail | Preserve major silhouette and omit fine detail. |
 
@@ -354,7 +360,7 @@ Common repairs:
 The following are expected future directions, not current allowed output:
 
 - explicit openings, arches, and portals
-- roof variants and pitch controls
+- hip roofs, stair/slab roof materialization, and explicit pitch controls
 - railings and fence lines
 - hierarchical assemblies
 - bounded repetition

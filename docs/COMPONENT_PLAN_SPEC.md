@@ -143,6 +143,7 @@ Start with a small component vocabulary:
 - `Door`
 - `Window`
 - `GableRoof`
+- `FlatRoof`
 - `SupportPost`
 
 Avoid broad component catalogs until the repair loop and preview workflow are stable.
@@ -152,6 +153,8 @@ Use `Foundation` for ground/base slabs that establish a structure's footprint.
 Use `Platform` for semantic horizontal surfaces that are not foundations, such as elevated decks, counters, bridge decks, canopy plates, or simple horizontal slabs.
 
 Use `Beam` for semantic spans, lintels, horizontal trim, rafters, or other rectangular beam-like masses.
+
+Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnings, tower caps, simple flat roofs, and other one-logical-unit-thick covers.
 
 ## Placement Model
 
@@ -188,6 +191,10 @@ type CoverPlacement = {
   direction?: "x" | "z"
 }
 ```
+
+`GableRoof` uses `direction` to choose the roof ridge direction. `FlatRoof` ignores `direction`; include only `over` and optional `overhang`.
+
+For both roof components, `overhang` is clipped symmetrically to stay within global bounds.
 
 Agents should not calculate raw `from` and `to` coordinates for attached components when a semantic placement is available.
 
@@ -295,6 +302,7 @@ ComponentPlan validation should reject:
 - unsupported `grid.unitBlocks`
 - unknown material role references
 - attached components that reference non-attachable targets
+- cover components whose generated roof volume would exceed `bounds.height`
 
 Errors should be structured for repair:
 
@@ -309,6 +317,31 @@ Errors should be structured for repair:
   "repairHint": "Change inputs[0].ref to main_room or define component room1."
 }
 ```
+
+## Roof Semantics
+
+Use `GableRoof` when the prompt asks for a pitched, triangular roof volume.
+
+Use `FlatRoof` when the prompt asks for a low cover:
+
+- market canopy
+- awning
+- well roof
+- tower cap
+- flat building roof
+- covered bridge cap
+
+`FlatRoof` expands to a one-logical-unit-thick `SolidBox` directly above the covered component. With `grid.unitBlocks: 2`, that becomes two Minecraft blocks thick because logical units scale during expansion.
+
+`GableRoof` height depends on its covered span:
+
+```text
+bounds.height * unitBlocks >=
+  (covered.anchor.y + covered.size.height) * unitBlocks
+  + ceil(slopeSpan * unitBlocks / 2)
+```
+
+Where `slopeSpan` is the covered Z length when `direction` is `"x"`, or the covered X width when `direction` is `"z"`. `overhang` can increase this span. If validation reports a roof height error, increase `bounds.height`, reduce the covered span, reduce `overhang`, or use `FlatRoof` if the intended shape is a low cover.
 
 ## Expansion Contract
 
@@ -325,6 +358,7 @@ Examples:
 - `main_room__shell`
 - `front_door__opening`
 - `roof__gable`
+- `canopy_roof__flat_roof`
 
 The expansion pipeline should be:
 

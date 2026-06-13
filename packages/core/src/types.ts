@@ -157,6 +157,7 @@ export type RoomShellComponent = BaseComponentNode<"RoomShell", AnchoredComponen
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type GableRoofComponent = BaseComponentNode<"GableRoof", CoverPlacement>;
+export type FlatRoofComponent = BaseComponentNode<"FlatRoof", CoverPlacement>;
 export type SupportPostComponent = BaseComponentNode<"SupportPost", AnchoredComponentPlacement>;
 
 export type ComponentNode =
@@ -167,6 +168,7 @@ export type ComponentNode =
   | DoorComponent
   | WindowComponent
   | GableRoofComponent
+  | FlatRoofComponent
   | SupportPostComponent;
 
 export interface ComponentPlanDocument {
