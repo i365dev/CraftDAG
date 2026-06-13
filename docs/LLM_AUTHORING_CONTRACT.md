@@ -74,6 +74,8 @@ Allowed ComponentPlan v0.1 components:
 - `RoomShell`
 - `Door`
 - `Window`
+- `Opening`
+- `Portal`
 - `GableRoof`
 - `FlatRoof`
 - `SupportPost`
@@ -81,6 +83,8 @@ Allowed ComponentPlan v0.1 components:
 Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, counters, bridge decks, canopy plates, and other horizontal surfaces that are not foundations. Use `Beam` for lintels, horizontal spans, trim, rafters, or beam-like masses.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
+
+Use `Door` for literal doors, `Window` for glazed openings, `Opening` for unfilled pass-throughs or gate cutouts, and `Portal` for filled vertical portal planes.
 
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 
@@ -350,7 +354,7 @@ Common repairs:
 | Duplicate `id` | Rename one component and update references. |
 | Broken `ref` | Reference an existing component or define the missing component. |
 | Out-of-bounds anchor/size | Move the component, shrink it, or increase bounds within policy. |
-| Door/window exceeds target wall | Reduce offset, width, or height; choose a larger target. |
+| Door/window/opening/portal exceeds target wall | Reduce offset, width, or height; choose a larger target. |
 | Roof exceeds bounds | Reserve more height, reduce span, reduce overhang, use `FlatRoof` for low covers, or downscope. |
 | Plan too large | Split into sections, simplify details, or choose a smaller size tier. |
 | Unsupported landmark detail | Preserve major silhouette and omit fine detail. |
@@ -359,7 +363,7 @@ Common repairs:
 
 The following are expected future directions, not current allowed output:
 
-- explicit openings, arches, and portals
+- arches and shaped openings
 - hip roofs, stair/slab roof materialization, and explicit pitch controls
 - railings and fence lines
 - hierarchical assemblies

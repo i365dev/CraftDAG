@@ -353,6 +353,146 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands Opening components as semantic pass-through cutouts", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Gatehouse Opening",
+      grid: { unitBlocks: 2 },
+      bounds: { width: 7, height: 5, length: 5 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "gatehouse",
+          type: "RoomShell",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 7, height: 5, length: 5 },
+          },
+        },
+        {
+          id: "passage",
+          type: "Opening",
+          placement: {
+            target: "gatehouse",
+            wall: "front",
+            offset: 2,
+            y: 0,
+            width: 3,
+            height: 3,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+    const opening = craftDag.nodes.find((node) => node.id === "passage__opening");
+
+    expect(opening).toMatchObject({
+      type: "Doorway",
+      inputs: [{ ref: "gatehouse__shell" }],
+      params: {
+        from: [4, 0, 0],
+        to: [9, 5, 0],
+      },
+    });
+    expect((opening as any)?.params.block).toBeUndefined();
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("expands Portal components as filled vertical planes", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Portal Plane",
+      bounds: { width: 5, height: 5, length: 5 },
+      palette: {
+        wall: "minecraft:deepslate_tiles",
+        portal: "minecraft:purple_stained_glass",
+      },
+      components: [
+        {
+          id: "frame_wall",
+          type: "RoomShell",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 5, height: 5, length: 5 },
+          },
+        },
+        {
+          id: "portal_surface",
+          type: "Portal",
+          placement: {
+            target: "frame_wall",
+            wall: "front",
+            offset: 2,
+            y: 1,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+    const portal = craftDag.nodes.find((node) => node.id === "portal_surface__portal");
+
+    expect(portal).toMatchObject({
+      type: "Window",
+      inputs: [{ ref: "frame_wall__shell" }],
+      params: {
+        from: [2, 1, 0],
+        to: [3, 3, 0],
+        block: "portal",
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("requires portal palette or explicit surface material for Portal components", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Missing Portal Material",
+      bounds: { width: 5, height: 5, length: 5 },
+      palette: {
+        wall: "minecraft:deepslate_tiles",
+      },
+      components: [
+        {
+          id: "frame_wall",
+          type: "RoomShell",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 5, height: 5, length: 5 },
+          },
+        },
+        {
+          id: "portal_surface",
+          type: "Portal",
+          placement: {
+            target: "frame_wall",
+            wall: "front",
+            offset: 2,
+            y: 1,
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "UNKNOWN_MATERIAL_REF",
+          componentId: "portal_surface",
+        }),
+      ]);
+    }
+  });
+
   it("expands scaled SupportPost components as solid post volumes", () => {
     const plan: ComponentPlanDocument = {
       version: "0.1",

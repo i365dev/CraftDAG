@@ -105,6 +105,22 @@ const WindowComponentSchema = z.object({
   materials: MaterialsSchema,
 }).strict();
 
+const OpeningComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Opening"),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: WallAttachmentPlacementSchema,
+  materials: MaterialsSchema,
+}).strict();
+
+const PortalComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Portal"),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: WallAttachmentPlacementSchema,
+  materials: MaterialsSchema,
+}).strict();
+
 const GableRoofComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("GableRoof"),
@@ -136,6 +152,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   RoomShellComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
+  OpeningComponentSchema,
+  PortalComponentSchema,
   GableRoofComponentSchema,
   FlatRoofComponentSchema,
   SupportPostComponentSchema,
@@ -202,7 +220,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
       }
     }
 
-    if (component.type === "Door" || component.type === "Window") {
+    if (isAttachmentComponent(component)) {
       if (!componentMap.has(component.placement.target)) {
         throw unknownRefError(component, `target "${component.placement.target}"`, component.placement.target, componentMap);
       }
@@ -302,6 +320,28 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
           params: {
             ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 1),
             block: material(component, "glass", "glass"),
+          },
+        });
+        break;
+      case "Opening":
+        craftDagNodes.push({
+          id: nodeId(component.id, "opening"),
+          type: "Doorway",
+          inputs: expandInputs(component, componentMap),
+          params: {
+            ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
+            block: component.materials?.fill,
+          },
+        });
+        break;
+      case "Portal":
+        craftDagNodes.push({
+          id: nodeId(component.id, "portal"),
+          type: "Window",
+          inputs: expandInputs(component, componentMap),
+          params: {
+            ...scaledAttachmentBox(component.placement, componentMap, unit, 2, 3),
+            block: material(component, "surface", "portal"),
           },
         });
         break;
@@ -406,7 +446,7 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
 
   for (const component of plan.components) {
     const refs = new Set((component.inputs ?? []).map((input) => input.ref));
-    if (component.type === "Door" || component.type === "Window") {
+    if (isAttachmentComponent(component)) {
       refs.add(component.placement.target);
     }
     if (isCoverComponent(component)) {
@@ -452,7 +492,7 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
 
 function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
   for (const component of plan.components) {
-    if (component.type !== "Door" && component.type !== "Window") {
+    if (!isAttachmentComponent(component)) {
       continue;
     }
 
@@ -462,15 +502,15 @@ function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<stri
         code: "INVALID_ATTACHMENT_TARGET",
         componentId: component.id,
         message: `Component "${component.id}" must attach to an anchored component target.`,
-        repairHint: "Attach doors and windows to a RoomShell or another anchored component.",
+        repairHint: "Attach doors, windows, openings, and portals to a RoomShell or another anchored component.",
       });
     }
 
     const lengthAlongWall = component.placement.wall === "front" || component.placement.wall === "back"
       ? target.placement.size.width
       : target.placement.size.length;
-    const width = component.placement.width ?? 1;
-    const height = component.placement.height ?? (component.type === "Door" ? 2 : 1);
+    const width = component.placement.width ?? defaultAttachmentWidth(component.type);
+    const height = component.placement.height ?? defaultAttachmentHeight(component.type);
 
     const isWithinWall =
       component.placement.offset + width <= lengthAlongWall &&
@@ -543,7 +583,7 @@ function validateComponentMaterials(plan: ComponentPlanDocument, component: Comp
   }
 
   const fallback = requiredFallbackMaterial(component);
-  if (!component.materials?.[fallback.role] && !isKnownBlockRef(plan, fallback.value)) {
+  if (fallback && !component.materials?.[fallback.role] && !isKnownBlockRef(plan, fallback.value)) {
     throw componentValidationError({
       code: "UNKNOWN_MATERIAL_REF",
       componentId: component.id,
@@ -553,7 +593,7 @@ function validateComponentMaterials(plan: ComponentPlanDocument, component: Comp
   }
 }
 
-function requiredFallbackMaterial(component: ComponentNode): { role: string; value: string } {
+function requiredFallbackMaterial(component: ComponentNode): { role: string; value: string } | undefined {
   switch (component.type) {
     case "Foundation":
       return { role: "main", value: "foundation" };
@@ -567,6 +607,10 @@ function requiredFallbackMaterial(component: ComponentNode): { role: string; val
       return { role: "door", value: "door" };
     case "Window":
       return { role: "glass", value: "glass" };
+    case "Opening":
+      return undefined;
+    case "Portal":
+      return { role: "surface", value: "portal" };
     case "GableRoof":
       return { role: "roof", value: "roof" };
     case "FlatRoof":
@@ -587,7 +631,7 @@ function isKnownBlockRef(plan: ComponentPlanDocument, value: string): boolean {
 function expandInputs(component: ComponentNode, componentMap: Map<string, ComponentNode>) {
   const refs = new Set((component.inputs ?? []).map((input) => input.ref));
 
-  if (component.type === "Door" || component.type === "Window") {
+  if (isAttachmentComponent(component)) {
     refs.add(component.placement.target);
   }
 
@@ -616,7 +660,10 @@ function outputPart(component: ComponentNode): string {
       return "shell";
     case "Door":
     case "Window":
+    case "Opening":
       return "opening";
+    case "Portal":
+      return "portal";
     case "GableRoof":
       return "gable";
     case "FlatRoof":
@@ -800,4 +847,41 @@ function isCoverComponent(
   component: ComponentNode
 ): component is Extract<ComponentNode, { type: "GableRoof" | "FlatRoof" }> {
   return component.type === "GableRoof" || component.type === "FlatRoof";
+}
+
+function isAttachmentComponent(
+  component: ComponentNode
+): component is Extract<ComponentNode, { type: "Door" | "Window" | "Opening" | "Portal" }> {
+  return component.type === "Door" || component.type === "Window" || component.type === "Opening" || component.type === "Portal";
+}
+
+function defaultAttachmentWidth(componentType: "Door" | "Window" | "Opening" | "Portal"): number {
+  switch (componentType) {
+    case "Door":
+    case "Window":
+    case "Opening":
+      return 1;
+    case "Portal":
+      return 2;
+    default: {
+      const _exhaustiveCheck: never = componentType;
+      throw new ValidationError(`Unhandled attachment component type: ${_exhaustiveCheck}`);
+    }
+  }
+}
+
+function defaultAttachmentHeight(componentType: "Door" | "Window" | "Opening" | "Portal"): number {
+  switch (componentType) {
+    case "Door":
+    case "Opening":
+      return 2;
+    case "Window":
+      return 1;
+    case "Portal":
+      return 3;
+    default: {
+      const _exhaustiveCheck: never = componentType;
+      throw new ValidationError(`Unhandled attachment component type: ${_exhaustiveCheck}`);
+    }
+  }
 }
