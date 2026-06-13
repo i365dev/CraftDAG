@@ -123,12 +123,14 @@ Example:
     "target": "main_room",
     "wall": "front",
     "offset": 3,
-    "y": 1
+    "y": 0
   }
 }
 ```
 
 The expander translates semantic dependencies into low-level CraftDAG inputs and deterministic overwrite order.
+
+For attached and covering components, `placement.target` and `placement.over` are implicit dependencies. Agents may include them in `inputs` for readability, but the expander must add the low-level CraftDAG dependency even when they are omitted.
 
 ## v0.1 Component Set
 
@@ -155,6 +157,8 @@ type AnchoredPlacement = {
 ```
 
 Attached components use semantic placement.
+
+For wall attachments, `offset` is relative to the selected wall start and `y` is relative to the target component's `anchor.y`. For example, `y: 0` means the attachment begins at the bottom of the target wall.
 
 ```ts
 type WallAttachmentPlacement = {
@@ -186,7 +190,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
   "version": "0.1",
   "name": "Starter Cabin",
   "grid": { "unitBlocks": 1 },
-  "bounds": { "width": 7, "height": 6, "length": 7 },
+  "bounds": { "width": 9, "height": 8, "length": 9 },
   "palette": {
     "foundation": "minecraft:cobblestone",
     "wall": "minecraft:oak_planks",
@@ -200,7 +204,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
       "type": "Foundation",
       "placement": {
         "anchor": { "x": 0, "y": 0, "z": 0 },
-        "size": { "width": 7, "height": 1, "length": 7 }
+        "size": { "width": 9, "height": 1, "length": 9 }
       },
       "materials": { "main": "foundation" }
     },
@@ -209,7 +213,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
       "type": "RoomShell",
       "inputs": [{ "ref": "foundation" }],
       "placement": {
-        "anchor": { "x": 0, "y": 1, "z": 0 },
+        "anchor": { "x": 1, "y": 1, "z": 1 },
         "size": { "width": 7, "height": 3, "length": 7 }
       },
       "materials": { "wall": "wall" },
@@ -226,7 +230,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
         "target": "main_room",
         "wall": "front",
         "offset": 3,
-        "y": 1
+        "y": 0
       },
       "materials": { "door": "door" }
     },
@@ -238,7 +242,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
         "target": "main_room",
         "wall": "front",
         "offset": 1,
-        "y": 2,
+        "y": 1,
         "width": 1,
         "height": 1
       },

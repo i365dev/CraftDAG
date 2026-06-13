@@ -93,6 +93,87 @@ export interface CraftDagDocument {
   nodes: CraftDagNode[];
 }
 
+export type ComponentWall = "front" | "back" | "left" | "right";
+
+export interface ComponentGrid {
+  unitBlocks?: 1 | 2;
+}
+
+export interface ComponentSize {
+  width: number;
+  height: number;
+  length: number;
+}
+
+export interface ComponentAnchor {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface AnchoredComponentPlacement {
+  anchor: ComponentAnchor;
+  size: ComponentSize;
+}
+
+export interface WallAttachmentPlacement {
+  target: string;
+  wall: ComponentWall;
+  offset: number;
+  y: number;
+  width?: number;
+  height?: number;
+}
+
+export interface CoverPlacement {
+  over: string;
+  overhang?: number;
+  direction?: "x" | "z";
+}
+
+export interface ComponentInput {
+  ref: string;
+}
+
+export interface BaseComponentNode<T extends string, P, O = Record<string, never>> {
+  id: string;
+  type: T;
+  inputs?: ComponentInput[];
+  placement: P;
+  materials?: Record<string, string>;
+  options?: O;
+}
+
+export type FoundationComponent = BaseComponentNode<"Foundation", AnchoredComponentPlacement>;
+
+export interface RoomShellOptions {
+  includeFloor?: boolean;
+  includeCeiling?: boolean;
+}
+export type RoomShellComponent = BaseComponentNode<"RoomShell", AnchoredComponentPlacement, RoomShellOptions>;
+
+export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
+export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
+export type GableRoofComponent = BaseComponentNode<"GableRoof", CoverPlacement>;
+export type SupportPostComponent = BaseComponentNode<"SupportPost", AnchoredComponentPlacement>;
+
+export type ComponentNode =
+  | FoundationComponent
+  | RoomShellComponent
+  | DoorComponent
+  | WindowComponent
+  | GableRoofComponent
+  | SupportPostComponent;
+
+export interface ComponentPlanDocument {
+  version: "0.1";
+  name: string;
+  grid?: ComponentGrid;
+  bounds: ComponentSize;
+  palette: Record<string, string>;
+  components: ComponentNode[];
+}
+
 export interface VoxelBlock {
   pos: Vec3;
   block: BlockState;
@@ -106,4 +187,3 @@ export interface VoxelPlan {
   origin: Vec3;
   blocks: VoxelBlock[];
 }
-
