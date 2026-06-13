@@ -100,6 +100,28 @@ describe("ComponentPlan", () => {
     expect(craftDag.nodes[2].inputs).toEqual([{ ref: "main_room__shell" }]);
   });
 
+  it("adds implicit CraftDAG dependencies from semantic attachment and cover placement", () => {
+    const plan: ComponentPlanDocument = {
+      ...starterCabin,
+      components: starterCabin.components.map((component) => {
+        if (component.type === "Door" || component.type === "Window" || component.type === "GableRoof") {
+          const { inputs: _inputs, ...rest } = component;
+          return rest;
+        }
+        return component;
+      }),
+    };
+
+    const craftDag = expandComponentPlan(plan);
+    const door = craftDag.nodes.find((node) => node.id === "front_door__opening");
+    const window = craftDag.nodes.find((node) => node.id === "front_window__opening");
+    const roof = craftDag.nodes.find((node) => node.id === "roof__gable");
+
+    expect(door?.inputs).toEqual([{ ref: "main_room__shell" }]);
+    expect(window?.inputs).toEqual([{ ref: "main_room__shell" }]);
+    expect(roof?.inputs).toEqual([{ ref: "main_room__shell" }]);
+  });
+
   it("expands wall attachments to deterministic opening coordinates", () => {
     const craftDag = expandComponentPlan(starterCabin);
     const door = craftDag.nodes.find((node) => node.id === "front_door__opening");

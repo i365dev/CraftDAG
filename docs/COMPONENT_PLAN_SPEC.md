@@ -130,6 +130,8 @@ Example:
 
 The expander translates semantic dependencies into low-level CraftDAG inputs and deterministic overwrite order.
 
+For attached and covering components, `placement.target` and `placement.over` are implicit dependencies. Agents may include them in `inputs` for readability, but the expander must add the low-level CraftDAG dependency even when they are omitted.
+
 ## v0.1 Component Set
 
 Start with a small component vocabulary:

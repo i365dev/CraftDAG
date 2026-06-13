@@ -516,8 +516,18 @@ function isKnownBlockRef(plan: ComponentPlanDocument, value: string): boolean {
 }
 
 function expandInputs(component: ComponentNode, componentMap: Map<string, ComponentNode>) {
-  return (component.inputs ?? []).map((input) => ({
-    ref: nodeId(input.ref, outputPart(componentMap.get(input.ref)!)),
+  const refs = new Set((component.inputs ?? []).map((input) => input.ref));
+
+  if (component.type === "Door" || component.type === "Window") {
+    refs.add(component.placement.target);
+  }
+
+  if (component.type === "GableRoof") {
+    refs.add(component.placement.over);
+  }
+
+  return [...refs].map((ref) => ({
+    ref: nodeId(ref, outputPart(componentMap.get(ref)!)),
   }));
 }
 
