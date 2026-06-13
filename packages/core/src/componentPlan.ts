@@ -414,8 +414,7 @@ function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<stri
 
     const isWithinWall =
       component.placement.offset + width <= lengthAlongWall &&
-      component.placement.y >= target.placement.anchor.y &&
-      component.placement.y + height <= target.placement.anchor.y + target.placement.size.height;
+      component.placement.y + height <= target.placement.size.height;
 
     if (!isWithinWall) {
       throw componentValidationError({
@@ -592,8 +591,8 @@ function scaledAttachmentBox(
 
   const width = placement.width ?? defaultWidth;
   const height = placement.height ?? defaultHeight;
-  const yFrom = placement.y * unit;
-  const yTo = (placement.y + height) * unit - 1;
+  const yFrom = (target.placement.anchor.y + placement.y) * unit;
+  const yTo = (target.placement.anchor.y + placement.y + height) * unit - 1;
 
   if (placement.wall === "front" || placement.wall === "back") {
     const xFrom = (target.placement.anchor.x + placement.offset) * unit;

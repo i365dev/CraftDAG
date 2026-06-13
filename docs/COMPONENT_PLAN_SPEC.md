@@ -123,7 +123,7 @@ Example:
     "target": "main_room",
     "wall": "front",
     "offset": 3,
-    "y": 1
+    "y": 0
   }
 }
 ```
@@ -157,6 +157,8 @@ type AnchoredPlacement = {
 ```
 
 Attached components use semantic placement.
+
+For wall attachments, `offset` is relative to the selected wall start and `y` is relative to the target component's `anchor.y`. For example, `y: 0` means the attachment begins at the bottom of the target wall.
 
 ```ts
 type WallAttachmentPlacement = {
@@ -228,7 +230,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
         "target": "main_room",
         "wall": "front",
         "offset": 3,
-        "y": 1
+        "y": 0
       },
       "materials": { "door": "door" }
     },
@@ -240,7 +242,7 @@ Agents should not calculate raw `from` and `to` coordinates for attached compone
         "target": "main_room",
         "wall": "front",
         "offset": 1,
-        "y": 2,
+        "y": 1,
         "width": 1,
         "height": 1
       },

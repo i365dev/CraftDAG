@@ -51,7 +51,7 @@ describe("ComponentPlan", () => {
           target: "main_room",
           wall: "front",
           offset: 3,
-          y: 1,
+          y: 0,
         },
       },
       {
@@ -62,7 +62,7 @@ describe("ComponentPlan", () => {
           target: "main_room",
           wall: "front",
           offset: 1,
-          y: 2,
+          y: 1,
           width: 1,
           height: 1,
         },
@@ -318,7 +318,7 @@ describe("ComponentPlan", () => {
     expect(() => validateComponentPlan(invalid)).toThrow("unknown material");
   });
 
-  it("rejects wall attachments below the target wall anchor", () => {
+  it("rejects wall attachments exceeding the target wall height", () => {
     const invalid: ComponentPlanDocument = {
       ...starterCabin,
       components: starterCabin.components.map((component) => {
@@ -330,7 +330,7 @@ describe("ComponentPlan", () => {
           ...component,
           placement: {
             ...component.placement,
-            y: 0,
+            y: 5,
           },
         };
       }),
