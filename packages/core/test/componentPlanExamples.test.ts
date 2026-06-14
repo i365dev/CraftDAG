@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import {
   compileComponentPlan,
   ComponentPlanDocument,
@@ -11,7 +12,8 @@ import {
 } from "../src/index.js";
 
 describe("ComponentPlan large examples", () => {
-  const examplesDir = path.resolve(__dirname, "../../../examples/component-plans");
+  const dirname = path.dirname(fileURLToPath(import.meta.url));
+  const examplesDir = path.resolve(dirname, "../../../examples/component-plans");
   const examples = [
     "large-castle.componentplan.json",
     "long-fortified-bridge.componentplan.json",

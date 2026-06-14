@@ -49,7 +49,7 @@
           "type": "SupportPost",
           "inputs": [{ "ref": "deck" }],
           "placement": {
-            "anchor": { "x": 1, "y": 5, "z": 1 },
+            "anchor": { "x": 1, "y": 5, "z": 2 },
             "size": { "width": 1, "height": 2, "length": 1 }
           }
         },
@@ -113,11 +113,23 @@
           "options": { "includeFloor": false, "includeCeiling": false }
         },
         {
-          "id": "arch",
+          "id": "arch_left",
           "type": "Opening",
           "placement": {
             "target": "tower_body",
             "wall": "left",
+            "offset": 4,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "id": "arch_right",
+          "type": "Opening",
+          "placement": {
+            "target": "tower_body",
+            "wall": "right",
             "offset": 4,
             "y": 4,
             "width": 6,
