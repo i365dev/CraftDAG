@@ -1,11 +1,9 @@
-name: Publish to GitHub Packages
+name: Publish to npm
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'packages/**'
-      - '.github/workflows/publish.yml'
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -13,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      id-token: write
 
     steps:
       - name: Checkout Code
@@ -27,10 +25,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: 'https://npm.pkg.github.com'
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
           scope: '@i365dev'
           cache: 'pnpm'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -41,12 +42,16 @@ jobs:
       - name: Run Tests
         run: pnpm test
 
+      - name: Pack Packages
+        run: |
+          mkdir -p artifacts
+          cd packages/core
+          pnpm pack --pack-destination ../../artifacts
+          cd ../exporter-schem
+          pnpm pack --pack-destination ../../artifacts
+
       - name: Publish @i365dev/craftdag-core
-        run: pnpm --filter @i365dev/craftdag-core publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish artifacts/i365dev-craftdag-core-*.tgz --access public
 
       - name: Publish @i365dev/craftdag-exporter-schem
-        run: pnpm --filter @i365dev/craftdag-exporter-schem publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish artifacts/i365dev-craftdag-exporter-schem-*.tgz --access public
