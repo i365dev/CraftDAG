@@ -1,11 +1,9 @@
-name: Publish to GitHub Packages
+name: Publish to npm
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'packages/**'
-      - '.github/workflows/publish.yml'
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -13,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      id-token: write
 
     steps:
       - name: Checkout Code
@@ -27,8 +25,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: 'https://npm.pkg.github.com'
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
           scope: '@i365dev'
           cache: 'pnpm'
 
@@ -42,11 +40,11 @@ jobs:
         run: pnpm test
 
       - name: Publish @i365dev/craftdag-core
-        run: pnpm --filter @i365dev/craftdag-core publish --no-git-checks
+        run: pnpm --filter @i365dev/craftdag-core publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @i365dev/craftdag-exporter-schem
-        run: pnpm --filter @i365dev/craftdag-exporter-schem publish --no-git-checks
+        run: pnpm --filter @i365dev/craftdag-exporter-schem publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
