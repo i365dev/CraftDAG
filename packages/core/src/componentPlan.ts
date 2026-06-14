@@ -831,7 +831,10 @@ function estimateExpandedComponentCount(
   for (const component of components) {
     if (component.type === "Instance") {
       const assembly = assemblyMap.get(component.placement.assembly);
-      total += assembly?.components.length ?? 0;
+      if (assembly) {
+        const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+        total += estimateExpandedComponentCount(assembly.components, localComponentMap, assemblyMap);
+      }
       continue;
     }
     if (component.type === "Repeat") {

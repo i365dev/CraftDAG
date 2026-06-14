@@ -1330,4 +1330,81 @@ describe("ComponentPlan", () => {
       ]);
     }
   });
+
+  it("counts repeated assembly clones in Instance component budgets", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Repeated Assembly Budget",
+      bounds: { width: 32, height: 4, length: 3 },
+      palette: {
+        trim: "minecraft:oak_log",
+      },
+      assemblies: [
+        {
+          id: "post_run_module",
+          bounds: { width: 32, height: 4, length: 3 },
+          components: [
+            {
+              id: "post",
+              type: "SupportPost",
+              placement: {
+                anchor: { x: 0, y: 0, z: 1 },
+                size: { width: 1, height: 4, length: 1 },
+              },
+            },
+            {
+              id: "post_run",
+              type: "Repeat",
+              placement: {
+                source: "post",
+                axis: "x",
+                count: 32,
+                step: 1,
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "run_a",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+        {
+          id: "run_b",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+        {
+          id: "run_c",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "PLAN_COMPONENTS_OVER_BUDGET",
+        }),
+      ]);
+    }
+  });
 });
