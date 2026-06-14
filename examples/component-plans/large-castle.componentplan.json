@@ -1,0 +1,420 @@
+{
+  "version": "0.1",
+  "name": "Large Modular Castle",
+  "grid": { "unitBlocks": 1 },
+  "policy": { "sizeTier": "large" },
+  "bounds": { "width": 80, "height": 36, "length": 80 },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:spruce_planks",
+    "roof": "minecraft:dark_oak_planks",
+    "trim": "minecraft:deepslate_bricks",
+    "glass": "minecraft:glass_pane",
+    "door": "minecraft:dark_oak_door"
+  },
+  "assemblies": [
+    {
+      "id": "corner_tower_module",
+      "bounds": { "width": 10, "height": 24, "length": 10 },
+      "components": [
+        {
+          "id": "tower_body",
+          "type": "RoomShell",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 10, "height": 18, "length": 10 }
+          },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "front_slit",
+          "type": "Window",
+          "placement": {
+            "target": "tower_body",
+            "wall": "front",
+            "offset": 4,
+            "y": 8,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "right_slit",
+          "type": "Window",
+          "placement": {
+            "target": "tower_body",
+            "wall": "right",
+            "offset": 4,
+            "y": 8,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "tower_cap",
+          "type": "FlatRoof",
+          "placement": { "over": "tower_body" }
+        },
+        {
+          "id": "front_merlon",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 0, "y": 19, "z": 0 },
+            "size": { "width": 1, "height": 3, "length": 1 }
+          }
+        },
+        {
+          "id": "front_merlons",
+          "type": "Repeat",
+          "placement": {
+            "source": "front_merlon",
+            "axis": "x",
+            "count": 5,
+            "step": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall_bay_x_module",
+      "bounds": { "width": 12, "height": 13, "length": 4 },
+      "components": [
+        {
+          "id": "wall_mass",
+          "type": "Beam",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 12, "height": 9, "length": 4 }
+          }
+        },
+        {
+          "id": "walkway",
+          "type": "Platform",
+          "inputs": [{ "ref": "wall_mass" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 9, "z": 0 },
+            "size": { "width": 12, "height": 1, "length": 4 }
+          }
+        },
+        {
+          "id": "merlon",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "walkway" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 10, "z": 0 },
+            "size": { "width": 1, "height": 3, "length": 1 }
+          }
+        },
+        {
+          "id": "merlons",
+          "type": "Repeat",
+          "placement": {
+            "source": "merlon",
+            "axis": "x",
+            "count": 6,
+            "step": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall_bay_z_module",
+      "bounds": { "width": 4, "height": 13, "length": 12 },
+      "components": [
+        {
+          "id": "wall_mass",
+          "type": "Beam",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 4, "height": 9, "length": 12 }
+          }
+        },
+        {
+          "id": "walkway",
+          "type": "Platform",
+          "inputs": [{ "ref": "wall_mass" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 9, "z": 0 },
+            "size": { "width": 4, "height": 1, "length": 12 }
+          }
+        },
+        {
+          "id": "merlon",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "walkway" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 10, "z": 0 },
+            "size": { "width": 1, "height": 3, "length": 1 }
+          }
+        },
+        {
+          "id": "merlons",
+          "type": "Repeat",
+          "placement": {
+            "source": "merlon",
+            "axis": "z",
+            "count": 6,
+            "step": 2
+          }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "castle_foundation",
+      "type": "Foundation",
+      "placement": {
+        "anchor": { "x": 4, "y": 0, "z": 4 },
+        "size": { "width": 72, "height": 1, "length": 72 }
+      }
+    },
+    {
+      "id": "courtyard_floor",
+      "type": "Platform",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "anchor": { "x": 18, "y": 1, "z": 18 },
+        "size": { "width": 44, "height": 1, "length": 44 }
+      }
+    },
+    {
+      "id": "tower_nw",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 4, "y": 1, "z": 4 }
+      }
+    },
+    {
+      "id": "tower_ne",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 66, "y": 1, "z": 4 }
+      }
+    },
+    {
+      "id": "tower_sw",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 4, "y": 1, "z": 66 }
+      }
+    },
+    {
+      "id": "tower_se",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 66, "y": 1, "z": 66 }
+      }
+    },
+    {
+      "id": "north_wall_a",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 16, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "north_wall_b",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 28, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "north_wall_c",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 40, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "north_wall_d",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 52, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "south_wall_a",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 16, "y": 1, "z": 69 }
+      }
+    },
+    {
+      "id": "south_wall_b",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 28, "y": 1, "z": 69 }
+      }
+    },
+    {
+      "id": "south_wall_c",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 40, "y": 1, "z": 69 }
+      }
+    },
+    {
+      "id": "south_wall_d",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_x_module",
+        "anchor": { "x": 52, "y": 1, "z": 69 }
+      }
+    },
+    {
+      "id": "west_wall_a",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 7, "y": 1, "z": 16 }
+      }
+    },
+    {
+      "id": "west_wall_b",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 7, "y": 1, "z": 28 }
+      }
+    },
+    {
+      "id": "west_wall_c",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 7, "y": 1, "z": 40 }
+      }
+    },
+    {
+      "id": "west_wall_d",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 7, "y": 1, "z": 52 }
+      }
+    },
+    {
+      "id": "east_wall_a",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 69, "y": 1, "z": 16 }
+      }
+    },
+    {
+      "id": "east_wall_b",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 69, "y": 1, "z": 28 }
+      }
+    },
+    {
+      "id": "east_wall_c",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 69, "y": 1, "z": 40 }
+      }
+    },
+    {
+      "id": "east_wall_d",
+      "type": "Instance",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "assembly": "wall_bay_z_module",
+        "anchor": { "x": 69, "y": 1, "z": 52 }
+      }
+    },
+    {
+      "id": "gatehouse",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "castle_foundation" }],
+      "placement": {
+        "anchor": { "x": 33, "y": 1, "z": 3 },
+        "size": { "width": 14, "height": 12, "length": 10 }
+      },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "gate_opening",
+      "type": "Opening",
+      "placement": {
+        "target": "gatehouse",
+        "wall": "front",
+        "offset": 4,
+        "y": 0,
+        "width": 6,
+        "height": 6
+      }
+    },
+    {
+      "id": "gate_roof",
+      "type": "FlatRoof",
+      "placement": { "over": "gatehouse" }
+    },
+    {
+      "id": "keep",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 29, "y": 2, "z": 32 },
+        "size": { "width": 22, "height": 16, "length": 18 }
+      },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "keep_door",
+      "type": "Opening",
+      "placement": {
+        "target": "keep",
+        "wall": "front",
+        "offset": 8,
+        "y": 0,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_roof",
+      "type": "GableRoof",
+      "placement": {
+        "over": "keep",
+        "direction": "x"
+      }
+    }
+  ]
+}

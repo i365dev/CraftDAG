@@ -1,0 +1,274 @@
+{
+  "version": "0.1",
+  "name": "Long Fortified Bridge",
+  "grid": { "unitBlocks": 1 },
+  "policy": { "sizeTier": "large" },
+  "bounds": { "width": 96, "height": 32, "length": 28 },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:spruce_planks",
+    "roof": "minecraft:dark_oak_planks",
+    "trim": "minecraft:dark_oak_log",
+    "glass": "minecraft:glass_pane",
+    "door": "minecraft:dark_oak_door"
+  },
+  "assemblies": [
+    {
+      "id": "deck_bay_module",
+      "bounds": { "width": 12, "height": 7, "length": 12 },
+      "components": [
+        {
+          "id": "deck",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 0, "y": 4, "z": 2 },
+            "size": { "width": 12, "height": 1, "length": 8 }
+          }
+        },
+        {
+          "id": "front_rail",
+          "type": "Beam",
+          "inputs": [{ "ref": "deck" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 5, "z": 2 },
+            "size": { "width": 12, "height": 2, "length": 1 }
+          }
+        },
+        {
+          "id": "back_rail",
+          "type": "Beam",
+          "inputs": [{ "ref": "deck" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 5, "z": 9 },
+            "size": { "width": 12, "height": 2, "length": 1 }
+          }
+        },
+        {
+          "id": "lamp_post",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "deck" }],
+          "placement": {
+            "anchor": { "x": 1, "y": 5, "z": 1 },
+            "size": { "width": 1, "height": 2, "length": 1 }
+          }
+        },
+        {
+          "id": "lamp_posts",
+          "type": "Repeat",
+          "placement": {
+            "source": "lamp_post",
+            "axis": "x",
+            "count": 3,
+            "step": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "pier_module",
+      "bounds": { "width": 6, "height": 16, "length": 10 },
+      "components": [
+        {
+          "id": "left_post",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 1 },
+            "size": { "width": 2, "height": 12, "length": 2 }
+          }
+        },
+        {
+          "id": "right_post",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 7 },
+            "size": { "width": 2, "height": 12, "length": 2 }
+          }
+        },
+        {
+          "id": "cap_beam",
+          "type": "Beam",
+          "inputs": [
+            { "ref": "left_post" },
+            { "ref": "right_post" }
+          ],
+          "placement": {
+            "anchor": { "x": 0, "y": 12, "z": 0 },
+            "size": { "width": 6, "height": 2, "length": 10 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bridge_tower_module",
+      "bounds": { "width": 10, "height": 24, "length": 14 },
+      "components": [
+        {
+          "id": "tower_body",
+          "type": "RoomShell",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 10, "height": 18, "length": 14 }
+          },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "arch",
+          "type": "Opening",
+          "placement": {
+            "target": "tower_body",
+            "wall": "left",
+            "offset": 4,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "id": "tower_roof",
+          "type": "FlatRoof",
+          "placement": { "over": "tower_body" }
+        },
+        {
+          "id": "slit_window",
+          "type": "Window",
+          "placement": {
+            "target": "tower_body",
+            "wall": "front",
+            "offset": 4,
+            "y": 10,
+            "width": 2,
+            "height": 3
+          }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "riverbed_foundation",
+      "type": "Foundation",
+      "placement": {
+        "anchor": { "x": 0, "y": 0, "z": 8 },
+        "size": { "width": 96, "height": 1, "length": 12 }
+      }
+    },
+    {
+      "id": "west_tower",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "bridge_tower_module",
+        "anchor": { "x": 2, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "east_tower",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "bridge_tower_module",
+        "anchor": { "x": 84, "y": 1, "z": 7 }
+      }
+    },
+    {
+      "id": "pier_0",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "pier_module",
+        "anchor": { "x": 18, "y": 1, "z": 9 }
+      }
+    },
+    {
+      "id": "pier_1",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "pier_module",
+        "anchor": { "x": 30, "y": 1, "z": 9 }
+      }
+    },
+    {
+      "id": "pier_2",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "pier_module",
+        "anchor": { "x": 42, "y": 1, "z": 9 }
+      }
+    },
+    {
+      "id": "pier_3",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "pier_module",
+        "anchor": { "x": 54, "y": 1, "z": 9 }
+      }
+    },
+    {
+      "id": "pier_4",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "pier_module",
+        "anchor": { "x": 66, "y": 1, "z": 9 }
+      }
+    },
+    {
+      "id": "deck_0",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 12, "y": 10, "z": 8 }
+      }
+    },
+    {
+      "id": "deck_1",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 24, "y": 10, "z": 8 }
+      }
+    },
+    {
+      "id": "deck_2",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 36, "y": 10, "z": 8 }
+      }
+    },
+    {
+      "id": "deck_3",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 48, "y": 10, "z": 8 }
+      }
+    },
+    {
+      "id": "deck_4",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 60, "y": 10, "z": 8 }
+      }
+    },
+    {
+      "id": "deck_5",
+      "type": "Instance",
+      "inputs": [{ "ref": "riverbed_foundation" }],
+      "placement": {
+        "assembly": "deck_bay_module",
+        "anchor": { "x": 72, "y": 10, "z": 8 }
+      }
+    }
+  ]
+}

@@ -73,6 +73,15 @@ Landmark-inspired build:
 - Preserve silhouette, symmetry, major masses, and repeated facade rhythm.
 - Omit exact sculpture, tiny ornament, and block-perfect dimensions.
 
+## Probe Fixtures
+
+Large-build probes live in `examples/component-plans`.
+
+- `large-castle.componentplan.json` exercises repeated tower and wall-bay instances around a courtyard and keep.
+- `long-fortified-bridge.componentplan.json` exercises repeated bridge deck, pier, and tower modules across a long span.
+
+These are not polished product templates. They are regression fixtures and authoring probes for checking whether the current ComponentPlan surface is large enough for agent-generated structures.
+
 ## Relationship To Redstone
 
 Redstone should remain a future module family. Assembly/Instance is useful groundwork for redstone later because circuits also need reusable modules, stable IDs, validation, and deterministic placement. Do not mix redstone semantics into large-build assemblies until the base architectural system is stable.
