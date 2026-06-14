@@ -80,6 +80,7 @@ Allowed ComponentPlan v0.1 components:
 - `FlatRoof`
 - `SupportPost`
 - `Repeat`
+- `Instance`
 
 Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, counters, bridge decks, canopy plates, and other horizontal surfaces that are not foundations. Use `Beam` for lintels, horizontal spans, trim, rafters, or beam-like masses.
 
@@ -88,6 +89,10 @@ Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, a
 Use `Door` for literal doors, `Window` for glazed openings, `Opening` for unfilled pass-throughs or gate cutouts, and `Portal` for filled vertical portal planes.
 
 Use `Repeat` for bounded linear repetition of anchored components, such as columns, support posts, beams, room bays, or bridge supports. Prefer `Repeat` over manually listing many near-identical components.
+
+Use `assemblies` plus top-level `Instance` components when a multi-component module repeats, such as castle towers, wall segments, bridge bays, facade modules, or ship compartments. Define the module once in local coordinates, then place it several times with different anchors.
+
+For `Instance` v0.1, do not use rotation, mirroring, nested instances, material overrides, expressions, or arbitrary loops. Keep assembly IDs and local component IDs short and descriptive. Expect expanded low-level IDs to look like `<instanceId>__<localComponentId>__<partName>`.
 
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 
@@ -295,7 +300,7 @@ Prefer small and medium plans.
 | `medium` | `64 x 48 x 64` | 256 | 196,608 |
 | `large` | `96 x 64 x 96` | 512 | 589,824 |
 
-Small flat ComponentPlans are preferred. Medium plans may use several sections but should still be previewable and repairable. Large plans should be simplified and sectioned until hierarchical assemblies are available.
+Small flat ComponentPlans are preferred. Medium plans may use several sections but should still be previewable and repairable. Large plans should use assemblies for repeated modules before manually listing many components.
 
 `unitBlocks: 2` increases expanded block estimates. Do not use it to force a large landmark through a small budget.
 

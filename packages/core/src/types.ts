@@ -144,6 +144,11 @@ export interface RepeatPlacement {
   step: number;
 }
 
+export interface InstancePlacement {
+  assembly: string;
+  anchor: ComponentAnchor;
+}
+
 export interface ComponentInput {
   ref: string;
 }
@@ -175,8 +180,9 @@ export type GableRoofComponent = BaseComponentNode<"GableRoof", CoverPlacement>;
 export type FlatRoofComponent = BaseComponentNode<"FlatRoof", CoverPlacement>;
 export type SupportPostComponent = BaseComponentNode<"SupportPost", AnchoredComponentPlacement>;
 export type RepeatComponent = BaseComponentNode<"Repeat", RepeatPlacement>;
+export type InstanceComponent = BaseComponentNode<"Instance", InstancePlacement>;
 
-export type ComponentNode =
+export type AssemblyComponentNode =
   | FoundationComponent
   | PlatformComponent
   | BeamComponent
@@ -190,6 +196,16 @@ export type ComponentNode =
   | SupportPostComponent
   | RepeatComponent;
 
+export type ComponentNode =
+  | AssemblyComponentNode
+  | InstanceComponent;
+
+export interface ComponentAssemblyDefinition {
+  id: string;
+  bounds: ComponentSize;
+  components: AssemblyComponentNode[];
+}
+
 export interface ComponentPlanDocument {
   version: "0.1";
   name: string;
@@ -197,6 +213,7 @@ export interface ComponentPlanDocument {
   policy?: ComponentPlanPolicy;
   bounds: ComponentSize;
   palette: Record<string, string>;
+  assemblies?: ComponentAssemblyDefinition[];
   components: ComponentNode[];
 }
 

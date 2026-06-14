@@ -1067,4 +1067,344 @@ describe("ComponentPlan", () => {
       ])
     );
   });
+
+  it("expands Assembly instances with stable namespaced node IDs", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Twin Tower Gate",
+      policy: { sizeTier: "medium" },
+      bounds: { width: 24, height: 14, length: 12 },
+      palette: {
+        foundation: "minecraft:stone_bricks",
+        wall: "minecraft:stone_bricks",
+        roof: "minecraft:dark_oak_planks",
+        glass: "minecraft:glass_pane",
+        trim: "minecraft:dark_oak_log",
+      },
+      assemblies: [
+        {
+          id: "tower_module",
+          bounds: { width: 6, height: 10, length: 6 },
+          components: [
+            {
+              id: "tower_body",
+              type: "RoomShell",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 6, height: 7, length: 6 },
+              },
+              options: {
+                includeFloor: false,
+                includeCeiling: false,
+              },
+            },
+            {
+              id: "front_window",
+              type: "Window",
+              placement: {
+                target: "tower_body",
+                wall: "front",
+                offset: 2,
+                y: 3,
+                width: 2,
+                height: 2,
+              },
+            },
+            {
+              id: "tower_cap",
+              type: "FlatRoof",
+              placement: {
+                over: "tower_body",
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "gate_base",
+          type: "Foundation",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 24, height: 1, length: 12 },
+          },
+        },
+        {
+          id: "left_tower",
+          type: "Instance",
+          inputs: [{ ref: "gate_base" }],
+          placement: {
+            assembly: "tower_module",
+            anchor: { x: 1, y: 1, z: 3 },
+          },
+        },
+        {
+          id: "right_tower",
+          type: "Instance",
+          inputs: [{ ref: "gate_base" }],
+          placement: {
+            assembly: "tower_module",
+            anchor: { x: 17, y: 1, z: 3 },
+          },
+        },
+        {
+          id: "bridge",
+          type: "Beam",
+          inputs: [{ ref: "gate_base" }],
+          placement: {
+            anchor: { x: 7, y: 6, z: 4 },
+            size: { width: 10, height: 2, length: 4 },
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "gate_base__solid",
+      "left_tower__tower_body__shell",
+      "left_tower__front_window__opening",
+      "left_tower__tower_cap__flat_roof",
+      "right_tower__tower_body__shell",
+      "right_tower__front_window__opening",
+      "right_tower__tower_cap__flat_roof",
+      "bridge__beam",
+    ]);
+    expect(craftDag.nodes.find((node) => node.id === "left_tower__tower_body__shell")).toMatchObject({
+      inputs: [{ ref: "gate_base__solid" }],
+      params: {
+        from: [1, 1, 3],
+        to: [6, 7, 8],
+      },
+    });
+    expect(craftDag.nodes.find((node) => node.id === "left_tower__front_window__opening")).toMatchObject({
+      inputs: expect.arrayContaining([
+        { ref: "left_tower__tower_body__shell" },
+        { ref: "gate_base__solid" },
+      ]),
+      params: {
+        from: [3, 4, 3],
+        to: [4, 5, 3],
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects Instance components that reference an unknown assembly", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Missing Assembly",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {},
+      components: [
+        {
+          id: "tower",
+          type: "Instance",
+          placement: {
+            assembly: "missing",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "UNKNOWN_ASSEMBLY_REF",
+          componentId: "tower",
+        }),
+      ]);
+    }
+  });
+
+  it("rejects Instance components that exceed global bounds", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Tower Out Of Bounds",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      assemblies: [
+        {
+          id: "tower_module",
+          bounds: { width: 6, height: 6, length: 6 },
+          components: [
+            {
+              id: "tower_body",
+              type: "RoomShell",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 6, height: 6, length: 6 },
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "tower",
+          type: "Instance",
+          placement: {
+            assembly: "tower_module",
+            anchor: { x: 4, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INSTANCE_OUT_OF_BOUNDS",
+          componentId: "tower",
+        }),
+      ]);
+    }
+  });
+
+  it("validates assembly-local references before instances expand", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Assembly Ref",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        glass: "minecraft:glass",
+      },
+      assemblies: [
+        {
+          id: "bad_module",
+          bounds: { width: 4, height: 4, length: 4 },
+          components: [
+            {
+              id: "bad_window",
+              type: "Window",
+              placement: {
+                target: "missing_wall",
+                wall: "front",
+                offset: 0,
+                y: 0,
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "bad_instance",
+          type: "Instance",
+          placement: {
+            assembly: "bad_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "UNKNOWN_COMPONENT_REF",
+          componentId: "bad_window",
+        }),
+      ]);
+    }
+  });
+
+  it("counts repeated assembly clones in Instance component budgets", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Repeated Assembly Budget",
+      bounds: { width: 32, height: 4, length: 3 },
+      palette: {
+        trim: "minecraft:oak_log",
+      },
+      assemblies: [
+        {
+          id: "post_run_module",
+          bounds: { width: 32, height: 4, length: 3 },
+          components: [
+            {
+              id: "post",
+              type: "SupportPost",
+              placement: {
+                anchor: { x: 0, y: 0, z: 1 },
+                size: { width: 1, height: 4, length: 1 },
+              },
+            },
+            {
+              id: "post_run",
+              type: "Repeat",
+              placement: {
+                source: "post",
+                axis: "x",
+                count: 32,
+                step: 1,
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "run_a",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+        {
+          id: "run_b",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+        {
+          id: "run_c",
+          type: "Instance",
+          placement: {
+            assembly: "post_run_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "PLAN_COMPONENTS_OVER_BUDGET",
+        }),
+      ]);
+    }
+  });
 });
