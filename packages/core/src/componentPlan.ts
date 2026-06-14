@@ -2,6 +2,8 @@ import { z } from "zod";
 import { GraphError, ValidationError } from "./errors.js";
 import { compileDocument } from "./compiler/compileDocument.js";
 import {
+  AssemblyComponentNode,
+  ComponentAssemblyDefinition,
   ComponentNode,
   ComponentPlanDocument,
   ComponentSize,
@@ -160,7 +162,19 @@ const RepeatComponentSchema = z.object({
   placement: RepeatPlacementSchema,
 }).strict();
 
-const ComponentNodeSchema = z.discriminatedUnion("type", [
+const InstancePlacementSchema = z.object({
+  assembly: z.string().min(1),
+  anchor: ComponentAnchorSchema,
+}).strict();
+
+const InstanceComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Instance"),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: InstancePlacementSchema,
+}).strict();
+
+const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   FoundationComponentSchema,
   PlatformComponentSchema,
   BeamComponentSchema,
@@ -175,6 +189,28 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   RepeatComponentSchema,
 ]);
 
+const ComponentNodeSchema = z.discriminatedUnion("type", [
+  FoundationComponentSchema,
+  PlatformComponentSchema,
+  BeamComponentSchema,
+  RoomShellComponentSchema,
+  DoorComponentSchema,
+  WindowComponentSchema,
+  OpeningComponentSchema,
+  PortalComponentSchema,
+  GableRoofComponentSchema,
+  FlatRoofComponentSchema,
+  SupportPostComponentSchema,
+  RepeatComponentSchema,
+  InstanceComponentSchema,
+]);
+
+const ComponentAssemblyDefinitionSchema = z.object({
+  id: z.string().min(1),
+  bounds: ComponentSizeSchema,
+  components: z.array(AssemblyComponentNodeSchema),
+}).strict();
+
 const ComponentPlanSchema = z.object({
   version: z.literal("0.1"),
   name: z.string().min(1),
@@ -186,6 +222,7 @@ const ComponentPlanSchema = z.object({
   }).strict().optional(),
   bounds: ComponentSizeSchema,
   palette: z.record(z.string(), z.string().min(1)),
+  assemblies: z.array(ComponentAssemblyDefinitionSchema).optional(),
   components: z.array(ComponentNodeSchema),
 }).strict();
 
@@ -193,6 +230,7 @@ type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; 
 type RepeatableComponent = Extract<ComponentNode, {
   type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "SupportPost";
 }>;
+type ComponentScope = "ComponentPlan" | `Assembly "${string}"`;
 
 interface ComponentBudget {
   maxBounds: ComponentSize;
@@ -246,6 +284,19 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
 
   const parsed = result.data as ComponentPlanDocument;
   const componentMap = new Map<string, ComponentNode>();
+  const assemblyMap = new Map<string, ComponentAssemblyDefinition>();
+
+  for (const assembly of parsed.assemblies ?? []) {
+    if (assemblyMap.has(assembly.id)) {
+      throw componentValidationError({
+        code: "DUPLICATE_ASSEMBLY_ID",
+        componentId: assembly.id,
+        message: `Duplicate assembly ID found: "${assembly.id}".`,
+        repairHint: "Rename one assembly and update any Instance references to it.",
+      });
+    }
+    assemblyMap.set(assembly.id, assembly);
+  }
 
   for (const component of parsed.components) {
     if (componentMap.has(component.id)) {
@@ -259,18 +310,57 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
     componentMap.set(component.id, component);
   }
 
-  for (const component of parsed.components) {
+  for (const assembly of parsed.assemblies ?? []) {
+    const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+    validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+  }
+
+  validateComponentSet(parsed, parsed.components, parsed.bounds, componentMap, "ComponentPlan", assemblyMap);
+  validateBudgetPolicy(parsed, componentMap, assemblyMap);
+
+  return parsed;
+}
+
+function buildComponentMap(
+  components: readonly (ComponentNode | AssemblyComponentNode)[],
+  scope: ComponentScope
+): Map<string, ComponentNode> {
+  const componentMap = new Map<string, ComponentNode>();
+  for (const component of components) {
+    if (componentMap.has(component.id)) {
+      throw componentValidationError({
+        code: "DUPLICATE_COMPONENT_ID",
+        componentId: component.id,
+        message: `${scope} has duplicate component ID "${component.id}".`,
+        repairHint: "Rename one component and update any references to it.",
+      });
+    }
+    componentMap.set(component.id, component);
+  }
+
+  return componentMap;
+}
+
+function validateComponentSet(
+  plan: ComponentPlanDocument,
+  components: readonly ComponentNode[],
+  bounds: ComponentSize,
+  componentMap: Map<string, ComponentNode>,
+  scope: ComponentScope,
+  assemblyMap = new Map<string, ComponentAssemblyDefinition>()
+): void {
+  for (const component of components) {
     for (const input of component.inputs ?? []) {
       const inputTarget = componentMap.get(input.ref);
       if (!inputTarget) {
         throw unknownRefError(component, `inputs ref "${input.ref}"`, input.ref, componentMap);
       }
-      if (inputTarget.type === "Repeat") {
+      if (inputTarget.type === "Repeat" || inputTarget.type === "Instance") {
         throw componentValidationError({
-          code: "INVALID_REPEAT_REFERENCE",
+          code: "INVALID_NON_PHYSICAL_REFERENCE",
           componentId: component.id,
-          message: `Component "${component.id}" cannot reference Repeat component "${input.ref}".`,
-          repairHint: "Reference the repeated source component or a concrete component instead.",
+          message: `Component "${component.id}" cannot reference non-physical component "${input.ref}".`,
+          repairHint: "Reference a concrete component instead of Repeat or Instance.",
         });
       }
     }
@@ -289,20 +379,32 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
       throw unknownRefError(component, `source "${component.placement.source}"`, component.placement.source, componentMap);
     }
 
-    if (isAnchoredComponent(component)) {
-      validateAnchoredBounds(parsed.bounds, component);
+    if (component.type === "Instance") {
+      const assembly = assemblyMap.get(component.placement.assembly);
+      if (!assembly) {
+        throw componentValidationError({
+          code: "UNKNOWN_ASSEMBLY_REF",
+          componentId: component.id,
+          message: `Instance "${component.id}" references unknown assembly "${component.placement.assembly}".`,
+          availableRefs: [...assemblyMap.keys()],
+          repairHint: "Change placement.assembly to an existing assembly ID or define that assembly.",
+        });
+      } else {
+        validateInstanceBounds(bounds, component, assembly);
+      }
     }
 
-    validateComponentMaterials(parsed, component);
+    if (isAnchoredComponent(component)) {
+      validateAnchoredBounds(bounds, component);
+    }
+
+    validateComponentMaterials(plan, component);
   }
 
-  validateComponentGraph(parsed);
-  validateAttachments(parsed, componentMap);
-  validateCovers(parsed, componentMap);
-  validateBudgetPolicy(parsed, componentMap);
-  validateRepeats(parsed, componentMap);
-
-  return parsed;
+  validateComponentGraph(components);
+  validateAttachments(components, componentMap);
+  validateCovers(components, bounds, plan.grid?.unitBlocks ?? 1, componentMap);
+  validateRepeats(components, bounds, componentMap);
 }
 
 /**
@@ -312,142 +414,11 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
   const plan = validateComponentPlan(doc);
   const unit = plan.grid?.unitBlocks ?? 1;
   const componentMap = new Map(plan.components.map((component) => [component.id, component]));
+  const assemblyMap = new Map((plan.assemblies ?? []).map((assembly) => [assembly.id, assembly]));
   const craftDagNodes: CraftDagNode[] = [];
 
   for (const component of plan.components) {
-    switch (component.type) {
-      case "Foundation":
-        craftDagNodes.push({
-          id: nodeId(component.id, "solid"),
-          type: "SolidBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledBox(component.placement, unit),
-            block: material(component, "main", "foundation"),
-          },
-        });
-        break;
-      case "Platform":
-        craftDagNodes.push({
-          id: nodeId(component.id, "platform"),
-          type: "SolidBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledBox(component.placement, unit),
-            block: material(component, "main", "floor"),
-          },
-        });
-        break;
-      case "Beam":
-        craftDagNodes.push({
-          id: nodeId(component.id, "beam"),
-          type: "SolidBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledBox(component.placement, unit),
-            block: material(component, "main", "trim"),
-          },
-        });
-        break;
-      case "RoomShell":
-        craftDagNodes.push({
-          id: nodeId(component.id, "shell"),
-          type: "HollowBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledBox(component.placement, unit),
-            block: material(component, "wall", "wall"),
-            includeFloor: component.options?.includeFloor,
-            includeCeiling: component.options?.includeCeiling,
-          },
-        });
-        break;
-      case "Door":
-        craftDagNodes.push({
-          id: nodeId(component.id, "opening"),
-          type: "Doorway",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
-            block: material(component, "door", "door"),
-          },
-        });
-        break;
-      case "Window":
-        craftDagNodes.push({
-          id: nodeId(component.id, "opening"),
-          type: "Window",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 1),
-            block: material(component, "glass", "glass"),
-          },
-        });
-        break;
-      case "Opening":
-        craftDagNodes.push({
-          id: nodeId(component.id, "opening"),
-          type: "Doorway",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
-            block: component.materials?.fill,
-          },
-        });
-        break;
-      case "Portal":
-        craftDagNodes.push({
-          id: nodeId(component.id, "portal"),
-          type: "Window",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledAttachmentBox(component.placement, componentMap, unit, 2, 3),
-            block: material(component, "surface", "portal"),
-          },
-        });
-        break;
-      case "GableRoof":
-        craftDagNodes.push({
-          id: nodeId(component.id, "gable"),
-          type: "GableRoof",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledRoofBox(component, componentMap, plan.bounds, unit),
-            block: material(component, "roof", "roof"),
-            direction: component.placement.direction,
-          },
-        });
-        break;
-      case "FlatRoof":
-        craftDagNodes.push({
-          id: nodeId(component.id, "flat_roof"),
-          type: "SolidBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledFlatRoofBox(component, componentMap, plan.bounds, unit),
-            block: material(component, "roof", "roof"),
-          },
-        });
-        break;
-      case "SupportPost":
-        craftDagNodes.push({
-          id: nodeId(component.id, "post"),
-          type: "SolidBox",
-          inputs: expandInputs(component, componentMap),
-          params: {
-            ...scaledBox(component.placement, unit),
-            block: material(component, "main", "trim"),
-          },
-        });
-        break;
-      case "Repeat":
-        craftDagNodes.push(...expandRepeat(component, componentMap, unit));
-        break;
-      default: {
-        const _exhaustiveCheck: never = component;
-        throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
-      }
-    }
+    craftDagNodes.push(...expandComponentToNodes(component, componentMap, plan.bounds, unit, assemblyMap));
   }
 
   return {
@@ -457,6 +428,138 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
     palette: plan.palette,
     nodes: craftDagNodes,
   };
+}
+
+function expandComponentToNodes(
+  component: ComponentNode,
+  componentMap: Map<string, ComponentNode>,
+  bounds: ComponentSize,
+  unit: 1 | 2,
+  assemblyMap = new Map<string, ComponentAssemblyDefinition>()
+): CraftDagNode[] {
+  switch (component.type) {
+    case "Foundation":
+      return [{
+        id: nodeId(component.id, "solid"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "main", "foundation"),
+        },
+      }];
+    case "Platform":
+      return [{
+        id: nodeId(component.id, "platform"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "main", "floor"),
+        },
+      }];
+    case "Beam":
+      return [{
+        id: nodeId(component.id, "beam"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "main", "trim"),
+        },
+      }];
+    case "RoomShell":
+      return [{
+        id: nodeId(component.id, "shell"),
+        type: "HollowBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "wall", "wall"),
+          includeFloor: component.options?.includeFloor,
+          includeCeiling: component.options?.includeCeiling,
+        },
+      }];
+    case "Door":
+      return [{
+        id: nodeId(component.id, "opening"),
+        type: "Doorway",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
+          block: material(component, "door", "door"),
+        },
+      }];
+    case "Window":
+      return [{
+        id: nodeId(component.id, "opening"),
+        type: "Window",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 1),
+          block: material(component, "glass", "glass"),
+        },
+      }];
+    case "Opening":
+      return [{
+        id: nodeId(component.id, "opening"),
+        type: "Doorway",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
+          block: component.materials?.fill,
+        },
+      }];
+    case "Portal":
+      return [{
+        id: nodeId(component.id, "portal"),
+        type: "Window",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledAttachmentBox(component.placement, componentMap, unit, 2, 3),
+          block: material(component, "surface", "portal"),
+        },
+      }];
+    case "GableRoof":
+      return [{
+        id: nodeId(component.id, "gable"),
+        type: "GableRoof",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledRoofBox(component, componentMap, bounds, unit),
+          block: material(component, "roof", "roof"),
+          direction: component.placement.direction,
+        },
+      }];
+    case "FlatRoof":
+      return [{
+        id: nodeId(component.id, "flat_roof"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledFlatRoofBox(component, componentMap, bounds, unit),
+          block: material(component, "roof", "roof"),
+        },
+      }];
+    case "SupportPost":
+      return [{
+        id: nodeId(component.id, "post"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "main", "trim"),
+        },
+      }];
+    case "Repeat":
+      return expandRepeat(component, componentMap, unit);
+    case "Instance":
+      return expandInstance(component, componentMap, assemblyMap, unit);
+    default: {
+      const _exhaustiveCheck: never = component;
+      throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
+    }
+  }
 }
 
 export function compileComponentPlan(doc: unknown): VoxelPlan {
@@ -499,16 +602,37 @@ function validateAnchoredBounds(bounds: ComponentSize, component: AnchoredCompon
   }
 }
 
-function validateComponentGraph(plan: ComponentPlanDocument): void {
+function validateInstanceBounds(
+  bounds: ComponentSize,
+  component: Extract<ComponentNode, { type: "Instance" }>,
+  assembly: ComponentAssemblyDefinition
+): void {
+  const { anchor } = component.placement;
+  const isWithinBounds =
+    anchor.x + assembly.bounds.width <= bounds.width &&
+    anchor.y + assembly.bounds.height <= bounds.height &&
+    anchor.z + assembly.bounds.length <= bounds.length;
+
+  if (!isWithinBounds) {
+    throw componentValidationError({
+      code: "INSTANCE_OUT_OF_BOUNDS",
+      componentId: component.id,
+      message: `Instance "${component.id}" placement exceeds ComponentPlan bounds.`,
+      repairHint: `Move the instance anchor, reduce assembly "${assembly.id}" bounds, or increase plan bounds.`,
+    });
+  }
+}
+
+function validateComponentGraph(components: readonly ComponentNode[]): void {
   const inDegree = new Map<string, number>();
   const adj = new Map<string, string[]>();
 
-  for (const component of plan.components) {
+  for (const component of components) {
     inDegree.set(component.id, 0);
     adj.set(component.id, []);
   }
 
-  for (const component of plan.components) {
+  for (const component of components) {
     const refs = new Set((component.inputs ?? []).map((input) => input.ref));
     if (isAttachmentComponent(component)) {
       refs.add(component.placement.target);
@@ -541,7 +665,7 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
     }
   }
 
-  if (sorted.length !== plan.components.length) {
+  if (sorted.length !== components.length) {
     const cycleComponentIds = [...inDegree.entries()]
       .filter(([, degree]) => degree > 0)
       .map(([id]) => id);
@@ -550,15 +674,15 @@ function validateComponentGraph(plan: ComponentPlanDocument): void {
       [{
         stage: "component-validation",
         code: "COMPONENT_DEPENDENCY_CYCLE",
-        availableRefs: plan.components.map((component) => component.id),
+        availableRefs: components.map((component) => component.id),
         repairHint: "Remove or redirect one semantic dependency so the component graph is acyclic.",
       }]
     );
   }
 }
 
-function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
-  for (const component of plan.components) {
+function validateAttachments(components: readonly ComponentNode[], componentMap: Map<string, ComponentNode>): void {
+  for (const component of components) {
     if (!isAttachmentComponent(component)) {
       continue;
     }
@@ -594,10 +718,13 @@ function validateAttachments(plan: ComponentPlanDocument, componentMap: Map<stri
   }
 }
 
-function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
-  const unit = plan.grid?.unitBlocks ?? 1;
-
-  for (const component of plan.components) {
+function validateCovers(
+  components: readonly ComponentNode[],
+  bounds: ComponentSize,
+  unit: 1 | 2,
+  componentMap: Map<string, ComponentNode>
+): void {
+  for (const component of components) {
     if (!isCoverComponent(component)) {
       continue;
     }
@@ -613,10 +740,10 @@ function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, C
     }
 
     const geometry = component.type === "GableRoof"
-      ? roofGeometry(component, target, plan.bounds, unit)
-      : flatRoofGeometry(component, target, plan.bounds, unit);
+      ? roofGeometry(component, target, bounds, unit)
+      : flatRoofGeometry(component, target, bounds, unit);
 
-    if (geometry.baseY >= plan.bounds.height) {
+    if (geometry.baseY >= bounds.height) {
       throw componentValidationError({
         code: "COVER_OUT_OF_BOUNDS",
         componentId: component.id,
@@ -625,7 +752,7 @@ function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, C
       });
     }
 
-    if (geometry.scaledMaxY > plan.bounds.height * unit) {
+    if (geometry.scaledMaxY > bounds.height * unit) {
       const requiredHeight = Math.ceil(geometry.scaledMaxY / unit);
       throw componentValidationError({
         code: component.type === "GableRoof" ? "ROOF_HEIGHT_OUT_OF_BOUNDS" : "COVER_OUT_OF_BOUNDS",
@@ -637,7 +764,11 @@ function validateCovers(plan: ComponentPlanDocument, componentMap: Map<string, C
   }
 }
 
-function validateBudgetPolicy(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
+function validateBudgetPolicy(
+  plan: ComponentPlanDocument,
+  componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>
+): void {
   const tier = plan.policy?.sizeTier ?? "small";
   const budget = COMPONENT_BUDGETS[tier];
   const unit = plan.grid?.unitBlocks ?? 1;
@@ -654,15 +785,20 @@ function validateBudgetPolicy(plan: ComponentPlanDocument, componentMap: Map<str
     });
   }
 
-  if (plan.components.length > budget.maxComponents) {
+  const authoredComponents = plan.components.length + (plan.assemblies ?? [])
+    .reduce((total, assembly) => total + assembly.components.length, 0);
+  const expandedComponents = estimateExpandedComponentCount(plan.components, componentMap, assemblyMap);
+  const budgetedComponents = Math.max(authoredComponents, expandedComponents);
+
+  if (budgetedComponents > budget.maxComponents) {
     throw componentValidationError({
       code: "PLAN_COMPONENTS_OVER_BUDGET",
-      message: `ComponentPlan has ${plan.components.length} components, exceeding the ${tier} size tier budget of ${budget.maxComponents}.`,
+      message: `ComponentPlan has ${authoredComponents} authored components and ${expandedComponents} estimated expanded components, exceeding the ${tier} size tier budget of ${budget.maxComponents}.`,
       repairHint: "Reduce repeated detail, combine simple volumes, choose a larger sizeTier, or split the build into sections.",
     });
   }
 
-  const estimatedBlocks = estimateExpandedBlocks(plan, componentMap, unit);
+  const estimatedBlocks = estimateExpandedBlocks(plan, componentMap, assemblyMap, unit);
   if (estimatedBlocks > budget.maxEstimatedBlocks) {
     throw componentValidationError({
       code: "PLAN_ESTIMATED_BLOCKS_OVER_BUDGET",
@@ -675,19 +811,43 @@ function validateBudgetPolicy(plan: ComponentPlanDocument, componentMap: Map<str
 function estimateExpandedBlocks(
   plan: ComponentPlanDocument,
   componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>,
   unit: 1 | 2
 ): number {
   let total = 0;
   for (const component of plan.components) {
-    total += estimateComponentBlocks(component, componentMap, plan.bounds, unit);
+    total += estimateComponentBlocks(component, componentMap, assemblyMap, plan.bounds, unit);
   }
 
   return total;
 }
 
+function estimateExpandedComponentCount(
+  components: readonly ComponentNode[],
+  componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>
+): number {
+  let total = 0;
+  for (const component of components) {
+    if (component.type === "Instance") {
+      const assembly = assemblyMap.get(component.placement.assembly);
+      total += assembly?.components.length ?? 0;
+      continue;
+    }
+    if (component.type === "Repeat") {
+      total += component.placement.count - 1;
+      continue;
+    }
+    total += 1;
+  }
+
+  return Math.max(total, componentMap.size);
+}
+
 function estimateComponentBlocks(
   component: ComponentNode,
   componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>,
   bounds: ComponentSize,
   unit: 1 | 2
 ): number {
@@ -753,8 +913,20 @@ function estimateComponentBlocks(
       if (!source) {
         return 0;
       }
-      const singleVolume = estimateComponentBlocks(source, componentMap, bounds, unit);
+      const singleVolume = estimateComponentBlocks(source, componentMap, assemblyMap, bounds, unit);
       return singleVolume * (component.placement.count - 1);
+    }
+    case "Instance": {
+      const assembly = assemblyMap.get(component.placement.assembly);
+      if (!assembly) {
+        return 0;
+      }
+      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+      let total = 0;
+      for (const localComponent of assembly.components) {
+        total += estimateComponentBlocks(localComponent, localComponentMap, new Map(), assembly.bounds, unit);
+      }
+      return total;
     }
     default: {
       const _exhaustiveCheck: never = component;
@@ -767,8 +939,12 @@ function componentVolume(size: ComponentSize): number {
   return size.width * size.height * size.length;
 }
 
-function validateRepeats(plan: ComponentPlanDocument, componentMap: Map<string, ComponentNode>): void {
-  for (const component of plan.components) {
+function validateRepeats(
+  components: readonly ComponentNode[],
+  bounds: ComponentSize,
+  componentMap: Map<string, ComponentNode>
+): void {
+  for (const component of components) {
     if (component.type !== "Repeat") {
       continue;
     }
@@ -789,9 +965,9 @@ function validateRepeats(plan: ComponentPlanDocument, componentMap: Map<string, 
 
       const { anchor, size } = clone.placement;
       const isWithinBounds =
-        anchor.x + size.width <= plan.bounds.width &&
-        anchor.y + size.height <= plan.bounds.height &&
-        anchor.z + size.length <= plan.bounds.length;
+        anchor.x + size.width <= bounds.width &&
+        anchor.y + size.height <= bounds.height &&
+        anchor.z + size.length <= bounds.length;
 
       if (!isWithinBounds) {
         throw componentValidationError({
@@ -852,6 +1028,7 @@ function requiredFallbackMaterial(component: ComponentNode): { role: string; val
     case "SupportPost":
       return { role: "main", value: "trim" };
     case "Repeat":
+    case "Instance":
       return undefined;
     default: {
       const _exhaustiveCheck: never = component;
@@ -912,6 +1089,8 @@ function outputPart(component: ComponentNode): string {
       return "post";
     case "Repeat":
       return "repeat";
+    case "Instance":
+      return "instance";
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -1023,6 +1202,99 @@ function expandRepeatableComponent(
       throw new ValidationError(`Unhandled repeatable component type: ${(_exhaustiveCheck as any).type}`);
     }
   }
+}
+
+function expandInstance(
+  component: Extract<ComponentNode, { type: "Instance" }>,
+  componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>,
+  unit: 1 | 2
+): CraftDagNode[] {
+  const assembly = assemblyMap.get(component.placement.assembly);
+  if (!assembly) {
+    throw componentValidationError({
+      code: "UNKNOWN_ASSEMBLY_REF",
+      componentId: component.id,
+      message: `Instance "${component.id}" references unknown assembly "${component.placement.assembly}".`,
+      repairHint: "Change placement.assembly to an existing assembly ID or define that assembly.",
+    });
+  }
+
+  const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+  const shiftedNodes: CraftDagNode[] = [];
+  const externalInputs = expandInputs(component, componentMap);
+  const shift: Vec3 = [
+    component.placement.anchor.x * unit,
+    component.placement.anchor.y * unit,
+    component.placement.anchor.z * unit,
+  ];
+
+  for (const localComponent of assembly.components) {
+    const localNodes = expandComponentToNodes(localComponent, localComponentMap, assembly.bounds, unit);
+    for (const localNode of localNodes) {
+      shiftedNodes.push(namespaceAndShiftNode(localNode, component.id, shift, externalInputs));
+    }
+  }
+
+  return shiftedNodes;
+}
+
+function namespaceAndShiftNode(
+  node: CraftDagNode,
+  instanceId: string,
+  shift: Vec3,
+  externalInputs: { ref: string }[]
+): CraftDagNode {
+  const inputsMap = new Map<string, { ref: string }>();
+  for (const input of node.inputs ?? []) {
+    inputsMap.set(`${instanceId}__${input.ref}`, { ref: `${instanceId}__${input.ref}` });
+  }
+  for (const input of externalInputs) {
+    inputsMap.set(input.ref, input);
+  }
+
+  const base = {
+    ...node,
+    id: `${instanceId}__${node.id}`,
+    inputs: [...inputsMap.values()],
+  };
+
+  switch (node.type) {
+    case "SolidBox":
+    case "HollowBox":
+    case "Wall":
+    case "Floor":
+    case "Column":
+    case "Doorway":
+    case "Window":
+      return {
+        ...base,
+        type: node.type,
+        params: {
+          ...node.params,
+          from: addVec3(node.params.from, shift),
+          to: addVec3(node.params.to, shift),
+        },
+      } as CraftDagNode;
+    case "GableRoof":
+      return {
+        ...base,
+        type: "GableRoof",
+        params: {
+          ...node.params,
+          from: addVec3(node.params.from, shift),
+          to: addVec3(node.params.to, shift),
+        },
+      };
+    default: {
+      const _exhaustiveCheck: never = node;
+      throw new ValidationError(`Unhandled CraftDAG node type: ${(_exhaustiveCheck as any).type}`);
+    }
+  }
+}
+
+function addVec3(a: Vec3, b: Vec3): Vec3 {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
 function material(component: ComponentNode, role: string, fallback: string): string {

@@ -51,7 +51,14 @@ type ComponentPlanDocument = {
   policy?: ComponentPlanPolicy
   bounds: ComponentSize
   palette: ComponentPalette
+  assemblies?: ComponentAssemblyDefinition[]
   components: ComponentNode[]
+}
+
+type ComponentAssemblyDefinition = {
+  id: string
+  bounds: ComponentSize
+  components: AssemblyComponentNode[]
 }
 
 type ComponentGrid = {
@@ -169,6 +176,7 @@ Start with a small component vocabulary:
 - `FlatRoof`
 - `SupportPost`
 - `Repeat`
+- `Instance`
 
 Avoid broad component catalogs until the repair loop and preview workflow are stable.
 
@@ -183,6 +191,8 @@ Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnin
 Use `Door` only for literal door-sized entrances. Use `Window` for glazed wall openings. Use `Opening` for semantic pass-throughs, gates, large cutouts, and other unfilled rectangular wall openings. Use `Portal` for filled vertical portal planes inside a wall or frame.
 
 Use `Repeat` for bounded repetition of an existing anchored source component, such as a column run, facade rhythm, bridge support sequence, or repeated shell bay. `Repeat` is not a free-form loop and is not a standalone physical component.
+
+Use `assemblies` plus `Instance` when the same multi-component module should appear several times, such as castle towers, bridge bays, wall segments, facade modules, or repeated ship compartments. `Instance` is a placement of an assembly, not a physical component by itself.
 
 ## Placement Model
 
@@ -248,6 +258,80 @@ Repeated clone IDs are stable:
 
 ```text
 <repeatId>__<sourceId>_<index>__<partName>
+```
+
+## Assemblies And Instances
+
+Assemblies are local, reusable component groups. They are the first large-build primitive in ComponentPlan v0.1.
+
+```ts
+type ComponentAssemblyDefinition = {
+  id: string
+  bounds: ComponentSize
+  components: AssemblyComponentNode[]
+}
+
+type InstancePlacement = {
+  assembly: string
+  anchor: { x: number; y: number; z: number }
+}
+```
+
+Assembly components use local coordinates inside `assembly.bounds`. An `Instance` places that local assembly into global ComponentPlan coordinates using `placement.anchor`.
+
+In v0.1:
+
+- assembly components may use the normal physical components and `Repeat`
+- assembly-local references only resolve to components inside that assembly
+- top-level `Instance.inputs` may reference concrete top-level components for ordering
+- expanded node IDs are deterministic: `<instanceId>__<localComponentId>__<partName>`
+- nested `Instance` inside an assembly is not supported
+- rotation, mirroring, expressions, arbitrary loops, and material overrides are not supported
+
+Example:
+
+```json
+{
+  "assemblies": [
+    {
+      "id": "tower_module",
+      "bounds": { "width": 6, "height": 10, "length": 6 },
+      "components": [
+        {
+          "id": "tower_body",
+          "type": "RoomShell",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 6, "height": 7, "length": 6 }
+          }
+        },
+        {
+          "id": "tower_cap",
+          "type": "FlatRoof",
+          "placement": { "over": "tower_body" }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "left_tower",
+      "type": "Instance",
+      "placement": {
+        "assembly": "tower_module",
+        "anchor": { "x": 1, "y": 1, "z": 3 }
+      }
+    },
+    {
+      "id": "right_tower",
+      "type": "Instance",
+      "placement": {
+        "assembly": "tower_module",
+        "anchor": { "x": 17, "y": 1, "z": 3 }
+      }
+    }
+  ]
+}
 ```
 
 Agents should not calculate raw `from` and `to` coordinates for attached components when a semantic placement is available.
@@ -356,6 +440,10 @@ ComponentPlan validation should reject:
 - bounds, component counts, or estimated expanded blocks over the active `policy.sizeTier` budget
 - repeat sources that are missing, non-anchored, or unsupported
 - repeated clones outside logical bounds
+- duplicate assembly IDs
+- instance references to unknown assemblies
+- instance placements outside global logical bounds
+- assembly-local references to missing local components
 - unsupported `grid.unitBlocks`
 - unknown material role references
 - attached components that reference non-attachable targets
