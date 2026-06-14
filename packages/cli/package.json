@@ -1,6 +1,6 @@
 {
   "name": "@i365dev/craftdag-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "./dist/index.js",
   "bin": {
     "craftdag": "./dist/index.js"

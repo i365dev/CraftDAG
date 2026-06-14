@@ -34,16 +34,11 @@ After this succeeds, the packages should be visible at:
 
 ## GitHub Actions publishing
 
-The publish workflow runs on version tags like `v0.1.4`, or by manual `workflow_dispatch`.
+The publish workflow runs on version tags like `v0.1.5`, or by manual `workflow_dispatch`.
 
 Because npm Trusted Publishing is configured from each package's npm settings page, the first publish may need to happen manually before the Trusted Publisher UI is available.
 
-Until Trusted Publishing is configured, create a GitHub repository secret:
-
-- Name: `NPM_TOKEN`
-- Value: a granular npm access token with publish permissions for `@i365dev/craftdag-core` and `@i365dev/craftdag-exporter-schem`
-
-After the packages exist on npm, you can switch to Trusted Publishing in each package's npm settings:
+The GitHub Actions workflow uses npm Trusted Publishing. Configure each package's npm settings with:
 
 - Provider: GitHub Actions
 - Organization or user: `i365dev`
@@ -51,4 +46,4 @@ After the packages exist on npm, you can switch to Trusted Publishing in each pa
 - Workflow filename: `publish.yml`
 - Allowed action: `npm publish`
 
-Once Trusted Publishing works, the `NPM_TOKEN` secret can be removed from GitHub.
+The workflow packs packages with `pnpm pack` so workspace dependencies are converted to concrete versions, then publishes those tarballs with `npm publish` so npm can use GitHub Actions OIDC.
