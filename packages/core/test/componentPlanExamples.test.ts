@@ -18,6 +18,7 @@ describe("ComponentPlan large examples", () => {
     "arcade-bracket-study.componentplan.json",
     "fortified-wall-shape.componentplan.json",
     "large-form-massing.componentplan.json",
+    "landscape-canopy-patch.componentplan.json",
     "large-castle.componentplan.json",
     "large-ship-interior.componentplan.json",
     "long-fortified-bridge.componentplan.json",
@@ -49,7 +50,9 @@ describe("ComponentPlan large examples", () => {
         component.type === "VerticalSetbackVolume" ||
         component.type === "RailingRun" ||
         component.type === "ArcadeRun" ||
-        component.type === "SupportBracket"
+        component.type === "SupportBracket" ||
+        component.type === "TreeCanopy" ||
+        component.type === "OrganicPatch"
       )).length;
 
       expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
@@ -70,7 +73,9 @@ describe("ComponentPlan large examples", () => {
           node.id.includes("__setback_") ||
           node.id.includes("__post_") ||
           node.id.includes("__pier_") ||
-          node.id.includes("__bracket_")
+          node.id.includes("__bracket_") ||
+          node.id.includes("__canopy_") ||
+          node.id.includes("__fill_")
         ))).toBe(true);
       }
     });

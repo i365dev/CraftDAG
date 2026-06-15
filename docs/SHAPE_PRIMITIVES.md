@@ -216,6 +216,97 @@ Example:
 }
 ```
 
+### TreeCanopy
+
+`TreeCanopy` represents a stylized Minecraft tree inside one anchored bounding box.
+
+Use it for:
+
+- sakura trees
+- garden trees
+- village trees
+- park landscaping
+- small forest patches when combined with `Repeat`
+
+Do not use it for exact botanical simulation or giant custom tree sculptures.
+
+Key options:
+
+- `trunkHeight`: positive integer trunk height; defaults to roughly half the component height
+- `trunkWidth`: positive integer trunk width; defaults to `1`
+- `canopyStyle`: `"rounded"`, `"tiered"`, `"weeping"`, or `"flat"`; defaults to `"rounded"`
+
+Materials:
+
+- `trunk`: wood/log material
+- `leaf`: leaves, blossom, or canopy material
+
+Example:
+
+```json
+{
+  "id": "sakura_tree",
+  "type": "TreeCanopy",
+  "placement": {
+    "anchor": { "x": 5, "y": 1, "z": 5 },
+    "size": { "width": 9, "height": 9, "length": 9 }
+  },
+  "materials": {
+    "trunk": "minecraft:cherry_log",
+    "leaf": "minecraft:pink_wool"
+  },
+  "options": {
+    "trunkHeight": 4,
+    "canopyStyle": "rounded"
+  }
+}
+```
+
+### OrganicPatch
+
+`OrganicPatch` represents a deterministic irregular ground patch.
+
+Use it for:
+
+- ponds
+- gravel beds
+- flower beds
+- moss patches
+- soft-edged garden zones
+
+Do not use it for structural slabs, building floors, or arbitrary terrain generation.
+
+Key options:
+
+- `roughness`: non-negative integer edge trim strength; defaults to `1`
+- `includeBorder`: emits border blocks beside trimmed rows; defaults to `false`
+
+Materials:
+
+- `fill`: main patch material
+- `border`: optional border material when `includeBorder` is true
+
+Example:
+
+```json
+{
+  "id": "koi_pond",
+  "type": "OrganicPatch",
+  "placement": {
+    "anchor": { "x": 12, "y": 1, "z": 12 },
+    "size": { "width": 20, "height": 1, "length": 12 }
+  },
+  "materials": {
+    "fill": "minecraft:water",
+    "border": "minecraft:stone"
+  },
+  "options": {
+    "roughness": 2,
+    "includeBorder": true
+  }
+}
+```
+
 ## Non-Goals
 
 - no arbitrary meshes
