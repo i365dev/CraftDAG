@@ -944,6 +944,18 @@ function validateInteriorLayoutComponent(component: ComponentNode): void {
   const { size } = component.placement;
   const axis = corridorAxis(component);
   const crossAxisSize = axis === "z" ? size.width : size.length;
+  const includeFloor = component.options?.includeFloor ?? true;
+  const includeWalls = component.options?.includeWalls ?? true;
+  const includeCeiling = component.options?.includeCeiling ?? true;
+
+  if (!includeFloor && !includeWalls && !includeCeiling) {
+    throw componentValidationError({
+      code: "EMPTY_CORRIDOR",
+      componentId: component.id,
+      message: `Corridor "${component.id}" must emit at least one physical part.`,
+      repairHint: "Enable includeFloor, includeWalls, or includeCeiling.",
+    });
+  }
 
   if (size.height < 2 || crossAxisSize < 3) {
     throw componentValidationError({
@@ -1349,15 +1361,15 @@ function estimateCorridorBlocks(component: Extract<ComponentNode, { type: "Corri
   let total = 0;
 
   if (component.options?.includeFloor ?? true) {
-    total += W * L;
+    total += W * L * unit;
   }
 
   if (component.options?.includeWalls ?? true) {
-    total += axis === "z" ? 2 * H * L : 2 * W * H;
+    total += axis === "z" ? 2 * H * L * unit : 2 * W * H * unit;
   }
 
   if (component.options?.includeCeiling ?? true) {
-    total += W * L;
+    total += W * L * unit;
   }
 
   return total;
@@ -1440,7 +1452,10 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
     case "Compartment":
       return [{ role: "wall", value: "wall" }];
     case "Corridor": {
-      const fallbacks = [{ role: "floor", value: "floor" }];
+      const fallbacks: { role: string; value: string }[] = [];
+      if (component.options?.includeFloor ?? true) {
+        fallbacks.push({ role: "floor", value: "floor" });
+      }
       if (component.options?.includeWalls ?? true) {
         fallbacks.push({ role: "wall", value: "wall" });
       }
@@ -1514,7 +1529,7 @@ function outputPart(component: ComponentNode): string {
     case "Compartment":
       return "shell";
     case "Corridor":
-      return "floor";
+      return corridorOutputPart(component);
     case "Door":
     case "Window":
     case "Opening":
@@ -1536,6 +1551,19 @@ function outputPart(component: ComponentNode): string {
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
     }
   }
+}
+
+function corridorOutputPart(component: Extract<ComponentNode, { type: "Corridor" }>): string {
+  if (component.options?.includeFloor ?? true) {
+    return "floor";
+  }
+  if (component.options?.includeWalls ?? true) {
+    return "left_wall";
+  }
+  if (component.options?.includeCeiling ?? true) {
+    return "ceiling";
+  }
+  return "floor";
 }
 
 function expandRepeat(

@@ -724,6 +724,95 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("uses the first emitted Corridor part for semantic references when floor is disabled", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Floorless Corridor Ref",
+      bounds: { width: 10, height: 5, length: 5 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        trim: "minecraft:oak_log",
+      },
+      components: [
+        {
+          id: "maintenance_passage",
+          type: "Corridor",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 3, length: 3 },
+          },
+          options: {
+            axis: "x",
+            includeFloor: false,
+            includeCeiling: false,
+          },
+        },
+        {
+          id: "overhead_pipe",
+          type: "Beam",
+          inputs: [{ ref: "maintenance_passage" }],
+          placement: {
+            anchor: { x: 0, y: 3, z: 1 },
+            size: { width: 8, height: 1, length: 1 },
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "maintenance_passage__left_wall",
+      "maintenance_passage__right_wall",
+      "overhead_pipe__beam",
+    ]);
+    expect(craftDag.nodes[2]).toMatchObject({
+      id: "overhead_pipe__beam",
+      inputs: [{ ref: "maintenance_passage__left_wall" }],
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects corridors that emit no physical parts", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Empty Corridor",
+      bounds: { width: 8, height: 4, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        floor: "minecraft:smooth_stone",
+      },
+      components: [
+        {
+          id: "empty_passage",
+          type: "Corridor",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 3, height: 3, length: 8 },
+          },
+          options: {
+            includeFloor: false,
+            includeWalls: false,
+            includeCeiling: false,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "EMPTY_CORRIDOR",
+          componentId: "empty_passage",
+        }),
+      ]);
+    }
+  });
+
   it("requires floor or explicit material for Platform components", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",
@@ -1064,6 +1153,56 @@ describe("ComponentPlan", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "PLAN_ESTIMATED_BLOCKS_OVER_BUDGET",
+        }),
+      ]);
+    }
+  });
+
+  it("counts Corridor slab thickness when estimating scaled block budgets", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Scaled Corridor Budget",
+      grid: { unitBlocks: 2 },
+      policy: { sizeTier: "small" },
+      bounds: { width: 32, height: 16, length: 32 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        floor: "minecraft:smooth_stone",
+      },
+      components: [
+        {
+          id: "lower_corridor",
+          type: "Corridor",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 32, height: 16, length: 32 },
+          },
+          options: {
+            axis: "x",
+          },
+        },
+        {
+          id: "upper_corridor",
+          type: "Corridor",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 32, height: 16, length: 32 },
+          },
+          options: {
+            axis: "x",
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
         expect.objectContaining({
           stage: "component-validation",
           code: "PLAN_ESTIMATED_BLOCKS_OVER_BUDGET",
