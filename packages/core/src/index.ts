@@ -2,6 +2,7 @@ export * from "./types.js";
 export * from "./errors.js";
 export * from "./schema.js";
 export * from "./componentPlan.js";
+export * from "./supportAnalysis.js";
 export * from "./graph.js";
 export * from "./voxel/VoxelGrid.js";
 export * from "./compiler/compileDocument.js";

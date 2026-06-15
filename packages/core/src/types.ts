@@ -153,6 +153,18 @@ export interface ComponentInput {
   ref: string;
 }
 
+export type StructuralSupportPolicy =
+  | "must_connect_to_ground"
+  | "must_connect_to_input"
+  | "may_float"
+  | "decorative";
+
+export interface ComponentStructuralIntent {
+  supportPolicy?: StructuralSupportPolicy;
+  supportRoots?: string[];
+  maxCantilever?: number;
+}
+
 export interface BaseComponentNode<T extends string, P, O = Record<string, never>> {
   id: string;
   type: T;
@@ -161,6 +173,7 @@ export interface BaseComponentNode<T extends string, P, O = Record<string, never
   placement: P;
   materials?: Record<string, string>;
   options?: O;
+  structural?: ComponentStructuralIntent;
 }
 
 export type FoundationComponent = BaseComponentNode<"Foundation", AnchoredComponentPlacement>;

@@ -122,6 +122,30 @@ Use optional `role` metadata to preserve architectural intent for previews and r
 
 `role` does not change geometry. It helps agents and tools understand why a component exists.
 
+Use optional `structural` metadata only when support intent would otherwise be ambiguous:
+
+```json
+{
+  "id": "hanging_lantern",
+  "type": "SupportPost",
+  "role": "decorative_lantern",
+  "structural": { "supportPolicy": "decorative" },
+  "placement": {
+    "anchor": { "x": 4, "y": 7, "z": 4 },
+    "size": { "width": 1, "height": 2, "length": 1 }
+  }
+}
+```
+
+Allowed `supportPolicy` values:
+
+- `must_connect_to_ground`
+- `must_connect_to_input`
+- `may_float`
+- `decorative`
+
+Do not mark structural floors, walls, hull shelves, or major platforms as `may_float` just to silence diagnostics. Use `may_float` or `decorative` for intentional hanging details, fantasy floating elements, banners, lights, and visual-only ornaments.
+
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 
 When intent needs an unsupported component, simplify to the closest supported semantic form or reduce scope.
@@ -389,6 +413,10 @@ When validation fails, repair the plan. Do not switch to code, commands, or raw 
 
 Agents should use structured diagnostics when available. Prefer `diagnosticsFromError(error)` over parsing `error.message`.
 
+For support warnings after successful compilation, use `analyzeComponentPlanSupport(plan)`.
+
+Support diagnostics are warnings, not validation failures. Repair unexpected `DISCONNECTED_COMPONENT` warnings by adding foundations, posts, brackets, shelves connected to inputs, or by moving the component onto a supporting surface. Treat `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED` as a review signal for bridges, roofs, rails, and spans.
+
 A diagnostic may include:
 
 - `severity`
@@ -424,7 +452,6 @@ The following are expected future directions, not current allowed output:
 
 - arches and shaped openings
 - hip roofs, stair/slab roof materialization, and explicit pitch controls
-- railings and fence lines
 - hierarchical assemblies
 - vision/reference-image decomposition
 
