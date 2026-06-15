@@ -156,6 +156,7 @@ export interface ComponentInput {
 export interface BaseComponentNode<T extends string, P, O = Record<string, never>> {
   id: string;
   type: T;
+  role?: string;
   inputs?: ComponentInput[];
   placement: P;
   materials?: Record<string, string>;
@@ -172,6 +173,16 @@ export interface RoomShellOptions {
 }
 export type RoomShellComponent = BaseComponentNode<"RoomShell", AnchoredComponentPlacement, RoomShellOptions>;
 
+export type CompartmentComponent = BaseComponentNode<"Compartment", AnchoredComponentPlacement, RoomShellOptions>;
+
+export interface CorridorOptions {
+  axis?: "x" | "z";
+  includeFloor?: boolean;
+  includeCeiling?: boolean;
+  includeWalls?: boolean;
+}
+export type CorridorComponent = BaseComponentNode<"Corridor", AnchoredComponentPlacement, CorridorOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -187,6 +198,8 @@ export type AssemblyComponentNode =
   | PlatformComponent
   | BeamComponent
   | RoomShellComponent
+  | CompartmentComponent
+  | CorridorComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

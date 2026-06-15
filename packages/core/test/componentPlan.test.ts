@@ -586,6 +586,144 @@ describe("ComponentPlan", () => {
     expect(() => compileComponentPlan(plan)).not.toThrow();
   });
 
+  it("expands Compartment and Corridor components for large-build interiors", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Interior Slice",
+      bounds: { width: 18, height: 6, length: 12 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        floor: "minecraft:smooth_stone",
+      },
+      components: [
+        {
+          id: "boiler_room",
+          type: "Compartment",
+          role: "boiler_room",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 5, length: 8 },
+          },
+          options: {
+            includeCeiling: false,
+          },
+        },
+        {
+          id: "service_corridor",
+          type: "Corridor",
+          role: "service_corridor",
+          inputs: [{ ref: "boiler_room" }],
+          placement: {
+            anchor: { x: 8, y: 0, z: 2 },
+            size: { width: 8, height: 4, length: 3 },
+          },
+          options: {
+            axis: "x",
+          },
+        },
+      ],
+    };
+
+    const validated = validateComponentPlan(plan);
+    expect(validated.components?.[0]).toMatchObject({ role: "boiler_room" });
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "boiler_room__shell",
+      "service_corridor__floor",
+      "service_corridor__left_wall",
+      "service_corridor__right_wall",
+      "service_corridor__ceiling",
+    ]);
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "boiler_room__shell",
+      type: "HollowBox",
+      params: {
+        from: [0, 0, 0],
+        to: [7, 4, 7],
+        block: "wall",
+        includeFloor: undefined,
+        includeCeiling: false,
+      },
+    });
+    expect(craftDag.nodes[1]).toMatchObject({
+      id: "service_corridor__floor",
+      type: "SolidBox",
+      inputs: [{ ref: "boiler_room__shell" }],
+      params: {
+        from: [8, 0, 2],
+        to: [15, 0, 4],
+        block: "floor",
+      },
+    });
+    expect(craftDag.nodes[2]).toMatchObject({
+      id: "service_corridor__left_wall",
+      inputs: [{ ref: "service_corridor__floor" }],
+      params: {
+        from: [8, 0, 2],
+        to: [15, 3, 2],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes[3]).toMatchObject({
+      id: "service_corridor__right_wall",
+      params: {
+        from: [8, 0, 4],
+        to: [15, 3, 4],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes[4]).toMatchObject({
+      id: "service_corridor__ceiling",
+      params: {
+        from: [8, 3, 2],
+        to: [15, 3, 4],
+        block: "floor",
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects corridors that cannot contain a walkable channel", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Corridor",
+      bounds: { width: 8, height: 4, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        floor: "minecraft:smooth_stone",
+      },
+      components: [
+        {
+          id: "too_narrow",
+          type: "Corridor",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 2, height: 3, length: 8 },
+          },
+          options: {
+            axis: "z",
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_CORRIDOR_SIZE",
+          componentId: "too_narrow",
+          repairHint: expect.stringContaining("width >= 3"),
+        }),
+      ]);
+    }
+  });
+
   it("requires floor or explicit material for Platform components", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

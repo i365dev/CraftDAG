@@ -1,0 +1,358 @@
+{
+  "version": "0.1",
+  "name": "Large Ship Interior Slice",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 72,
+    "height": 24,
+    "length": 32
+  },
+  "palette": {
+    "foundation": "minecraft:deepslate_tiles",
+    "wall": "minecraft:iron_block",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:dark_oak_planks",
+    "glass": "minecraft:glass",
+    "door": "minecraft:dark_oak_door"
+  },
+  "sections": [
+    {
+      "id": "machinery_deck",
+      "origin": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "bounds": {
+        "width": 72,
+        "height": 8,
+        "length": 32
+      },
+      "components": [
+        {
+          "id": "keel_floor",
+          "type": "Platform",
+          "role": "lower_deck_floor",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "size": {
+              "width": 72,
+              "height": 1,
+              "length": 32
+            }
+          },
+          "materials": {
+            "main": "foundation"
+          }
+        },
+        {
+          "id": "central_service_corridor",
+          "type": "Corridor",
+          "role": "service_corridor",
+          "inputs": [
+            {
+              "ref": "keel_floor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 4,
+              "y": 1,
+              "z": 14
+            },
+            "size": {
+              "width": 64,
+              "height": 5,
+              "length": 4
+            }
+          },
+          "options": {
+            "axis": "x"
+          }
+        },
+        {
+          "id": "forward_boiler_room",
+          "type": "Compartment",
+          "role": "boiler_room",
+          "inputs": [
+            {
+              "ref": "central_service_corridor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 8,
+              "y": 1,
+              "z": 2
+            },
+            "size": {
+              "width": 18,
+              "height": 6,
+              "length": 10
+            }
+          },
+          "options": {
+            "includeCeiling": false
+          }
+        },
+        {
+          "id": "aft_boiler_room",
+          "type": "Compartment",
+          "role": "boiler_room",
+          "inputs": [
+            {
+              "ref": "central_service_corridor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 28,
+              "y": 1,
+              "z": 2
+            },
+            "size": {
+              "width": 18,
+              "height": 6,
+              "length": 10
+            }
+          },
+          "options": {
+            "includeCeiling": false
+          }
+        },
+        {
+          "id": "engine_room",
+          "type": "Compartment",
+          "role": "engine_room",
+          "inputs": [
+            {
+              "ref": "central_service_corridor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 48,
+              "y": 1,
+              "z": 2
+            },
+            "size": {
+              "width": 16,
+              "height": 7,
+              "length": 12
+            }
+          }
+        },
+        {
+          "id": "cargo_hold",
+          "type": "Compartment",
+          "role": "cargo_hold",
+          "inputs": [
+            {
+              "ref": "central_service_corridor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 10,
+              "y": 1,
+              "z": 19
+            },
+            "size": {
+              "width": 48,
+              "height": 5,
+              "length": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "cabin_deck",
+      "origin": {
+        "x": 0,
+        "y": 8,
+        "z": 0
+      },
+      "bounds": {
+        "width": 72,
+        "height": 8,
+        "length": 32
+      },
+      "assemblies": [
+        {
+          "id": "cabin_pair",
+          "bounds": {
+            "width": 8,
+            "height": 5,
+            "length": 12
+          },
+          "components": [
+            {
+              "id": "port_cabin",
+              "type": "Compartment",
+              "role": "passenger_cabin",
+              "placement": {
+                "anchor": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "size": {
+                  "width": 8,
+                  "height": 5,
+                  "length": 5
+                }
+              }
+            },
+            {
+              "id": "starboard_cabin",
+              "type": "Compartment",
+              "role": "passenger_cabin",
+              "placement": {
+                "anchor": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 7
+                },
+                "size": {
+                  "width": 8,
+                  "height": 5,
+                  "length": 5
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "id": "promenade_floor",
+          "type": "Platform",
+          "role": "upper_deck_floor",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "size": {
+              "width": 72,
+              "height": 1,
+              "length": 32
+            }
+          }
+        },
+        {
+          "id": "main_passenger_corridor",
+          "type": "Corridor",
+          "role": "passenger_corridor",
+          "inputs": [
+            {
+              "ref": "promenade_floor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 4,
+              "y": 1,
+              "z": 13
+            },
+            "size": {
+              "width": 64,
+              "height": 5,
+              "length": 5
+            }
+          },
+          "options": {
+            "axis": "x"
+          }
+        },
+        {
+          "id": "cabin_bank_01",
+          "type": "Instance",
+          "role": "passenger_cabins",
+          "inputs": [
+            {
+              "ref": "main_passenger_corridor"
+            }
+          ],
+          "placement": {
+            "assembly": "cabin_pair",
+            "anchor": {
+              "x": 8,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "id": "cabin_bank_02",
+          "type": "Instance",
+          "role": "passenger_cabins",
+          "inputs": [
+            {
+              "ref": "main_passenger_corridor"
+            }
+          ],
+          "placement": {
+            "assembly": "cabin_pair",
+            "anchor": {
+              "x": 18,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "id": "cabin_bank_03",
+          "type": "Instance",
+          "role": "passenger_cabins",
+          "inputs": [
+            {
+              "ref": "main_passenger_corridor"
+            }
+          ],
+          "placement": {
+            "assembly": "cabin_pair",
+            "anchor": {
+              "x": 28,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "id": "public_lounge",
+          "type": "Compartment",
+          "role": "public_room",
+          "inputs": [
+            {
+              "ref": "main_passenger_corridor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 42,
+              "y": 1,
+              "z": 2
+            },
+            "size": {
+              "width": 20,
+              "height": 6,
+              "length": 10
+            }
+          },
+          "materials": {
+            "wall": "trim"
+          }
+        }
+      ]
+    }
+  ]
+}

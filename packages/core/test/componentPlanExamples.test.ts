@@ -16,6 +16,7 @@ describe("ComponentPlan large examples", () => {
   const examplesDir = path.resolve(dirname, "../../../examples/component-plans");
   const examples = [
     "large-castle.componentplan.json",
+    "large-ship-interior.componentplan.json",
     "long-fortified-bridge.componentplan.json",
     "sectioned-wall.componentplan.json",
   ];
@@ -31,9 +32,16 @@ describe("ComponentPlan large examples", () => {
       const voxelPlan = compileComponentPlan(validated);
       const materials = generateMaterialList(voxelPlan);
       const layers = generateLayerGuide(voxelPlan);
+      const rootComponentCount = validated.components?.length ?? 0;
+      const sectionComponentCount = validated.sections?.reduce((total, section) => total + section.components.length, 0) ?? 0;
+      const rootAssemblyCount = validated.assemblies?.length ?? 0;
+      const sectionAssemblyCount = validated.sections?.reduce((total, section) => total + (section.assemblies?.length ?? 0), 0) ?? 0;
 
-      expect(validated.assemblies?.length).toBeGreaterThan(0);
-      expect(craftDag.nodes.length).toBeGreaterThan(validated.components?.length ?? 0);
+      expect(rootAssemblyCount + sectionAssemblyCount).toBeGreaterThan(0);
+      expect(craftDag.nodes.length).toBeGreaterThanOrEqual(rootComponentCount + sectionComponentCount);
+      if (example === "large-ship-interior.componentplan.json") {
+        expect(craftDag.nodes.filter((node) => node.id.includes("corridor")).length).toBeGreaterThan(4);
+      }
       expect(voxelPlan.blocks.length).toBeGreaterThan(0);
       expect(materials.length).toBeGreaterThan(0);
       expect(layers.length).toBeGreaterThan(0);

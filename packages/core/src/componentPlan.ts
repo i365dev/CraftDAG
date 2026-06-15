@@ -67,6 +67,7 @@ const RepeatPlacementSchema = z.object({
 const FoundationComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Foundation"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
@@ -75,6 +76,7 @@ const FoundationComponentSchema = z.object({
 const PlatformComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Platform"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
@@ -83,6 +85,7 @@ const PlatformComponentSchema = z.object({
 const BeamComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Beam"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
@@ -91,6 +94,7 @@ const BeamComponentSchema = z.object({
 const RoomShellComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("RoomShell"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
@@ -100,9 +104,38 @@ const RoomShellComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const CompartmentComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Compartment"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  options: z.object({
+    includeFloor: z.boolean().optional(),
+    includeCeiling: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
+const CorridorComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Corridor"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    includeFloor: z.boolean().optional(),
+    includeCeiling: z.boolean().optional(),
+    includeWalls: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
@@ -111,6 +144,7 @@ const DoorComponentSchema = z.object({
 const WindowComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Window"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
@@ -119,6 +153,7 @@ const WindowComponentSchema = z.object({
 const OpeningComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Opening"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
@@ -127,6 +162,7 @@ const OpeningComponentSchema = z.object({
 const PortalComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Portal"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
@@ -135,6 +171,7 @@ const PortalComponentSchema = z.object({
 const GableRoofComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("GableRoof"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: CoverPlacementSchema,
   materials: MaterialsSchema,
@@ -143,6 +180,7 @@ const GableRoofComponentSchema = z.object({
 const FlatRoofComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("FlatRoof"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: CoverPlacementSchema,
   materials: MaterialsSchema,
@@ -151,6 +189,7 @@ const FlatRoofComponentSchema = z.object({
 const SupportPostComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("SupportPost"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
@@ -159,6 +198,7 @@ const SupportPostComponentSchema = z.object({
 const RepeatComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Repeat"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: RepeatPlacementSchema,
 }).strict();
@@ -171,6 +211,7 @@ const InstancePlacementSchema = z.object({
 const InstanceComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Instance"),
+  role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: InstancePlacementSchema,
 }).strict();
@@ -180,6 +221,8 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   PlatformComponentSchema,
   BeamComponentSchema,
   RoomShellComponentSchema,
+  CompartmentComponentSchema,
+  CorridorComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -195,6 +238,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   PlatformComponentSchema,
   BeamComponentSchema,
   RoomShellComponentSchema,
+  CompartmentComponentSchema,
+  CorridorComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -238,7 +283,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -549,6 +594,7 @@ function validateComponentSet(
       validateAnchoredBounds(bounds, component);
     }
 
+    validateInteriorLayoutComponent(component);
     validateComponentMaterials(plan, component);
   }
 
@@ -659,6 +705,20 @@ function expandComponentToNodes(
           includeCeiling: component.options?.includeCeiling,
         },
       }];
+    case "Compartment":
+      return [{
+        id: nodeId(component.id, "shell"),
+        type: "HollowBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "wall", "wall"),
+          includeFloor: component.options?.includeFloor,
+          includeCeiling: component.options?.includeCeiling,
+        },
+      }];
+    case "Corridor":
+      return expandCorridor(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -751,6 +811,76 @@ function componentValidationError(issue: Omit<ComponentValidationIssue, "stage" 
   return new ValidationError(issue.message, [{ stage: "component-validation", ...issue, severity: issue.severity ?? "error" }]);
 }
 
+function expandCorridor(
+  component: Extract<ComponentNode, { type: "Corridor" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const nodes: CraftDagNode[] = [];
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  const { anchor, size } = component.placement;
+  const axis = corridorAxis(component);
+  const includeFloor = component.options?.includeFloor ?? true;
+  const includeCeiling = component.options?.includeCeiling ?? true;
+  const includeWalls = component.options?.includeWalls ?? true;
+
+  if (includeFloor) {
+    nodes.push({
+      id: nodeId(component.id, "floor"),
+      type: "SolidBox",
+      inputs,
+      params: {
+        ...scaledBox({ anchor, size: { width: size.width, height: 1, length: size.length } }, unit),
+        block: material(component, "floor", "floor"),
+      },
+    });
+  }
+
+  const derivedInputs = includeFloor ? [{ ref: nodeId(component.id, "floor") }] : inputs;
+
+  if (includeWalls) {
+    const wallPlacements = axis === "z"
+      ? [
+        { part: "left_wall", anchor: { x: anchor.x, y: anchor.y, z: anchor.z }, size: { width: 1, height: size.height, length: size.length } },
+        { part: "right_wall", anchor: { x: anchor.x + size.width - 1, y: anchor.y, z: anchor.z }, size: { width: 1, height: size.height, length: size.length } },
+      ]
+      : [
+        { part: "left_wall", anchor: { x: anchor.x, y: anchor.y, z: anchor.z }, size: { width: size.width, height: size.height, length: 1 } },
+        { part: "right_wall", anchor: { x: anchor.x, y: anchor.y, z: anchor.z + size.length - 1 }, size: { width: size.width, height: size.height, length: 1 } },
+      ];
+
+    for (const wall of wallPlacements) {
+      nodes.push({
+        id: nodeId(component.id, wall.part),
+        type: "SolidBox",
+        inputs: derivedInputs,
+        params: {
+          ...scaledBox({ anchor: wall.anchor, size: wall.size }, unit),
+          block: material(component, "wall", "wall"),
+        },
+      });
+    }
+  }
+
+  if (includeCeiling) {
+    nodes.push({
+      id: nodeId(component.id, "ceiling"),
+      type: "SolidBox",
+      inputs: derivedInputs,
+      params: {
+        ...scaledBox({
+          anchor: { x: anchor.x, y: anchor.y + size.height - 1, z: anchor.z },
+          size: { width: size.width, height: 1, length: size.length },
+        }, unit),
+        block: material(component, "ceiling", "floor"),
+      },
+    });
+  }
+
+  return nodes;
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -802,6 +932,25 @@ function validateInstanceBounds(
       assemblyId: assembly.id,
       message: `Instance "${component.id}" placement exceeds ComponentPlan bounds.`,
       repairHint: `Move the instance anchor, reduce assembly "${assembly.id}" bounds, or increase plan bounds.`,
+    });
+  }
+}
+
+function validateInteriorLayoutComponent(component: ComponentNode): void {
+  if (component.type !== "Corridor") {
+    return;
+  }
+
+  const { size } = component.placement;
+  const axis = corridorAxis(component);
+  const crossAxisSize = axis === "z" ? size.width : size.length;
+
+  if (size.height < 2 || crossAxisSize < 3) {
+    throw componentValidationError({
+      code: "INVALID_CORRIDOR_SIZE",
+      componentId: component.id,
+      message: `Corridor "${component.id}" must leave at least one walkable cell between its side walls.`,
+      repairHint: "Use height >= 2 and width >= 3 for z-axis corridors, or length >= 3 for x-axis corridors.",
     });
   }
 }
@@ -1103,6 +1252,29 @@ function estimateComponentBlocks(
       const totalVolume = W * H * L;
       return totalVolume - innerVolume;
     }
+    case "Compartment": {
+      const size = component.placement.size;
+      const W = size.width * unit;
+      const H = size.height * unit;
+      const L = size.length * unit;
+
+      const includeFloor = component.options?.includeFloor ?? true;
+      const includeCeiling = component.options?.includeCeiling ?? true;
+
+      const innerW = Math.max(0, W - 2);
+      const innerL = Math.max(0, L - 2);
+
+      let ySubtract = 0;
+      if (includeFloor) ySubtract += 1;
+      if (includeCeiling) ySubtract += 1;
+      const innerH = Math.max(0, H - ySubtract);
+
+      const innerVolume = innerW * innerH * innerL;
+      const totalVolume = W * H * L;
+      return totalVolume - innerVolume;
+    }
+    case "Corridor":
+      return estimateCorridorBlocks(component, unit);
     case "Door":
     case "Window":
     case "Opening":
@@ -1164,6 +1336,33 @@ function componentVolume(size: ComponentSize): number {
   return size.width * size.height * size.length;
 }
 
+function corridorAxis(component: Extract<ComponentNode, { type: "Corridor" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function estimateCorridorBlocks(component: Extract<ComponentNode, { type: "Corridor" }>, unit: 1 | 2): number {
+  const { size } = component.placement;
+  const W = size.width * unit;
+  const H = size.height * unit;
+  const L = size.length * unit;
+  const axis = corridorAxis(component);
+  let total = 0;
+
+  if (component.options?.includeFloor ?? true) {
+    total += W * L;
+  }
+
+  if (component.options?.includeWalls ?? true) {
+    total += axis === "z" ? 2 * H * L : 2 * W * H;
+  }
+
+  if (component.options?.includeCeiling ?? true) {
+    total += W * L;
+  }
+
+  return total;
+}
+
 function validateRepeats(
   components: readonly ComponentNode[],
   bounds: ComponentSize,
@@ -1180,7 +1379,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, or SupportPost component.",
       });
     }
 
@@ -1217,44 +1416,56 @@ function validateComponentMaterials(plan: ComponentPlanDocument, component: Comp
     }
   }
 
-  const fallback = requiredFallbackMaterial(component);
-  if (fallback && !component.materials?.[fallback.role] && !isKnownBlockRef(plan, fallback.value)) {
-    throw componentValidationError({
-      code: "UNKNOWN_MATERIAL_REF",
-      componentId: component.id,
-      message: `Component "${component.id}" requires palette key "${fallback.value}" when materials.${fallback.role} is omitted.`,
-      repairHint: `Add palette.${fallback.value}, set materials.${fallback.role}, or use a minecraft: block identifier.`,
-    });
+  for (const fallback of requiredFallbackMaterials(component)) {
+    if (!component.materials?.[fallback.role] && !isKnownBlockRef(plan, fallback.value)) {
+      throw componentValidationError({
+        code: "UNKNOWN_MATERIAL_REF",
+        componentId: component.id,
+        message: `Component "${component.id}" requires palette key "${fallback.value}" when materials.${fallback.role} is omitted.`,
+        repairHint: `Add palette.${fallback.value}, set materials.${fallback.role}, or use a minecraft: block identifier.`,
+      });
+    }
   }
 }
 
-function requiredFallbackMaterial(component: ComponentNode): { role: string; value: string } | undefined {
+function requiredFallbackMaterials(component: ComponentNode): { role: string; value: string }[] {
   switch (component.type) {
     case "Foundation":
-      return { role: "main", value: "foundation" };
+      return [{ role: "main", value: "foundation" }];
     case "Platform":
-      return { role: "main", value: "floor" };
+      return [{ role: "main", value: "floor" }];
     case "Beam":
-      return { role: "main", value: "trim" };
+      return [{ role: "main", value: "trim" }];
     case "RoomShell":
-      return { role: "wall", value: "wall" };
+    case "Compartment":
+      return [{ role: "wall", value: "wall" }];
+    case "Corridor": {
+      const fallbacks = [{ role: "floor", value: "floor" }];
+      if (component.options?.includeWalls ?? true) {
+        fallbacks.push({ role: "wall", value: "wall" });
+      }
+      if (component.options?.includeCeiling ?? true) {
+        fallbacks.push({ role: "ceiling", value: "floor" });
+      }
+      return fallbacks;
+    }
     case "Door":
-      return { role: "door", value: "door" };
+      return [{ role: "door", value: "door" }];
     case "Window":
-      return { role: "glass", value: "glass" };
+      return [{ role: "glass", value: "glass" }];
     case "Opening":
-      return undefined;
+      return [];
     case "Portal":
-      return { role: "surface", value: "portal" };
+      return [{ role: "surface", value: "portal" }];
     case "GableRoof":
-      return { role: "roof", value: "roof" };
+      return [{ role: "roof", value: "roof" }];
     case "FlatRoof":
-      return { role: "roof", value: "roof" };
+      return [{ role: "roof", value: "roof" }];
     case "SupportPost":
-      return { role: "main", value: "trim" };
+      return [{ role: "main", value: "trim" }];
     case "Repeat":
     case "Instance":
-      return undefined;
+      return [];
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
@@ -1300,6 +1511,10 @@ function outputPart(component: ComponentNode): string {
       return "beam";
     case "RoomShell":
       return "shell";
+    case "Compartment":
+      return "shell";
+    case "Corridor":
+      return "floor";
     case "Door":
     case "Window":
     case "Opening":
@@ -1334,7 +1549,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, or SupportPost component.",
     });
   }
 
@@ -1347,7 +1562,7 @@ function expandRepeat(
       placement: shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index),
     } as RepeatableComponent;
 
-    nodes.push(expandRepeatableComponent(shifted, source, component, componentMap, unit));
+    nodes.push(...expandRepeatableComponent(shifted, source, component, componentMap, unit));
   }
 
   return nodes;
@@ -1359,7 +1574,7 @@ function expandRepeatableComponent(
   repeatComponent: Extract<ComponentNode, { type: "Repeat" }>,
   componentMap: Map<string, ComponentNode>,
   unit: 1 | 2
-): CraftDagNode {
+): CraftDagNode[] {
   const inputsMap = new Map<string, { ref: string }>();
   for (const input of expandInputs(source, componentMap)) {
     inputsMap.set(input.ref, input);
@@ -1371,7 +1586,7 @@ function expandRepeatableComponent(
 
   switch (repeated.type) {
     case "Foundation":
-      return {
+      return [{
         id: nodeId(repeated.id, "solid"),
         type: "SolidBox",
         inputs,
@@ -1379,9 +1594,9 @@ function expandRepeatableComponent(
           ...scaledBox(repeated.placement, unit),
           block: material(source, "main", "foundation"),
         },
-      };
+      }];
     case "Platform":
-      return {
+      return [{
         id: nodeId(repeated.id, "platform"),
         type: "SolidBox",
         inputs,
@@ -1389,9 +1604,9 @@ function expandRepeatableComponent(
           ...scaledBox(repeated.placement, unit),
           block: material(source, "main", "floor"),
         },
-      };
+      }];
     case "Beam":
-      return {
+      return [{
         id: nodeId(repeated.id, "beam"),
         type: "SolidBox",
         inputs,
@@ -1399,9 +1614,9 @@ function expandRepeatableComponent(
           ...scaledBox(repeated.placement, unit),
           block: material(source, "main", "trim"),
         },
-      };
+      }];
     case "RoomShell":
-      return {
+      return [{
         id: nodeId(repeated.id, "shell"),
         type: "HollowBox",
         inputs,
@@ -1411,9 +1626,23 @@ function expandRepeatableComponent(
           includeFloor: source.options?.includeFloor,
           includeCeiling: source.options?.includeCeiling,
         },
-      };
+      }];
+    case "Compartment":
+      return [{
+        id: nodeId(repeated.id, "shell"),
+        type: "HollowBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "wall", "wall"),
+          includeFloor: source.options?.includeFloor,
+          includeCeiling: source.options?.includeCeiling,
+        },
+      }];
+    case "Corridor":
+      return expandCorridor({ ...repeated, materials: source.materials, options: source.options }, componentMap, unit, inputs);
     case "SupportPost":
-      return {
+      return [{
         id: nodeId(repeated.id, "post"),
         type: "SolidBox",
         inputs,
@@ -1421,7 +1650,7 @@ function expandRepeatableComponent(
           ...scaledBox(repeated.placement, unit),
           block: material(source, "main", "trim"),
         },
-      };
+      }];
     default: {
       const _exhaustiveCheck: never = repeated;
       throw new ValidationError(`Unhandled repeatable component type: ${(_exhaustiveCheck as any).type}`);
@@ -1757,6 +1986,8 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "Platform" ||
     component.type === "Beam" ||
     component.type === "RoomShell" ||
+    component.type === "Compartment" ||
+    component.type === "Corridor" ||
     component.type === "SupportPost"
   );
 }

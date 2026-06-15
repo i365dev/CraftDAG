@@ -72,6 +72,8 @@ Allowed ComponentPlan v0.1 components:
 - `Platform`
 - `Beam`
 - `RoomShell`
+- `Compartment`
+- `Corridor`
 - `Door`
 - `Window`
 - `Opening`
@@ -84,6 +86,10 @@ Allowed ComponentPlan v0.1 components:
 
 Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, counters, bridge decks, canopy plates, and other horizontal surfaces that are not foundations. Use `Beam` for lintels, horizontal spans, trim, rafters, or beam-like masses.
 
+Use `Compartment` for generic interior rooms such as cabins, holds, boiler rooms, galleries, cells, storage rooms, and machine rooms. Put the domain intent in `role`; do not invent component types like `BoilerRoom`, `DiningHall`, or `CargoHold`.
+
+Use `Corridor` for open-ended circulation runs inside large builds. It creates a floor, two side walls, and an optional ceiling. Set `options.axis` when the intended direction is ambiguous.
+
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 
 Use `Door` for literal doors, `Window` for glazed openings, `Opening` for unfilled pass-throughs or gate cutouts, and `Portal` for filled vertical portal planes.
@@ -93,6 +99,22 @@ Use `Repeat` for bounded linear repetition of anchored components, such as colum
 Use `assemblies` plus top-level `Instance` components when a multi-component module repeats, such as castle towers, wall segments, bridge bays, facade modules, or ship compartments. Define the module once in local coordinates, then place it several times with different anchors.
 
 For `Instance` v0.1, do not use rotation, mirroring, nested instances, material overrides, expressions, or arbitrary loops. Keep assembly IDs and local component IDs short and descriptive. Expect expanded low-level IDs to look like `<instanceId>__<localComponentId>__<partName>`.
+
+Use optional `role` metadata to preserve architectural intent for previews and repair loops:
+
+```json
+{
+  "id": "engine_room",
+  "type": "Compartment",
+  "role": "engine_room",
+  "placement": {
+    "anchor": { "x": 48, "y": 1, "z": 2 },
+    "size": { "width": 16, "height": 7, "length": 12 }
+  }
+}
+```
+
+`role` does not change geometry. It helps agents and tools understand why a component exists.
 
 Do not invent components such as `Dome`, `Staircase`, `Arch`, `Railing`, or `PortalFrame` until the engine schema supports them.
 

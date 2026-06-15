@@ -178,6 +178,8 @@ Start with a small component vocabulary:
 - `Platform`
 - `Beam`
 - `RoomShell`
+- `Compartment`
+- `Corridor`
 - `Door`
 - `Window`
 - `Opening`
@@ -196,6 +198,12 @@ Use `Platform` for semantic horizontal surfaces that are not foundations, such a
 
 Use `Beam` for semantic spans, lintels, horizontal trim, rafters, or other rectangular beam-like masses.
 
+Use `RoomShell` for one-off exterior or interior hollow volumes.
+
+Use `Compartment` for bounded interior rooms, holds, machinery spaces, cabins, cells, galleries, or any other semantic room-like subdivision. Domain meaning should normally go in `role`, for example `role: "boiler_room"` or `role: "passenger_cabin"`, instead of creating a new component type.
+
+Use `Corridor` for open-ended interior circulation runs. It expands to a floor, two side walls, and an optional ceiling. Corridors default to the longer horizontal axis, or agents can set `options.axis` to `"x"` or `"z"`.
+
 Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnings, tower caps, simple flat roofs, and other one-logical-unit-thick covers.
 
 Use `Door` only for literal door-sized entrances. Use `Window` for glazed wall openings. Use `Opening` for semantic pass-throughs, gates, large cutouts, and other unfilled rectangular wall openings. Use `Portal` for filled vertical portal planes inside a wall or frame.
@@ -203,6 +211,24 @@ Use `Door` only for literal door-sized entrances. Use `Window` for glazed wall o
 Use `Repeat` for bounded repetition of an existing anchored source component, such as a column run, facade rhythm, bridge support sequence, or repeated shell bay. `Repeat` is not a free-form loop and is not a standalone physical component.
 
 Use `assemblies` plus `Instance` when the same multi-component module should appear several times, such as castle towers, bridge bays, wall segments, facade modules, or repeated ship compartments. `Instance` is a placement of an assembly, not a physical component by itself.
+
+## Role Metadata
+
+Every component may include an optional `role` string:
+
+```json
+{
+  "id": "boiler_room_01",
+  "type": "Compartment",
+  "role": "boiler_room",
+  "placement": {
+    "anchor": { "x": 8, "y": 1, "z": 2 },
+    "size": { "width": 18, "height": 6, "length": 10 }
+  }
+}
+```
+
+`role` is semantic metadata for agents, previews, reports, and future repair loops. It does not change geometry. Prefer role metadata over domain-specific primitive types.
 
 ## Placement Model
 
@@ -262,7 +288,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 
