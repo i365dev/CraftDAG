@@ -16,6 +16,7 @@ describe("ComponentPlan large examples", () => {
   const examplesDir = path.resolve(dirname, "../../../examples/component-plans");
   const examples = [
     "fortified-wall-shape.componentplan.json",
+    "large-form-massing.componentplan.json",
     "large-castle.componentplan.json",
     "large-ship-interior.componentplan.json",
     "long-fortified-bridge.componentplan.json",
@@ -41,7 +42,12 @@ describe("ComponentPlan large examples", () => {
       const shapeComponentCount = [
         ...(validated.components ?? []),
         ...(validated.sections?.flatMap((section) => section.components) ?? []),
-      ].filter((component) => component.type === "TaperedVolume" || component.type === "RailingRun").length;
+      ].filter((component) => (
+        component.type === "TaperedVolume" ||
+        component.type === "SteppedTier" ||
+        component.type === "VerticalSetbackVolume" ||
+        component.type === "RailingRun"
+      )).length;
 
       expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
       expect(craftDag.nodes.length).toBeGreaterThanOrEqual(rootComponentCount + sectionComponentCount);
@@ -55,7 +61,12 @@ describe("ComponentPlan large examples", () => {
         expect(craftDag.nodes.some((node) => node.id.includes("__") && node.id.split("__").length >= 3)).toBe(true);
       }
       if (shapeComponentCount > 0) {
-        expect(craftDag.nodes.some((node) => node.id.includes("__slice_") || node.id.includes("__post_"))).toBe(true);
+        expect(craftDag.nodes.some((node) => (
+          node.id.includes("__slice_") ||
+          node.id.includes("__tier_") ||
+          node.id.includes("__setback_") ||
+          node.id.includes("__post_")
+        ))).toBe(true);
       }
     });
   }

@@ -75,6 +75,8 @@ Allowed ComponentPlan v0.1 components:
 - `Compartment`
 - `Corridor`
 - `TaperedVolume`
+- `SteppedTier`
+- `VerticalSetbackVolume`
 - `RailingRun`
 - `Door`
 - `Window`
@@ -93,6 +95,10 @@ Use `Compartment` for generic interior rooms such as cabins, holds, boiler rooms
 Use `Corridor` for open-ended circulation runs inside large builds. It creates a floor, two side walls, and an optional ceiling. Set `options.axis` when the intended direction is ambiguous.
 
 Use `TaperedVolume` for recognizable non-box massing such as ship bows, tower leg taper, buttresses, and simplified stepped silhouettes. Set `options.axis`, then use integer `startInset` and `endInset` values. Keep the taper Minecraft-like and blocky; do not describe exact curves.
+
+Use `SteppedTier` for large horizontal tiering: pyramids, amphitheater seating, palace terraces, stepped podiums, and tiered plinths. Prefer it over manually stacking many `Platform` components. Do not use it for arbitrary organic slopes.
+
+Use `VerticalSetbackVolume` for tall height-driven setback massing: Burj-style towers, pagodas, tiered spires, and skyscrapers. Prefer it when the object gets narrower as it rises. Do not use it for ship bows or horizontal buttresses; use `TaperedVolume` there.
 
 Use `RailingRun` for bounded posts and rails along decks, bridges, walls, and balconies. Prefer it over manually listing many posts. Use `postSpacing` for rhythm and `includeMidRail` for extra detail.
 

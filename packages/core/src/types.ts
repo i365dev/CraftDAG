@@ -203,6 +203,22 @@ export interface TaperedVolumeOptions {
 }
 export type TaperedVolumeComponent = BaseComponentNode<"TaperedVolume", AnchoredComponentPlacement, TaperedVolumeOptions>;
 
+export interface SteppedTierOptions {
+  axis?: "x" | "z" | "both";
+  levels?: number;
+  stepHeight?: number;
+  insetPerLevel?: number;
+}
+export type SteppedTierComponent = BaseComponentNode<"SteppedTier", AnchoredComponentPlacement, SteppedTierOptions>;
+
+export interface VerticalSetbackVolumeOptions {
+  axis?: "x" | "z" | "both";
+  levels?: number;
+  levelHeight?: number;
+  setbackPerLevel?: number;
+}
+export type VerticalSetbackVolumeComponent = BaseComponentNode<"VerticalSetbackVolume", AnchoredComponentPlacement, VerticalSetbackVolumeOptions>;
+
 export interface RailingRunOptions {
   axis?: "x" | "z";
   postSpacing?: number;
@@ -230,6 +246,8 @@ export type AssemblyComponentNode =
   | CompartmentComponent
   | CorridorComponent
   | TaperedVolumeComponent
+  | SteppedTierComponent
+  | VerticalSetbackVolumeComponent
   | RailingRunComponent
   | DoorComponent
   | WindowComponent

@@ -187,6 +187,8 @@ Start with a small component vocabulary:
 - `Compartment`
 - `Corridor`
 - `TaperedVolume`
+- `SteppedTier`
+- `VerticalSetbackVolume`
 - `RailingRun`
 - `Door`
 - `Window`
@@ -213,6 +215,10 @@ Use `Compartment` for bounded interior rooms, holds, machinery spaces, cabins, c
 Use `Corridor` for open-ended interior circulation runs. It expands to a floor, two side walls, and an optional ceiling. Corridors default to the longer horizontal axis, or agents can set `options.axis` to `"x"` or `"z"`.
 
 Use `TaperedVolume` for bounded Minecraft-style tapered massing, such as ship bows, tower legs, buttresses, stepped bridge supports, and simplified landmark silhouettes. It expands into one-block-thick logical slices along `options.axis`, with integer `startInset` and `endInset` values controlling the taper. It is not a freeform curve or mesh.
+
+Use `SteppedTier` for large horizontal tiering, such as pyramids, amphitheater seating, palace podiums, stepped plinths, and terraced roofs. It expands into stacked horizontal tiers inside one anchored bounding box. Use `options.axis` to shrink along `"x"`, `"z"`, or `"both"`; keep `levels`, `stepHeight`, and `insetPerLevel` small enough that no tier collapses.
+
+Use `VerticalSetbackVolume` for tall landmark massing with discrete setbacks, such as Burj-style towers, pagodas, tiered spires, and skyscraper podiums. It expands into stacked vertical segments. Prefer it over many manual `Platform` or `TaperedVolume` components when the shape is primarily height-driven.
 
 Use `RailingRun` for repeated posts plus horizontal rails along bridges, decks, walls, balconies, and platforms. It is a bounded run, not a fence/pathfinding simulator. Use `postSpacing`, `includeTopRail`, and `includeMidRail` for controlled detail.
 
@@ -271,7 +277,7 @@ Supported policies:
 Default policies:
 
 - `Foundation`: `must_connect_to_ground`
-- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SupportPost`: `must_connect_to_input`
+- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SupportPost`: `must_connect_to_input`
 - `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
 - `Repeat`, `Instance`: `must_connect_to_input`
 
@@ -335,7 +341,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `RailingRun`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 

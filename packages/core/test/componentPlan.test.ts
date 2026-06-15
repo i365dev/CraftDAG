@@ -945,6 +945,136 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands SteppedTier and VerticalSetbackVolume components for large-form massing", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Large Form Massing",
+      bounds: { width: 24, height: 18, length: 16 },
+      palette: {
+        foundation: "minecraft:smooth_sandstone",
+        wall: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "pyramid_base",
+          type: "SteppedTier",
+          role: "pyramid_terraces",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 9, height: 4, length: 9 },
+          },
+          options: {
+            axis: "both",
+            levels: 4,
+            stepHeight: 1,
+            insetPerLevel: 1,
+          },
+        },
+        {
+          id: "setback_tower",
+          type: "VerticalSetbackVolume",
+          role: "burj_style_tower",
+          inputs: [{ ref: "pyramid_base" }],
+          placement: {
+            anchor: { x: 12, y: 0, z: 0 },
+            size: { width: 10, height: 12, length: 7 },
+          },
+          options: {
+            axis: "both",
+            levels: 3,
+            levelHeight: 4,
+            setbackPerLevel: 1,
+          },
+        },
+      ],
+    };
+
+    const validated = validateComponentPlan(plan);
+    expect(validated.components?.[0]).toMatchObject({ type: "SteppedTier" });
+
+    const craftDag = expandComponentPlan(plan);
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "pyramid_base__tier_0",
+      "pyramid_base__tier_1",
+      "pyramid_base__tier_2",
+      "pyramid_base__tier_3",
+      "setback_tower__setback_0",
+      "setback_tower__setback_1",
+      "setback_tower__setback_2",
+    ]);
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "pyramid_base__tier_0",
+      params: {
+        from: [0, 0, 0],
+        to: [8, 0, 8],
+        block: "foundation",
+      },
+    });
+    expect(craftDag.nodes[3]).toMatchObject({
+      id: "pyramid_base__tier_3",
+      params: {
+        from: [3, 3, 3],
+        to: [5, 3, 5],
+      },
+    });
+    expect(craftDag.nodes[4]).toMatchObject({
+      id: "setback_tower__setback_0",
+      inputs: [{ ref: "pyramid_base__tier_0" }],
+      params: {
+        from: [12, 0, 0],
+        to: [21, 3, 6],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes[6]).toMatchObject({
+      id: "setback_tower__setback_2",
+      params: {
+        from: [14, 8, 2],
+        to: [19, 11, 4],
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects large-form massing components whose insets collapse a level", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Large Form Massing",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        foundation: "minecraft:smooth_sandstone",
+        wall: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "collapsed_tiers",
+          type: "SteppedTier",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 5, height: 4, length: 5 },
+          },
+          options: {
+            levels: 4,
+            insetPerLevel: 1,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_STEPPED_TIER_INSET",
+          componentId: "collapsed_tiers",
+        }),
+      ]);
+    }
+  });
+
   it("rejects railing runs that emit no physical parts", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

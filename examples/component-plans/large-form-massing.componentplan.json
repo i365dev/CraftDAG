@@ -1,0 +1,131 @@
+{
+  "version": "0.1",
+  "name": "Large Form Massing Study",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 80,
+    "height": 56,
+    "length": 44
+  },
+  "palette": {
+    "foundation": "minecraft:smooth_sandstone",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:polished_andesite",
+    "roof": "minecraft:quartz_block"
+  },
+  "components": [
+    {
+      "id": "monument_plinth",
+      "type": "SteppedTier",
+      "role": "monumental_terraced_plinth",
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 0,
+          "z": 4
+        },
+        "size": {
+          "width": 38,
+          "height": 8,
+          "length": 34
+        }
+      },
+      "options": {
+        "axis": "both",
+        "levels": 4,
+        "stepHeight": 2,
+        "insetPerLevel": 3
+      }
+    },
+    {
+      "id": "amphitheater_seating",
+      "type": "SteppedTier",
+      "role": "colosseum_style_seating_tiers",
+      "inputs": [
+        {
+          "ref": "monument_plinth"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 46,
+          "y": 0,
+          "z": 5
+        },
+        "size": {
+          "width": 28,
+          "height": 7,
+          "length": 30
+        }
+      },
+      "options": {
+        "axis": "z",
+        "levels": 7,
+        "stepHeight": 1,
+        "insetPerLevel": 2
+      }
+    },
+    {
+      "id": "setback_landmark_tower",
+      "type": "VerticalSetbackVolume",
+      "role": "burj_style_vertical_setback_tower",
+      "inputs": [
+        {
+          "ref": "monument_plinth"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 12,
+          "y": 8,
+          "z": 10
+        },
+        "size": {
+          "width": 22,
+          "height": 42,
+          "length": 22
+        }
+      },
+      "options": {
+        "axis": "both",
+        "levels": 7,
+        "levelHeight": 6,
+        "setbackPerLevel": 1
+      }
+    },
+    {
+      "id": "tower_spire",
+      "type": "VerticalSetbackVolume",
+      "role": "thin_stepped_spire",
+      "inputs": [
+        {
+          "ref": "setback_landmark_tower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 20,
+          "y": 50,
+          "z": 18
+        },
+        "size": {
+          "width": 6,
+          "height": 6,
+          "length": 6
+        }
+      },
+      "options": {
+        "axis": "both",
+        "levels": 3,
+        "levelHeight": 2,
+        "setbackPerLevel": 1
+      },
+      "materials": {
+        "main": "roof"
+      }
+    }
+  ]
+}
