@@ -82,7 +82,7 @@ describe("ComponentPlan", () => {
 
   it("validates a v0.1 component plan", () => {
     const validated = validateComponentPlan(starterCabin);
-    expect(validated.components.length).toBe(5);
+    expect(validated.components?.length).toBe(5);
   });
 
   it("expands components to stable CraftDAG node IDs", () => {
@@ -1326,6 +1326,170 @@ describe("ComponentPlan", () => {
           stage: "component-validation",
           code: "UNKNOWN_COMPONENT_REF",
           componentId: "bad_window",
+        }),
+      ]);
+    }
+  });
+
+  it("expands sectioned ComponentPlans with section-local coordinates and namespaced node IDs", () => {
+    const sectioned: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Sectioned Wall",
+      policy: { sizeTier: "large" },
+      bounds: { width: 24, height: 8, length: 12 },
+      palette: {
+        foundation: "minecraft:stone_bricks",
+        wall: "minecraft:oak_planks",
+        floor: "minecraft:smooth_stone",
+        trim: "minecraft:spruce_log",
+      },
+      assemblies: [
+        {
+          id: "pillar_module",
+          bounds: { width: 2, height: 5, length: 2 },
+          components: [
+            {
+              id: "pillar",
+              type: "SupportPost",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 2, height: 5, length: 2 },
+              },
+            },
+          ],
+        },
+      ],
+      sections: [
+        {
+          id: "west",
+          origin: { x: 0, y: 0, z: 0 },
+          bounds: { width: 12, height: 8, length: 12 },
+          components: [
+            {
+              id: "base",
+              type: "Foundation",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 12, height: 1, length: 4 },
+              },
+            },
+            {
+              id: "wall",
+              type: "Beam",
+              inputs: [{ ref: "base" }],
+              placement: {
+                anchor: { x: 0, y: 1, z: 1 },
+                size: { width: 12, height: 3, length: 2 },
+              },
+            },
+            {
+              id: "pillar_a",
+              type: "Instance",
+              inputs: [{ ref: "base" }],
+              placement: {
+                assembly: "pillar_module",
+                anchor: { x: 0, y: 1, z: 1 },
+              },
+            },
+          ],
+        },
+        {
+          id: "east",
+          origin: { x: 12, y: 0, z: 0 },
+          bounds: { width: 12, height: 8, length: 12 },
+          components: [
+            {
+              id: "base",
+              type: "Foundation",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 12, height: 1, length: 4 },
+              },
+            },
+            {
+              id: "wall",
+              type: "Beam",
+              inputs: [{ ref: "base" }],
+              placement: {
+                anchor: { x: 0, y: 1, z: 1 },
+                size: { width: 12, height: 3, length: 2 },
+              },
+            },
+            {
+              id: "pillar_b",
+              type: "Instance",
+              inputs: [{ ref: "base" }],
+              placement: {
+                assembly: "pillar_module",
+                anchor: { x: 10, y: 1, z: 1 },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(sectioned);
+    const voxelPlan = compileComponentPlan(sectioned);
+    const westBase = craftDag.nodes.find((node) => node.id === "west__base__solid");
+    const eastBase = craftDag.nodes.find((node) => node.id === "east__base__solid");
+    const eastPillar = craftDag.nodes.find((node) => node.id === "east__pillar_b__pillar__post");
+
+    expect(craftDag.size).toEqual([24, 8, 12]);
+    expect(westBase).toMatchObject({
+      type: "SolidBox",
+      params: { from: [0, 0, 0], to: [11, 0, 3] },
+    });
+    expect(eastBase).toMatchObject({
+      type: "SolidBox",
+      params: { from: [12, 0, 0], to: [23, 0, 3] },
+    });
+    expect(eastPillar).toMatchObject({
+      type: "SolidBox",
+      params: { from: [22, 1, 1], to: [23, 5, 2] },
+    });
+    expect(voxelPlan.blocks.length).toBeGreaterThan(0);
+  });
+
+  it("rejects sections that exceed global ComponentPlan bounds", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Section Bounds",
+      policy: { sizeTier: "large" },
+      bounds: { width: 16, height: 8, length: 16 },
+      palette: {
+        foundation: "minecraft:stone_bricks",
+      },
+      sections: [
+        {
+          id: "overflow",
+          origin: { x: 12, y: 0, z: 0 },
+          bounds: { width: 8, height: 8, length: 8 },
+          components: [
+            {
+              id: "base",
+              type: "Foundation",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 8, height: 1, length: 8 },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(() => validateComponentPlan(invalid)).toThrow(ValidationError);
+
+    try {
+      validateComponentPlan(invalid);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).details).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "SECTION_OUT_OF_BOUNDS",
+          componentId: "overflow",
         }),
       ]);
     }

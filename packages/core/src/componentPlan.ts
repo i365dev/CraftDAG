@@ -6,6 +6,7 @@ import {
   ComponentAssemblyDefinition,
   ComponentNode,
   ComponentPlanDocument,
+  ComponentPlanSection,
   ComponentSize,
   ComponentPlanSizeTier,
   CraftDagDocument,
@@ -211,6 +212,14 @@ const ComponentAssemblyDefinitionSchema = z.object({
   components: z.array(AssemblyComponentNodeSchema),
 }).strict();
 
+const ComponentPlanSectionSchema = z.object({
+  id: z.string().min(1),
+  origin: ComponentAnchorSchema,
+  bounds: ComponentSizeSchema,
+  assemblies: z.array(ComponentAssemblyDefinitionSchema).optional(),
+  components: z.array(ComponentNodeSchema),
+}).strict();
+
 const ComponentPlanSchema = z.object({
   version: z.literal("0.1"),
   name: z.string().min(1),
@@ -218,19 +227,20 @@ const ComponentPlanSchema = z.object({
     unitBlocks: z.union([z.literal(1), z.literal(2)]).optional(),
   }).strict().optional(),
   policy: z.object({
-    sizeTier: z.enum(["small", "medium", "large"]).optional(),
+    sizeTier: z.enum(["small", "medium", "large", "monumental"]).optional(),
   }).strict().optional(),
   bounds: ComponentSizeSchema,
   palette: z.record(z.string(), z.string().min(1)),
   assemblies: z.array(ComponentAssemblyDefinitionSchema).optional(),
-  components: z.array(ComponentNodeSchema),
+  components: z.array(ComponentNodeSchema).optional(),
+  sections: z.array(ComponentPlanSectionSchema).optional(),
 }).strict();
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
   type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "SupportPost";
 }>;
-type ComponentScope = "ComponentPlan" | `Assembly "${string}"`;
+type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
 interface ComponentBudget {
   maxBounds: ComponentSize;
@@ -253,6 +263,11 @@ const COMPONENT_BUDGETS: Record<ComponentPlanSizeTier, ComponentBudget> = {
     maxBounds: { width: 96, height: 64, length: 96 },
     maxComponents: 512,
     maxEstimatedBlocks: 96 * 64 * 96,
+  },
+  monumental: {
+    maxBounds: { width: 256, height: 96, length: 256 },
+    maxComponents: 2048,
+    maxEstimatedBlocks: 256 * 96 * 256,
   },
 };
 
@@ -283,8 +298,17 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   }
 
   const parsed = result.data as ComponentPlanDocument;
+  if ((parsed.components ?? []).length === 0 && (parsed.sections ?? []).length === 0) {
+    throw componentValidationError({
+      code: "EMPTY_COMPONENT_PLAN",
+      message: "ComponentPlan must define at least one root component or section.",
+      repairHint: "Add components for a flat plan, or add sections for a sectioned plan.",
+    });
+  }
+
   const componentMap = new Map<string, ComponentNode>();
   const assemblyMap = new Map<string, ComponentAssemblyDefinition>();
+  const sectionMap = new Map<string, ComponentPlanSection>();
 
   for (const assembly of parsed.assemblies ?? []) {
     if (assemblyMap.has(assembly.id)) {
@@ -298,7 +322,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
     assemblyMap.set(assembly.id, assembly);
   }
 
-  for (const component of parsed.components) {
+  for (const component of parsed.components ?? []) {
     if (componentMap.has(component.id)) {
       throw componentValidationError({
         code: "DUPLICATE_COMPONENT_ID",
@@ -310,15 +334,69 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
     componentMap.set(component.id, component);
   }
 
+  for (const section of parsed.sections ?? []) {
+    if (sectionMap.has(section.id)) {
+      throw componentValidationError({
+        code: "DUPLICATE_SECTION_ID",
+        componentId: section.id,
+        message: `Duplicate section ID found: "${section.id}".`,
+        repairHint: "Rename one section and update any section-specific references.",
+      });
+    }
+    validateSectionBounds(parsed.bounds, section);
+    sectionMap.set(section.id, section);
+  }
+
   for (const assembly of parsed.assemblies ?? []) {
     const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
     validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
   }
 
-  validateComponentSet(parsed, parsed.components, parsed.bounds, componentMap, "ComponentPlan", assemblyMap);
+  validateComponentSet(parsed, parsed.components ?? [], parsed.bounds, componentMap, "ComponentPlan", assemblyMap);
+
+  for (const section of parsed.sections ?? []) {
+    const sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
+    const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+
+    for (const assembly of section.assemblies ?? []) {
+      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+      validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+    }
+
+    validateComponentSet(
+      parsed,
+      section.components,
+      section.bounds,
+      sectionComponentMap,
+      `Section "${section.id}"`,
+      sectionAssemblyMap
+    );
+  }
+
   validateBudgetPolicy(parsed, componentMap, assemblyMap);
 
   return parsed;
+}
+
+function buildSectionAssemblyMap(
+  rootAssemblyMap: Map<string, ComponentAssemblyDefinition>,
+  section: ComponentPlanSection
+): Map<string, ComponentAssemblyDefinition> {
+  const assemblyMap = new Map(rootAssemblyMap);
+
+  for (const assembly of section.assemblies ?? []) {
+    if (assemblyMap.has(assembly.id)) {
+      throw componentValidationError({
+        code: "DUPLICATE_ASSEMBLY_ID",
+        componentId: assembly.id,
+        message: `Section "${section.id}" defines duplicate assembly ID "${assembly.id}".`,
+        repairHint: "Rename the section assembly or reuse the root assembly instead of redefining it.",
+      });
+    }
+    assemblyMap.set(assembly.id, assembly);
+  }
+
+  return assemblyMap;
 }
 
 function buildComponentMap(
@@ -413,12 +491,16 @@ function validateComponentSet(
 export function expandComponentPlan(doc: unknown): CraftDagDocument {
   const plan = validateComponentPlan(doc);
   const unit = plan.grid?.unitBlocks ?? 1;
-  const componentMap = new Map(plan.components.map((component) => [component.id, component]));
+  const componentMap = new Map((plan.components ?? []).map((component) => [component.id, component]));
   const assemblyMap = new Map((plan.assemblies ?? []).map((assembly) => [assembly.id, assembly]));
   const craftDagNodes: CraftDagNode[] = [];
 
-  for (const component of plan.components) {
+  for (const component of plan.components ?? []) {
     craftDagNodes.push(...expandComponentToNodes(component, componentMap, plan.bounds, unit, assemblyMap));
+  }
+
+  for (const section of plan.sections ?? []) {
+    craftDagNodes.push(...expandSectionToNodes(section, assemblyMap, unit));
   }
 
   return {
@@ -428,6 +510,30 @@ export function expandComponentPlan(doc: unknown): CraftDagDocument {
     palette: plan.palette,
     nodes: craftDagNodes,
   };
+}
+
+function expandSectionToNodes(
+  section: ComponentPlanSection,
+  rootAssemblyMap: Map<string, ComponentAssemblyDefinition>,
+  unit: 1 | 2
+): CraftDagNode[] {
+  const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+  const sectionAssemblyMap = buildSectionAssemblyMap(rootAssemblyMap, section);
+  const shift: Vec3 = [
+    section.origin.x * unit,
+    section.origin.y * unit,
+    section.origin.z * unit,
+  ];
+  const shiftedNodes: CraftDagNode[] = [];
+
+  for (const component of section.components) {
+    const localNodes = expandComponentToNodes(component, sectionComponentMap, section.bounds, unit, sectionAssemblyMap);
+    for (const localNode of localNodes) {
+      shiftedNodes.push(namespaceAndShiftNode(localNode, section.id, shift, []));
+    }
+  }
+
+  return shiftedNodes;
 }
 
 function expandComponentToNodes(
@@ -623,6 +729,23 @@ function validateInstanceBounds(
   }
 }
 
+function validateSectionBounds(bounds: ComponentSize, section: ComponentPlanSection): void {
+  const { origin } = section;
+  const isWithinBounds =
+    origin.x + section.bounds.width <= bounds.width &&
+    origin.y + section.bounds.height <= bounds.height &&
+    origin.z + section.bounds.length <= bounds.length;
+
+  if (!isWithinBounds) {
+    throw componentValidationError({
+      code: "SECTION_OUT_OF_BOUNDS",
+      componentId: section.id,
+      message: `Section "${section.id}" placement exceeds ComponentPlan bounds.`,
+      repairHint: "Move the section origin, reduce section bounds, or increase global plan bounds.",
+    });
+  }
+}
+
 function validateComponentGraph(components: readonly ComponentNode[]): void {
   const inDegree = new Map<string, number>();
   const adj = new Map<string, string[]>();
@@ -785,15 +908,26 @@ function validateBudgetPolicy(
     });
   }
 
-  const authoredComponents = plan.components.length + (plan.assemblies ?? [])
+  const rootComponents = plan.components ?? [];
+  const authoredComponents = rootComponents.length + (plan.assemblies ?? [])
     .reduce((total, assembly) => total + assembly.components.length, 0);
-  const expandedComponents = estimateExpandedComponentCount(plan.components, componentMap, assemblyMap);
-  const budgetedComponents = Math.max(authoredComponents, expandedComponents);
+  let totalAuthoredComponents = authoredComponents;
+  let expandedComponents = estimateExpandedComponentCount(rootComponents, componentMap, assemblyMap);
+
+  for (const section of plan.sections ?? []) {
+    const sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
+    const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    totalAuthoredComponents += section.components.length + (section.assemblies ?? [])
+      .reduce((total, assembly) => total + assembly.components.length, 0);
+    expandedComponents += estimateExpandedComponentCount(section.components, sectionComponentMap, sectionAssemblyMap);
+  }
+
+  const budgetedComponents = Math.max(totalAuthoredComponents, expandedComponents);
 
   if (budgetedComponents > budget.maxComponents) {
     throw componentValidationError({
       code: "PLAN_COMPONENTS_OVER_BUDGET",
-      message: `ComponentPlan has ${authoredComponents} authored components and ${expandedComponents} estimated expanded components, exceeding the ${tier} size tier budget of ${budget.maxComponents}.`,
+      message: `ComponentPlan has ${totalAuthoredComponents} authored components and ${expandedComponents} estimated expanded components, exceeding the ${tier} size tier budget of ${budget.maxComponents}.`,
       repairHint: "Reduce repeated detail, combine simple volumes, choose a larger sizeTier, or split the build into sections.",
     });
   }
@@ -815,8 +949,16 @@ function estimateExpandedBlocks(
   unit: 1 | 2
 ): number {
   let total = 0;
-  for (const component of plan.components) {
+  for (const component of plan.components ?? []) {
     total += estimateComponentBlocks(component, componentMap, assemblyMap, plan.bounds, unit);
+  }
+
+  for (const section of plan.sections ?? []) {
+    const sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
+    const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    for (const component of section.components) {
+      total += estimateComponentBlocks(component, sectionComponentMap, sectionAssemblyMap, section.bounds, unit);
+    }
   }
 
   return total;

@@ -99,7 +99,7 @@ export interface ComponentGrid {
   unitBlocks?: 1 | 2;
 }
 
-export type ComponentPlanSizeTier = "small" | "medium" | "large";
+export type ComponentPlanSizeTier = "small" | "medium" | "large" | "monumental";
 
 export interface ComponentPlanPolicy {
   sizeTier?: ComponentPlanSizeTier;
@@ -206,6 +206,14 @@ export interface ComponentAssemblyDefinition {
   components: AssemblyComponentNode[];
 }
 
+export interface ComponentPlanSection {
+  id: string;
+  origin: ComponentAnchor;
+  bounds: ComponentSize;
+  assemblies?: ComponentAssemblyDefinition[];
+  components: ComponentNode[];
+}
+
 export interface ComponentPlanDocument {
   version: "0.1";
   name: string;
@@ -214,7 +222,8 @@ export interface ComponentPlanDocument {
   bounds: ComponentSize;
   palette: Record<string, string>;
   assemblies?: ComponentAssemblyDefinition[];
-  components: ComponentNode[];
+  components?: ComponentNode[];
+  sections?: ComponentPlanSection[];
 }
 
 export interface VoxelBlock {
