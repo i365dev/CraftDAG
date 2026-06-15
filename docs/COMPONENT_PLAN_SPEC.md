@@ -642,13 +642,19 @@ Use `diagnosticsFromError(error)` from `@i365dev/craftdag-core` when an agent or
 
 ## Support Analysis
 
-`analyzeComponentPlanSupport(plan, options)` compiles a ComponentPlan and returns support diagnostics without rejecting the plan.
+`analyzeComponentPlanSupport(plan, options)` compiles a ComponentPlan and returns support diagnostics without rejecting the plan. `analyzeVoxelSupport(voxelPlan, options)` runs the same voxel-level analysis on an already compiled plan.
 
 The analyzer reports:
 
 - `DISCONNECTED_COMPONENT`: blocks are not connected to configured support roots.
+- `FLOATING_SOURCE_NODE`: a source node contributes disconnected blocks.
+- `LARGE_CANTILEVER`: connected blocks exceed the configured `maxCantilever` distance from nearby vertical support.
 - `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED`: blocks have air below but remain connected through adjacent blocks, such as bridge spans or rails.
 - `ALLOWED_*`: the same condition is allowed by `structural.supportPolicy` when `includeAllowed: true`.
+
+Support roots can be configured with `groundY`, `rootSourceNodeIdPrefixes`, or explicit coordinate `rootBoxes`. Noise can be reduced with `ignoredBlockNames`, `ignoredSourceNodeIdPrefixes`, `maxDiagnosticsPerCode`, `maxDiagnosticsPerSource`, and `minDiagnosticBlocks`.
+
+The result also includes `sourceSummaries`, which aggregate total blocks, bounds, disconnected block counts, vertical unsupported counts, and large cantilever counts by `sourceNodeId`.
 
 By default, diagnostics for `decorative` and `may_float` components are filtered out. Use `includeAllowed: true` when a UI or repair loop wants to show allowed floating elements for inspection.
 
