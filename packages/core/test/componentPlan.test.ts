@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   compileComponentPlan,
   ComponentPlanDocument,
+  diagnosticsFromError,
   expandComponentPlan,
   GraphError,
   validateComponentPlan,
@@ -1269,9 +1270,12 @@ describe("ComponentPlan", () => {
       expect(error).toBeInstanceOf(ValidationError);
       expect((error as ValidationError).details).toEqual([
         expect.objectContaining({
+          severity: "error",
           stage: "component-validation",
           code: "INSTANCE_OUT_OF_BOUNDS",
           componentId: "tower",
+          instanceId: "tower",
+          assemblyId: "tower_module",
         }),
       ]);
     }
@@ -1487,9 +1491,59 @@ describe("ComponentPlan", () => {
       expect(error).toBeInstanceOf(ValidationError);
       expect((error as ValidationError).details).toEqual([
         expect.objectContaining({
+          severity: "error",
           stage: "component-validation",
           code: "SECTION_OUT_OF_BOUNDS",
           componentId: "overflow",
+          sectionId: "overflow",
+        }),
+      ]);
+    }
+  });
+
+  it("adds section context to diagnostics for section-local component failures", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Section Ref",
+      policy: { sizeTier: "large" },
+      bounds: { width: 16, height: 8, length: 16 },
+      palette: {
+        foundation: "minecraft:stone_bricks",
+        wall: "minecraft:stone_bricks",
+      },
+      sections: [
+        {
+          id: "midship",
+          origin: { x: 0, y: 0, z: 0 },
+          bounds: { width: 16, height: 8, length: 16 },
+          components: [
+            {
+              id: "bad_wall",
+              type: "Beam",
+              inputs: [{ ref: "missing_base" }],
+              placement: {
+                anchor: { x: 0, y: 1, z: 0 },
+                size: { width: 8, height: 2, length: 1 },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      const diagnostics = diagnosticsFromError(error);
+      expect(diagnostics).toEqual([
+        expect.objectContaining({
+          severity: "error",
+          stage: "component-validation",
+          code: "UNKNOWN_COMPONENT_REF",
+          componentId: "bad_wall",
+          sectionId: "midship",
+          repairHint: expect.stringContaining("missing_base"),
         }),
       ]);
     }

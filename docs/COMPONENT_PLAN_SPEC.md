@@ -541,15 +541,31 @@ Errors should be structured for repair:
 
 ```json
 {
+  "severity": "error",
   "stage": "component-validation",
   "code": "UNKNOWN_COMPONENT_REF",
   "componentId": "front_window",
+  "sectionId": "midship_center",
+  "assemblyId": "window_bay_module",
+  "instanceId": "port_window_bay_03",
   "path": "components[3].inputs[0].ref",
   "message": "Component front_window references unknown component room1.",
   "availableRefs": ["foundation", "main_room"],
   "repairHint": "Change inputs[0].ref to main_room or define component room1."
 }
 ```
+
+Diagnostic fields are intentionally agent-friendly:
+
+- `severity` is `"error"` or `"warning"`; current validation failures are errors.
+- `stage` identifies the pipeline stage, such as `"component-validation"`.
+- `code` is stable enough for repair logic.
+- `componentId`, `sectionId`, `assemblyId`, and `instanceId` identify the failing authoring context when available.
+- `path` points to the approximate JSON location when schema validation can provide it.
+- `availableRefs` lists valid alternatives for broken references when available.
+- `repairHint` should be concise and directly actionable.
+
+Use `diagnosticsFromError(error)` from `@i365dev/craftdag-core` when an agent or CLI needs a normalized diagnostic array instead of parsing thrown error strings.
 
 ## Roof Semantics
 
