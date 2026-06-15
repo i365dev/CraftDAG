@@ -93,6 +93,12 @@ type ComponentPalette = {
   glass?: string
   door?: string
 }
+
+type ComponentStructuralIntent = {
+  supportPolicy?: "must_connect_to_ground" | "must_connect_to_input" | "may_float" | "decorative"
+  supportRoots?: string[]
+  maxCantilever?: number
+}
 ```
 
 All sizes and offsets in ComponentPlan are logical units. The expander converts logical units to Minecraft block coordinates.
@@ -235,6 +241,41 @@ Every component may include an optional `role` string:
 ```
 
 `role` is semantic metadata for agents, previews, reports, and future repair loops. It does not change geometry. Prefer role metadata over domain-specific primitive types.
+
+## Structural Intent Metadata
+
+Every component may include optional `structural` metadata:
+
+```json
+{
+  "id": "hanging_lantern",
+  "type": "SupportPost",
+  "role": "decorative_lantern",
+  "structural": {
+    "supportPolicy": "decorative"
+  },
+  "placement": {
+    "anchor": { "x": 4, "y": 6, "z": 4 },
+    "size": { "width": 1, "height": 2, "length": 1 }
+  }
+}
+```
+
+Supported policies:
+
+- `must_connect_to_ground`: the component should connect to ground/root support.
+- `must_connect_to_input`: the component should connect to its input/supporting components.
+- `may_float`: floating is allowed and should not be treated as a repair target.
+- `decorative`: decorative floating or partial support is expected.
+
+Default policies:
+
+- `Foundation`: `must_connect_to_ground`
+- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SupportPost`: `must_connect_to_input`
+- `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
+- `Repeat`, `Instance`: `must_connect_to_input`
+
+Structural intent does not change geometry and does not make validation fail. It is used by support diagnostics to classify warnings and reduce noise for intentional hanging, decorative, or partially supported elements.
 
 ## Placement Model
 
@@ -598,6 +639,18 @@ Diagnostic fields are intentionally agent-friendly:
 - `repairHint` should be concise and directly actionable.
 
 Use `diagnosticsFromError(error)` from `@i365dev/craftdag-core` when an agent or CLI needs a normalized diagnostic array instead of parsing thrown error strings.
+
+## Support Analysis
+
+`analyzeComponentPlanSupport(plan, options)` compiles a ComponentPlan and returns support diagnostics without rejecting the plan.
+
+The analyzer reports:
+
+- `DISCONNECTED_COMPONENT`: blocks are not connected to configured support roots.
+- `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED`: blocks have air below but remain connected through adjacent blocks, such as bridge spans or rails.
+- `ALLOWED_*`: the same condition is allowed by `structural.supportPolicy` when `includeAllowed: true`.
+
+By default, diagnostics for `decorative` and `may_float` components are filtered out. Use `includeAllowed: true` when a UI or repair loop wants to show allowed floating elements for inspection.
 
 ## Roof Semantics
 

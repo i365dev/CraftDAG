@@ -37,6 +37,12 @@ const ComponentInputSchema = z.object({
 
 const MaterialsSchema = z.record(z.string(), z.string().min(1)).optional();
 
+const StructuralIntentSchema = z.object({
+  supportPolicy: z.enum(["must_connect_to_ground", "must_connect_to_input", "may_float", "decorative"]).optional(),
+  supportRoots: z.array(z.string().min(1)).optional(),
+  maxCantilever: NonNegativeIntSchema.optional(),
+}).strict();
+
 const AnchoredPlacementSchema = z.object({
   anchor: ComponentAnchorSchema,
   size: ComponentSizeSchema,
@@ -71,6 +77,7 @@ const FoundationComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const PlatformComponentSchema = z.object({
@@ -80,6 +87,7 @@ const PlatformComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const BeamComponentSchema = z.object({
@@ -89,6 +97,7 @@ const BeamComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const RoomShellComponentSchema = z.object({
@@ -98,6 +107,7 @@ const RoomShellComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
   options: z.object({
     includeFloor: z.boolean().optional(),
     includeCeiling: z.boolean().optional(),
@@ -111,6 +121,7 @@ const CompartmentComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
   options: z.object({
     includeFloor: z.boolean().optional(),
     includeCeiling: z.boolean().optional(),
@@ -124,6 +135,7 @@ const CorridorComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
   options: z.object({
     axis: z.enum(["x", "z"]).optional(),
     includeFloor: z.boolean().optional(),
@@ -139,6 +151,7 @@ const TaperedVolumeComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
   options: z.object({
     axis: z.enum(["x", "z"]).optional(),
     startInset: NonNegativeIntSchema.optional(),
@@ -153,6 +166,7 @@ const RailingRunComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
   options: z.object({
     axis: z.enum(["x", "z"]).optional(),
     postSpacing: PositiveIntSchema.optional(),
@@ -169,6 +183,7 @@ const DoorComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const WindowComponentSchema = z.object({
@@ -178,6 +193,7 @@ const WindowComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const OpeningComponentSchema = z.object({
@@ -187,6 +203,7 @@ const OpeningComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const PortalComponentSchema = z.object({
@@ -196,6 +213,7 @@ const PortalComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: WallAttachmentPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const GableRoofComponentSchema = z.object({
@@ -205,6 +223,7 @@ const GableRoofComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: CoverPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const FlatRoofComponentSchema = z.object({
@@ -214,6 +233,7 @@ const FlatRoofComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: CoverPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const SupportPostComponentSchema = z.object({
@@ -223,6 +243,7 @@ const SupportPostComponentSchema = z.object({
   inputs: z.array(ComponentInputSchema).optional(),
   placement: AnchoredPlacementSchema,
   materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const RepeatComponentSchema = z.object({
@@ -231,6 +252,7 @@ const RepeatComponentSchema = z.object({
   role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: RepeatPlacementSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const InstancePlacementSchema = z.object({
@@ -244,6 +266,7 @@ const InstanceComponentSchema = z.object({
   role: z.string().min(1).optional(),
   inputs: z.array(ComponentInputSchema).optional(),
   placement: InstancePlacementSchema,
+  structural: StructuralIntentSchema.optional(),
 }).strict();
 
 const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
