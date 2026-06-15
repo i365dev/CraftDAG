@@ -228,6 +228,22 @@ export interface RailingRunOptions {
 }
 export type RailingRunComponent = BaseComponentNode<"RailingRun", AnchoredComponentPlacement, RailingRunOptions>;
 
+export interface ArcadeRunOptions {
+  axis?: "x" | "z";
+  bayCount?: number;
+  pierWidth?: number;
+  archHeight?: number;
+}
+export type ArcadeRunComponent = BaseComponentNode<"ArcadeRun", AnchoredComponentPlacement, ArcadeRunOptions>;
+
+export interface SupportBracketOptions {
+  axis?: "x" | "z";
+  direction?: "positive" | "negative";
+  spacing?: number;
+  includeTopBeam?: boolean;
+}
+export type SupportBracketComponent = BaseComponentNode<"SupportBracket", AnchoredComponentPlacement, SupportBracketOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -249,6 +265,8 @@ export type AssemblyComponentNode =
   | SteppedTierComponent
   | VerticalSetbackVolumeComponent
   | RailingRunComponent
+  | ArcadeRunComponent
+  | SupportBracketComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

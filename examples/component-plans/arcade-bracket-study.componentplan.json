@@ -1,0 +1,164 @@
+{
+  "version": "0.1",
+  "name": "Arcade And Bracket Study",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 92,
+    "height": 28,
+    "length": 34
+  },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:sandstone",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:polished_andesite",
+    "roof": "minecraft:cut_sandstone"
+  },
+  "components": [
+    {
+      "id": "facade_plinth",
+      "type": "Foundation",
+      "role": "colosseum_facade_plinth",
+      "placement": {
+        "anchor": {
+          "x": 2,
+          "y": 0,
+          "z": 4
+        },
+        "size": {
+          "width": 64,
+          "height": 2,
+          "length": 8
+        }
+      }
+    },
+    {
+      "id": "lower_arcade",
+      "type": "ArcadeRun",
+      "role": "lower_colosseum_arcade",
+      "inputs": [
+        {
+          "ref": "facade_plinth"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 2,
+          "z": 4
+        },
+        "size": {
+          "width": 60,
+          "height": 8,
+          "length": 3
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 8,
+        "pierWidth": 1,
+        "archHeight": 4
+      }
+    },
+    {
+      "id": "upper_arcade",
+      "type": "ArcadeRun",
+      "role": "upper_colosseum_arcade",
+      "inputs": [
+        {
+          "ref": "lower_arcade"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 6,
+          "y": 11,
+          "z": 4
+        },
+        "size": {
+          "width": 56,
+          "height": 7,
+          "length": 3
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 7,
+        "pierWidth": 1,
+        "archHeight": 3
+      }
+    },
+    {
+      "id": "ship_deck",
+      "type": "Platform",
+      "role": "ship_hull_side_deck",
+      "placement": {
+        "anchor": {
+          "x": 10,
+          "y": 8,
+          "z": 22
+        },
+        "size": {
+          "width": 64,
+          "height": 1,
+          "length": 5
+        }
+      }
+    },
+    {
+      "id": "lifeboat_shelf",
+      "type": "Platform",
+      "role": "projecting_lifeboat_shelf",
+      "inputs": [
+        {
+          "ref": "ship_deck"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 12,
+          "y": 12,
+          "z": 27
+        },
+        "size": {
+          "width": 60,
+          "height": 1,
+          "length": 3
+        }
+      },
+      "structural": {
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "lifeboat_shelf_brackets",
+      "type": "SupportBracket",
+      "role": "repeated_lifeboat_shelf_brackets",
+      "inputs": [
+        {
+          "ref": "lifeboat_shelf"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 12,
+          "y": 8,
+          "z": 24
+        },
+        "size": {
+          "width": 60,
+          "height": 4,
+          "length": 6
+        }
+      },
+      "options": {
+        "axis": "x",
+        "direction": "positive",
+        "spacing": 6,
+        "includeTopBeam": true
+      }
+    }
+  ]
+}

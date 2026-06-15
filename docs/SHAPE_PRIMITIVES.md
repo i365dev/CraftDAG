@@ -133,6 +133,89 @@ Key options:
 
 The engine rejects railing runs that emit no physical parts.
 
+### ArcadeRun
+
+`ArcadeRun` represents a repeated Minecraft-style stepped arch rhythm inside one anchored facade box.
+
+Use it for:
+
+- colosseum facades
+- gothic or palace arcades
+- bridge arch rhythms
+- cloisters and galleries
+- monumental wall openings
+
+Do not use it for exact circular arches, freeform curves, or single door/window openings.
+
+Key options:
+
+- `axis`: `"x"` or `"z"`; defaults to the longer horizontal axis
+- `bayCount`: positive integer number of arch bays
+- `pierWidth`: positive integer pier thickness; defaults to `1`
+- `archHeight`: positive integer stepped arch height; defaults to a small value based on facade height
+
+The engine rejects configurations where bays collapse between piers or the arch height consumes the full facade height.
+
+Example:
+
+```json
+{
+  "id": "lower_arcade",
+  "type": "ArcadeRun",
+  "placement": {
+    "anchor": { "x": 4, "y": 2, "z": 4 },
+    "size": { "width": 60, "height": 8, "length": 3 }
+  },
+  "options": {
+    "axis": "x",
+    "bayCount": 8,
+    "pierWidth": 1,
+    "archHeight": 4
+  }
+}
+```
+
+### SupportBracket
+
+`SupportBracket` represents repeated visible bracket geometry under an overhang.
+
+Use it for:
+
+- ship lifeboat shelves
+- balconies
+- projecting roofs
+- awnings
+- light bridge edges
+- cantilevered platforms that need visible support
+
+Do not treat it as a physics engine. It adds deterministic support-like geometry and should be paired with support diagnostics and structural intent when needed.
+
+Key options:
+
+- `axis`: `"x"` or `"z"`; defaults to the longer horizontal axis
+- `direction`: `"positive"` or `"negative"` along the perpendicular horizontal axis; defaults to `"positive"`
+- `spacing`: positive integer rhythm between brackets; defaults to `4`
+- `includeTopBeam`: defaults to `true`
+
+Example:
+
+```json
+{
+  "id": "lifeboat_shelf_brackets",
+  "type": "SupportBracket",
+  "placement": {
+    "anchor": { "x": 12, "y": 8, "z": 24 },
+    "size": { "width": 60, "height": 4, "length": 6 }
+  },
+  "options": {
+    "axis": "x",
+    "direction": "positive",
+    "spacing": 6,
+    "includeTopBeam": true
+  }
+}
+```
+
 ## Non-Goals
 
 - no arbitrary meshes
