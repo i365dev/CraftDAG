@@ -413,9 +413,11 @@ When validation fails, repair the plan. Do not switch to code, commands, or raw 
 
 Agents should use structured diagnostics when available. Prefer `diagnosticsFromError(error)` over parsing `error.message`.
 
-For support warnings after successful compilation, use `analyzeComponentPlanSupport(plan)`.
+For support warnings after successful compilation, use `analyzeComponentPlanSupport(plan)`. For preview/export tools that already have compiled voxels, use `analyzeVoxelSupport(voxelPlan)`.
 
-Support diagnostics are warnings, not validation failures. Repair unexpected `DISCONNECTED_COMPONENT` warnings by adding foundations, posts, brackets, shelves connected to inputs, or by moving the component onto a supporting surface. Treat `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED` as a review signal for bridges, roofs, rails, and spans.
+Support diagnostics are warnings, not validation failures. Repair unexpected `DISCONNECTED_COMPONENT` or `FLOATING_SOURCE_NODE` warnings by adding foundations, posts, brackets, shelves connected to inputs, or by moving the component onto a supporting surface. Treat `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED` as a review signal for bridges, roofs, rails, and spans. Treat `LARGE_CANTILEVER` as a stronger span warning: add nearby posts, arches, cables, brackets, or explicit structural intent.
+
+Use `sourceSummaries` to identify the noisiest source nodes before editing. Prefer repairing the largest unexpected source groups first instead of making broad random changes.
 
 A diagnostic may include:
 
@@ -427,6 +429,9 @@ A diagnostic may include:
 - `sectionId`
 - `assemblyId`
 - `instanceId`
+- `sourceNodeId`
+- `count`
+- `bounds`
 - `availableRefs`
 - `repairHint`
 

@@ -5,6 +5,8 @@ import {
   ComponentPlanDocument,
   validateComponentPlan,
   ValidationError,
+  VoxelBlock,
+  VoxelPlan,
 } from "../src/index.js";
 
 describe("support analysis", () => {
@@ -60,14 +62,12 @@ describe("support analysis", () => {
     const result = analyzeComponentPlanSupport(plan);
 
     expect(result.disconnectedBlocks).toBe(9);
-    expect(result.diagnostics).toEqual([
-      expect.objectContaining({
-        code: "DISCONNECTED_COMPONENT",
-        sourceNodeId: "floating_platform__platform",
-        componentId: "floating_platform",
-        supportPolicy: "must_connect_to_input",
-      }),
-    ]);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "DISCONNECTED_COMPONENT",
+      sourceNodeId: "floating_platform__platform",
+      componentId: "floating_platform",
+      supportPolicy: "must_connect_to_input",
+    }));
   });
 
   it("validates input before collecting structural entries", () => {
@@ -94,13 +94,11 @@ describe("support analysis", () => {
 
     expect(result.disconnectedBlocks).toBe(9);
     expect(result.diagnostics).toEqual([]);
-    expect(withAllowed.diagnostics).toEqual([
-      expect.objectContaining({
-        code: "ALLOWED_DISCONNECTED_COMPONENT",
-        sourceNodeId: "floating_banner__platform",
-        supportPolicy: "may_float",
-      }),
-    ]);
+    expect(withAllowed.diagnostics).toContainEqual(expect.objectContaining({
+      code: "ALLOWED_DISCONNECTED_COMPONENT",
+      sourceNodeId: "floating_banner__platform",
+      supportPolicy: "may_float",
+    }));
   });
 
   it("inherits instance structural policy for assembly children", () => {
@@ -277,4 +275,146 @@ describe("support analysis", () => {
     expect(result.diagnostics.some((diagnostic) => diagnostic.sourceNodeId?.startsWith("rail__"))).toBe(false);
     expect(withAllowed.diagnostics.some((diagnostic) => diagnostic.code === "ALLOWED_NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED")).toBe(true);
   });
+
+  it("returns no diagnostics for a fully supported voxel build", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([0, 0, 0], "base"),
+      block([0, 1, 0], "wall"),
+      block([0, 2, 0], "wall"),
+    ]));
+
+    expect(result.totalBlocks).toBe(3);
+    expect(result.disconnectedBlocks).toBe(0);
+    expect(result.verticalUnsupportedBlocks).toBe(0);
+    expect(result.largeCantileverBlocks).toBe(0);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it("reports a disconnected floating voxel platform", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([0, 0, 0], "base"),
+      block([4, 4, 4], "floating_platform"),
+      block([5, 4, 4], "floating_platform"),
+      block([4, 4, 5], "floating_platform"),
+      block([5, 4, 5], "floating_platform"),
+    ]));
+
+    expect(result.disconnectedBlocks).toBe(4);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "DISCONNECTED_COMPONENT",
+      sourceNodeId: "floating_platform",
+      count: 4,
+    }));
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "FLOATING_SOURCE_NODE",
+      sourceNodeId: "floating_platform",
+      count: 4,
+    }));
+  });
+
+  it("ignores intentional source patterns", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([0, 0, 0], "base"),
+      block([8, 5, 8], "decor_lantern"),
+    ]), { ignoredSourceNodeIdPrefixes: ["decor_"] });
+
+    expect(result.disconnectedBlocks).toBe(1);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.sourceSummaries.some((summary) => summary.sourceNodeId === "decor_lantern")).toBe(false);
+  });
+
+  it("aggregates source-node support counts for agent feedback", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([0, 0, 0], "base"),
+      block([4, 4, 4], "floating_platform"),
+      block([5, 4, 4], "floating_platform"),
+      block([6, 4, 4], "floating_platform"),
+    ]));
+
+    expect(result.sourceSummaries).toContainEqual(expect.objectContaining({
+      sourceNodeId: "floating_platform",
+      count: 3,
+      disconnectedBlocks: 3,
+      verticalUnsupportedBlocks: 3,
+      bounds: { min: [4, 4, 4], max: [6, 4, 4] },
+    }));
+  });
+
+  it("treats explicit root boxes as configured support roots", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([4, 4, 4], "elevated_root"),
+      block([4, 5, 4], "tower"),
+    ]), { rootBoxes: [{ min: [4, 4, 4], max: [4, 4, 4] }] });
+
+    expect(result.disconnectedBlocks).toBe(0);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it("reports large cantilevers beyond the configured threshold", () => {
+    const blocks: VoxelBlock[] = [];
+    for (let x = 0; x < 8; x++) {
+      blocks.push(block([x, 2, 0], "bridge_span"));
+    }
+    blocks.push(block([0, 0, 0], "left_pier"));
+    blocks.push(block([0, 1, 0], "left_pier"));
+    blocks.push(block([7, 0, 0], "right_pier"));
+    blocks.push(block([7, 1, 0], "right_pier"));
+
+    const result = analyzeVoxelSupport(voxelPlan(blocks), { maxCantilever: 2 });
+
+    expect(result.largeCantileverBlocks).toBeGreaterThan(0);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "LARGE_CANTILEVER",
+      sourceNodeId: "bridge_span",
+    }));
+  });
+
+  it("limits noisy diagnostics per source", () => {
+    const result = analyzeVoxelSupport(voxelPlan([
+      block([0, 0, 0], "base"),
+      block([8, 4, 8], "floating_platform"),
+    ]), { maxDiagnosticsPerSource: 1 });
+
+    expect(result.diagnostics.filter((diagnostic) => diagnostic.sourceNodeId === "floating_platform")).toHaveLength(1);
+  });
+
+  it("captures a large sample-style hull side shelf as disconnected source nodes", () => {
+    const blocks: VoxelBlock[] = [];
+    for (let x = 0; x < 5; x++) {
+      for (let y = 0; y < 3; y++) {
+        blocks.push(block([x, y, 0], "hull_core"));
+      }
+    }
+    for (let z = 2; z < 18; z++) {
+      blocks.push(block([2, 5, z], "port_lifeboat_shelf__beam"));
+    }
+
+    const result = analyzeVoxelSupport(voxelPlan(blocks));
+
+    expect(result.disconnectedBlocks).toBe(16);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "DISCONNECTED_COMPONENT",
+      sourceNodeId: "port_lifeboat_shelf__beam",
+      count: 16,
+      bounds: { min: [2, 5, 2], max: [2, 5, 17] },
+    }));
+  });
 });
+
+function block(pos: [number, number, number], sourceNodeId: string): VoxelBlock {
+  return {
+    pos,
+    block: { name: "minecraft:stone" },
+    sourceNodeId,
+  };
+}
+
+function voxelPlan(blocks: VoxelBlock[]): VoxelPlan {
+  return {
+    version: "0.1",
+    name: "Voxel Support Test",
+    size: [32, 32, 32],
+    origin: [0, 0, 0],
+    blocks,
+  };
+}
