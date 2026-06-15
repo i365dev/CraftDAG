@@ -132,6 +132,36 @@ const CorridorComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const TaperedVolumeComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("TaperedVolume"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    startInset: NonNegativeIntSchema.optional(),
+    endInset: NonNegativeIntSchema.optional(),
+  }).strict().optional(),
+}).strict();
+
+const RailingRunComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("RailingRun"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    postSpacing: PositiveIntSchema.optional(),
+    includePosts: z.boolean().optional(),
+    includeTopRail: z.boolean().optional(),
+    includeMidRail: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
@@ -223,6 +253,8 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   RoomShellComponentSchema,
   CompartmentComponentSchema,
   CorridorComponentSchema,
+  TaperedVolumeComponentSchema,
+  RailingRunComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -240,6 +272,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   RoomShellComponentSchema,
   CompartmentComponentSchema,
   CorridorComponentSchema,
+  TaperedVolumeComponentSchema,
+  RailingRunComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -283,7 +317,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "RailingRun" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -595,6 +629,7 @@ function validateComponentSet(
     }
 
     validateInteriorLayoutComponent(component);
+    validateShapeComponent(component);
     validateComponentMaterials(plan, component);
   }
 
@@ -719,6 +754,10 @@ function expandComponentToNodes(
       }];
     case "Corridor":
       return expandCorridor(component, componentMap, unit);
+    case "TaperedVolume":
+      return expandTaperedVolume(component, componentMap, unit);
+    case "RailingRun":
+      return expandRailingRun(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -881,6 +920,90 @@ function expandCorridor(
   return nodes;
 }
 
+function expandTaperedVolume(
+  component: Extract<ComponentNode, { type: "TaperedVolume" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return taperedVolumePlacements(component).map((placement, index) => ({
+    id: nodeId(component.id, `slice_${index}`),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "wall"),
+    },
+  }));
+}
+
+function expandRailingRun(
+  component: Extract<ComponentNode, { type: "RailingRun" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const nodes: CraftDagNode[] = [];
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  const { anchor, size } = component.placement;
+  const axis = railingAxis(component);
+  const includePosts = component.options?.includePosts ?? true;
+  const includeTopRail = component.options?.includeTopRail ?? true;
+  const includeMidRail = component.options?.includeMidRail ?? false;
+  const postSpacing = component.options?.postSpacing ?? 4;
+  const runLength = axis === "x" ? size.width : size.length;
+
+  if (includePosts) {
+    const postCount = Math.floor((runLength - 1) / postSpacing) + 1;
+    for (let index = 0; index < postCount; index += 1) {
+      const distance = Math.min(index * postSpacing, runLength - 1);
+      nodes.push({
+        id: nodeId(component.id, `post_${index}`),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(railingPostPlacement(component, distance), unit),
+          block: material(component, "post", "trim"),
+        },
+      });
+    }
+  }
+
+  const railInputs = nodes.length > 0 ? [{ ref: nodes[0].id }] : inputs;
+  if (includeTopRail) {
+    nodes.push({
+      id: nodeId(component.id, "top_rail"),
+      type: "SolidBox",
+      inputs: railInputs,
+      params: {
+        ...scaledBox({
+          anchor: { x: anchor.x, y: anchor.y + size.height - 1, z: anchor.z },
+          size: { width: size.width, height: 1, length: size.length },
+        }, unit),
+        block: material(component, "rail", "trim"),
+      },
+    });
+  }
+
+  if (includeMidRail && size.height > 2) {
+    nodes.push({
+      id: nodeId(component.id, "mid_rail"),
+      type: "SolidBox",
+      inputs: railInputs,
+      params: {
+        ...scaledBox({
+          anchor: { x: anchor.x, y: anchor.y + Math.floor(size.height / 2), z: anchor.z },
+          size: { width: size.width, height: 1, length: size.length },
+        }, unit),
+        block: material(component, "rail", "trim"),
+      },
+    });
+  }
+
+  return nodes;
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -964,6 +1087,47 @@ function validateInteriorLayoutComponent(component: ComponentNode): void {
       message: `Corridor "${component.id}" must leave at least one walkable cell between its side walls.`,
       repairHint: "Use height >= 2 and width >= 3 for z-axis corridors, or length >= 3 for x-axis corridors.",
     });
+  }
+}
+
+function validateShapeComponent(component: ComponentNode): void {
+  if (component.type === "TaperedVolume") {
+    const axis = taperedAxis(component);
+    const crossAxisSize = axis === "x" ? component.placement.size.length : component.placement.size.width;
+    const maxInset = Math.max(component.options?.startInset ?? 0, component.options?.endInset ?? 0);
+
+    if (maxInset * 2 >= crossAxisSize) {
+      throw componentValidationError({
+        code: "INVALID_TAPERED_VOLUME_INSET",
+        componentId: component.id,
+        message: `TaperedVolume "${component.id}" insets collapse the tapered cross section.`,
+        repairHint: "Use smaller startInset/endInset values or increase the perpendicular size.",
+      });
+    }
+  }
+
+  if (component.type === "RailingRun") {
+    const includePosts = component.options?.includePosts ?? true;
+    const includeTopRail = component.options?.includeTopRail ?? true;
+    const includeMidRail = component.options?.includeMidRail ?? false;
+
+    if (!includePosts && !includeTopRail && !includeMidRail) {
+      throw componentValidationError({
+        code: "EMPTY_RAILING_RUN",
+        componentId: component.id,
+        message: `RailingRun "${component.id}" must emit at least one physical part.`,
+        repairHint: "Enable includePosts, includeTopRail, or includeMidRail.",
+      });
+    }
+
+    if (includeMidRail && component.placement.size.height <= 2) {
+      throw componentValidationError({
+        code: "INVALID_RAILING_MID_RAIL_HEIGHT",
+        componentId: component.id,
+        message: `RailingRun "${component.id}" needs height greater than 2 to emit a mid rail.`,
+        repairHint: "Increase placement.size.height above 2 or disable includeMidRail.",
+      });
+    }
   }
 }
 
@@ -1287,6 +1451,11 @@ function estimateComponentBlocks(
     }
     case "Corridor":
       return estimateCorridorBlocks(component, unit);
+    case "TaperedVolume":
+      return taperedVolumePlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "RailingRun":
+      return estimateRailingRunBlocks(component, unit);
     case "Door":
     case "Window":
     case "Opening":
@@ -1348,6 +1517,91 @@ function componentVolume(size: ComponentSize): number {
   return size.width * size.height * size.length;
 }
 
+function taperedAxis(component: Extract<ComponentNode, { type: "TaperedVolume" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function taperedVolumePlacements(component: Extract<ComponentNode, { type: "TaperedVolume" }>): {
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}[] {
+  const { anchor, size } = component.placement;
+  const axis = taperedAxis(component);
+  const sliceCount = axis === "x" ? size.width : size.length;
+  const crossAxisSize = axis === "x" ? size.length : size.width;
+  const startInset = component.options?.startInset ?? 0;
+  const endInset = component.options?.endInset ?? 0;
+  const placements: { anchor: { x: number; y: number; z: number }; size: ComponentSize }[] = [];
+
+  for (let index = 0; index < sliceCount; index += 1) {
+    const t = sliceCount === 1 ? 0 : index / (sliceCount - 1);
+    const inset = Math.round(startInset + (endInset - startInset) * t);
+    const clampedInset = Math.min(inset, Math.floor((crossAxisSize - 1) / 2));
+
+    if (axis === "x") {
+      placements.push({
+        anchor: { x: anchor.x + index, y: anchor.y, z: anchor.z + clampedInset },
+        size: { width: 1, height: size.height, length: crossAxisSize - clampedInset * 2 },
+      });
+    } else {
+      placements.push({
+        anchor: { x: anchor.x + clampedInset, y: anchor.y, z: anchor.z + index },
+        size: { width: crossAxisSize - clampedInset * 2, height: size.height, length: 1 },
+      });
+    }
+  }
+
+  return placements;
+}
+
+function railingAxis(component: Extract<ComponentNode, { type: "RailingRun" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function railingPostPlacement(
+  component: Extract<ComponentNode, { type: "RailingRun" }>,
+  distance: number
+): { anchor: { x: number; y: number; z: number }; size: ComponentSize } {
+  const { anchor, size } = component.placement;
+  const axis = railingAxis(component);
+
+  if (axis === "x") {
+    return {
+      anchor: { x: anchor.x + distance, y: anchor.y, z: anchor.z },
+      size: { width: 1, height: size.height, length: size.length },
+    };
+  }
+
+  return {
+    anchor: { x: anchor.x, y: anchor.y, z: anchor.z + distance },
+    size: { width: size.width, height: size.height, length: 1 },
+  };
+}
+
+function estimateRailingRunBlocks(component: Extract<ComponentNode, { type: "RailingRun" }>, unit: 1 | 2): number {
+  const { size } = component.placement;
+  const axis = railingAxis(component);
+  const runLength = axis === "x" ? size.width : size.length;
+  const postSpacing = component.options?.postSpacing ?? 4;
+  let total = 0;
+
+  if (component.options?.includePosts ?? true) {
+    const postCount = Math.floor((runLength - 1) / postSpacing) + 1;
+    const postVolume = axis === "x" ? 1 * size.height * size.length : size.width * size.height * 1;
+    total += postCount * postVolume * unit * unit * unit;
+  }
+
+  if (component.options?.includeTopRail ?? true) {
+    total += size.width * 1 * size.length * unit * unit * unit;
+  }
+
+  if ((component.options?.includeMidRail ?? false) && size.height > 2) {
+    total += size.width * 1 * size.length * unit * unit * unit;
+  }
+
+  return total;
+}
+
 function corridorAxis(component: Extract<ComponentNode, { type: "Corridor" }>): "x" | "z" {
   return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
 }
@@ -1391,7 +1645,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, RailingRun, or SupportPost component.",
       });
     }
 
@@ -1464,6 +1718,21 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       }
       return fallbacks;
     }
+    case "TaperedVolume":
+      return [{ role: "main", value: "wall" }];
+    case "RailingRun": {
+      const fallbacks: { role: string; value: string }[] = [];
+      if (component.options?.includePosts ?? true) {
+        fallbacks.push({ role: "post", value: "trim" });
+      }
+      if (component.options?.includeTopRail ?? true) {
+        fallbacks.push({ role: "rail", value: "trim" });
+      }
+      if (component.options?.includeMidRail ?? false) {
+        fallbacks.push({ role: "rail", value: "trim" });
+      }
+      return fallbacks;
+    }
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -1530,6 +1799,10 @@ function outputPart(component: ComponentNode): string {
       return "shell";
     case "Corridor":
       return corridorOutputPart(component);
+    case "TaperedVolume":
+      return "slice_0";
+    case "RailingRun":
+      return railingOutputPart(component);
     case "Door":
     case "Window":
     case "Opening":
@@ -1566,6 +1839,19 @@ function corridorOutputPart(component: Extract<ComponentNode, { type: "Corridor"
   return "floor";
 }
 
+function railingOutputPart(component: Extract<ComponentNode, { type: "RailingRun" }>): string {
+  if (component.options?.includeTopRail ?? true) {
+    return "top_rail";
+  }
+  if (component.options?.includePosts ?? true) {
+    return "post_0";
+  }
+  if (component.options?.includeMidRail ?? false) {
+    return "mid_rail";
+  }
+  return "top_rail";
+}
+
 function expandRepeat(
   component: Extract<ComponentNode, { type: "Repeat" }>,
   componentMap: Map<string, ComponentNode>,
@@ -1577,7 +1863,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, RailingRun, or SupportPost component.",
     });
   }
 
@@ -1651,8 +1937,8 @@ function expandRepeatableComponent(
         params: {
           ...scaledBox(repeated.placement, unit),
           block: material(source, "wall", "wall"),
-          includeFloor: source.options?.includeFloor,
-          includeCeiling: source.options?.includeCeiling,
+          includeFloor: repeated.options?.includeFloor,
+          includeCeiling: repeated.options?.includeCeiling,
         },
       }];
     case "Compartment":
@@ -1663,12 +1949,16 @@ function expandRepeatableComponent(
         params: {
           ...scaledBox(repeated.placement, unit),
           block: material(source, "wall", "wall"),
-          includeFloor: source.options?.includeFloor,
-          includeCeiling: source.options?.includeCeiling,
+          includeFloor: repeated.options?.includeFloor,
+          includeCeiling: repeated.options?.includeCeiling,
         },
       }];
     case "Corridor":
-      return expandCorridor({ ...repeated, materials: source.materials, options: source.options }, componentMap, unit, inputs);
+      return expandCorridor(repeated, componentMap, unit, inputs);
+    case "TaperedVolume":
+      return expandTaperedVolume(repeated, componentMap, unit, inputs);
+    case "RailingRun":
+      return expandRailingRun(repeated, componentMap, unit, inputs);
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -2016,6 +2306,8 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "RoomShell" ||
     component.type === "Compartment" ||
     component.type === "Corridor" ||
+    component.type === "TaperedVolume" ||
+    component.type === "RailingRun" ||
     component.type === "SupportPost"
   );
 }

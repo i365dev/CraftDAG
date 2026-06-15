@@ -1,0 +1,118 @@
+{
+  "version": "0.1",
+  "name": "Ship Bow Shape Study",
+  "policy": {
+    "sizeTier": "medium"
+  },
+  "bounds": {
+    "width": 48,
+    "height": 14,
+    "length": 18
+  },
+  "palette": {
+    "foundation": "minecraft:deepslate_tiles",
+    "wall": "minecraft:iron_block",
+    "floor": "minecraft:spruce_planks",
+    "trim": "minecraft:dark_oak_fence"
+  },
+  "components": [
+    {
+      "id": "bow_taper",
+      "type": "TaperedVolume",
+      "role": "ship_bow",
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "size": {
+          "width": 18,
+          "height": 8,
+          "length": 17
+        }
+      },
+      "options": {
+        "axis": "x",
+        "startInset": 8,
+        "endInset": 0
+      }
+    },
+    {
+      "id": "main_deck",
+      "type": "Platform",
+      "role": "deck",
+      "inputs": [
+        {
+          "ref": "bow_taper"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 8,
+          "y": 9,
+          "z": 1
+        },
+        "size": {
+          "width": 36,
+          "height": 1,
+          "length": 15
+        }
+      }
+    },
+    {
+      "id": "port_railing",
+      "type": "RailingRun",
+      "role": "deck_railing",
+      "inputs": [
+        {
+          "ref": "main_deck"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 8,
+          "y": 10,
+          "z": 1
+        },
+        "size": {
+          "width": 36,
+          "height": 3,
+          "length": 1
+        }
+      },
+      "options": {
+        "axis": "x",
+        "postSpacing": 5,
+        "includeMidRail": true
+      }
+    },
+    {
+      "id": "starboard_railing",
+      "type": "RailingRun",
+      "role": "deck_railing",
+      "inputs": [
+        {
+          "ref": "main_deck"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 8,
+          "y": 10,
+          "z": 15
+        },
+        "size": {
+          "width": 36,
+          "height": 3,
+          "length": 1
+        }
+      },
+      "options": {
+        "axis": "x",
+        "postSpacing": 5,
+        "includeMidRail": true
+      }
+    }
+  ]
+}

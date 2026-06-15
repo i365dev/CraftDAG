@@ -1,0 +1,140 @@
+{
+  "version": "0.1",
+  "name": "Fortified Wall Shape Study",
+  "policy": {
+    "sizeTier": "medium"
+  },
+  "bounds": {
+    "width": 56,
+    "height": 18,
+    "length": 12
+  },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:polished_andesite"
+  },
+  "components": [
+    {
+      "id": "wall_base",
+      "type": "Foundation",
+      "role": "wall_foundation",
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 0,
+          "z": 3
+        },
+        "size": {
+          "width": 56,
+          "height": 2,
+          "length": 6
+        }
+      }
+    },
+    {
+      "id": "left_buttress",
+      "type": "TaperedVolume",
+      "role": "buttress",
+      "inputs": [
+        {
+          "ref": "wall_base"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 2,
+          "z": 1
+        },
+        "size": {
+          "width": 8,
+          "height": 12,
+          "length": 10
+        }
+      },
+      "options": {
+        "axis": "z",
+        "startInset": 0,
+        "endInset": 3
+      }
+    },
+    {
+      "id": "right_buttress",
+      "type": "TaperedVolume",
+      "role": "buttress",
+      "inputs": [
+        {
+          "ref": "wall_base"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 44,
+          "y": 2,
+          "z": 1
+        },
+        "size": {
+          "width": 8,
+          "height": 12,
+          "length": 10
+        }
+      },
+      "options": {
+        "axis": "z",
+        "startInset": 0,
+        "endInset": 3
+      }
+    },
+    {
+      "id": "wall_walk",
+      "type": "Platform",
+      "role": "wall_walk",
+      "inputs": [
+        {
+          "ref": "wall_base"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 12,
+          "z": 3
+        },
+        "size": {
+          "width": 56,
+          "height": 1,
+          "length": 6
+        }
+      }
+    },
+    {
+      "id": "parapet_railing",
+      "type": "RailingRun",
+      "role": "parapet",
+      "inputs": [
+        {
+          "ref": "wall_walk"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 13,
+          "z": 3
+        },
+        "size": {
+          "width": 56,
+          "height": 4,
+          "length": 1
+        }
+      },
+      "options": {
+        "axis": "x",
+        "postSpacing": 4,
+        "includeMidRail": true
+      }
+    }
+  ]
+}

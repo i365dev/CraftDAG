@@ -183,6 +183,22 @@ export interface CorridorOptions {
 }
 export type CorridorComponent = BaseComponentNode<"Corridor", AnchoredComponentPlacement, CorridorOptions>;
 
+export interface TaperedVolumeOptions {
+  axis?: "x" | "z";
+  startInset?: number;
+  endInset?: number;
+}
+export type TaperedVolumeComponent = BaseComponentNode<"TaperedVolume", AnchoredComponentPlacement, TaperedVolumeOptions>;
+
+export interface RailingRunOptions {
+  axis?: "x" | "z";
+  postSpacing?: number;
+  includePosts?: boolean;
+  includeTopRail?: boolean;
+  includeMidRail?: boolean;
+}
+export type RailingRunComponent = BaseComponentNode<"RailingRun", AnchoredComponentPlacement, RailingRunOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -200,6 +216,8 @@ export type AssemblyComponentNode =
   | RoomShellComponent
   | CompartmentComponent
   | CorridorComponent
+  | TaperedVolumeComponent
+  | RailingRunComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

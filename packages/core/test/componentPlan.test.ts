@@ -813,6 +813,216 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands TaperedVolume and RailingRun components for non-box silhouettes", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Shape Slice",
+      bounds: { width: 16, height: 6, length: 10 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        trim: "minecraft:dark_oak_fence",
+      },
+      components: [
+        {
+          id: "bow",
+          type: "TaperedVolume",
+          role: "ship_bow",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 5, height: 3, length: 7 },
+          },
+          options: {
+            axis: "x",
+            startInset: 0,
+            endInset: 3,
+          },
+        },
+        {
+          id: "deck_railing",
+          type: "RailingRun",
+          role: "deck_railing",
+          inputs: [{ ref: "bow" }],
+          placement: {
+            anchor: { x: 6, y: 3, z: 0 },
+            size: { width: 9, height: 3, length: 1 },
+          },
+          options: {
+            axis: "x",
+            postSpacing: 4,
+          },
+        },
+      ],
+    };
+
+    const validated = validateComponentPlan(plan);
+    expect(validated.components?.[0]).toMatchObject({ role: "ship_bow" });
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "bow__slice_0",
+      "bow__slice_1",
+      "bow__slice_2",
+      "bow__slice_3",
+      "bow__slice_4",
+      "deck_railing__post_0",
+      "deck_railing__post_1",
+      "deck_railing__post_2",
+      "deck_railing__top_rail",
+    ]);
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "bow__slice_0",
+      params: {
+        from: [0, 0, 0],
+        to: [0, 2, 6],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes[4]).toMatchObject({
+      id: "bow__slice_4",
+      params: {
+        from: [4, 0, 3],
+        to: [4, 2, 3],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes[5]).toMatchObject({
+      id: "deck_railing__post_0",
+      inputs: [{ ref: "bow__slice_0" }],
+      params: {
+        from: [6, 3, 0],
+        to: [6, 5, 0],
+        block: "trim",
+      },
+    });
+    expect(craftDag.nodes[8]).toMatchObject({
+      id: "deck_railing__top_rail",
+      inputs: [{ ref: "deck_railing__post_0" }],
+      params: {
+        from: [6, 5, 0],
+        to: [14, 5, 0],
+        block: "trim",
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects tapered volumes whose insets collapse the cross section", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Taper",
+      bounds: { width: 8, height: 4, length: 5 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "collapsed_bow",
+          type: "TaperedVolume",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 6, height: 3, length: 5 },
+          },
+          options: {
+            axis: "x",
+            endInset: 3,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_TAPERED_VOLUME_INSET",
+          componentId: "collapsed_bow",
+        }),
+      ]);
+    }
+  });
+
+  it("rejects railing runs that emit no physical parts", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Empty Railing",
+      bounds: { width: 8, height: 4, length: 2 },
+      palette: {
+        trim: "minecraft:dark_oak_fence",
+      },
+      components: [
+        {
+          id: "empty_rail",
+          type: "RailingRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 3, length: 1 },
+          },
+          options: {
+            includePosts: false,
+            includeTopRail: false,
+            includeMidRail: false,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "EMPTY_RAILING_RUN",
+          componentId: "empty_rail",
+        }),
+      ]);
+    }
+  });
+
+  it("rejects mid rails on railing runs that are too short to emit them", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Short Mid Rail",
+      bounds: { width: 8, height: 3, length: 2 },
+      palette: {
+        trim: "minecraft:dark_oak_fence",
+      },
+      components: [
+        {
+          id: "short_rail",
+          type: "RailingRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 2, length: 1 },
+          },
+          options: {
+            includePosts: false,
+            includeTopRail: false,
+            includeMidRail: true,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_RAILING_MID_RAIL_HEIGHT",
+          componentId: "short_rail",
+        }),
+      ]);
+    }
+  });
+
   it("requires floor or explicit material for Platform components", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

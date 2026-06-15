@@ -74,6 +74,8 @@ Allowed ComponentPlan v0.1 components:
 - `RoomShell`
 - `Compartment`
 - `Corridor`
+- `TaperedVolume`
+- `RailingRun`
 - `Door`
 - `Window`
 - `Opening`
@@ -89,6 +91,10 @@ Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, count
 Use `Compartment` for generic interior rooms such as cabins, holds, boiler rooms, galleries, cells, storage rooms, and machine rooms. Put the domain intent in `role`; do not invent component types like `BoilerRoom`, `DiningHall`, or `CargoHold`.
 
 Use `Corridor` for open-ended circulation runs inside large builds. It creates a floor, two side walls, and an optional ceiling. Set `options.axis` when the intended direction is ambiguous.
+
+Use `TaperedVolume` for recognizable non-box massing such as ship bows, tower leg taper, buttresses, and simplified stepped silhouettes. Set `options.axis`, then use integer `startInset` and `endInset` values. Keep the taper Minecraft-like and blocky; do not describe exact curves.
+
+Use `RailingRun` for bounded posts and rails along decks, bridges, walls, and balconies. Prefer it over manually listing many posts. Use `postSpacing` for rhythm and `includeMidRail` for extra detail.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 
