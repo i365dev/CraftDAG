@@ -1,5 +1,5 @@
 import { Diagnostic } from "./errors.js";
-import { compileComponentPlan } from "./componentPlan.js";
+import { compileComponentPlan, validateComponentPlan } from "./componentPlan.js";
 import {
   ComponentAssemblyDefinition,
   ComponentNode,
@@ -59,8 +59,8 @@ export function analyzeComponentPlanSupport(
   doc: unknown,
   options: SupportAnalysisOptions = {}
 ): SupportAnalysisResult {
-  const plan = doc as ComponentPlanDocument;
-  return analyzeVoxelSupportInternal(compileComponentPlan(doc), {
+  const plan = validateComponentPlan(doc);
+  return analyzeVoxelSupportInternal(compileComponentPlan(plan), {
     ...options,
     sourceStructural: collectSourceStructuralEntries(plan),
   });
@@ -174,16 +174,26 @@ function collectInstanceEntries(
   if (!assembly) {
     return;
   }
+  const instanceStructural = component.structural?.supportPolicy
+    ? defaultStructuralIntentForComponent(component)
+    : undefined;
   for (const assemblyComponent of assembly.components) {
-    collectComponentEntry(entries, assemblyComponent, `${prefix}__${assemblyComponent.id}`);
+    collectComponentEntry(entries, assemblyComponent, `${prefix}__${assemblyComponent.id}`, instanceStructural);
   }
 }
 
-function collectComponentEntry(entries: SourceStructuralEntry[], component: ComponentNode, prefix: string): void {
+function collectComponentEntry(
+  entries: SourceStructuralEntry[],
+  component: ComponentNode,
+  prefix: string,
+  inheritedStructural?: SourceStructuralEntry["structural"]
+): void {
   entries.push({
     prefix,
     componentId: component.id,
-    structural: defaultStructuralIntentForComponent(component),
+    structural: component.structural?.supportPolicy
+      ? defaultStructuralIntentForComponent(component)
+      : inheritedStructural ?? defaultStructuralIntentForComponent(component),
   });
 }
 
@@ -198,7 +208,7 @@ function connectedToRoots(
 
   for (const block of blocks) {
     if (
-      block.pos[1] === groundY ||
+      block.pos[1] <= groundY ||
       rootSourceNodeIdPrefixes.some((prefix) => block.sourceNodeId?.startsWith(prefix))
     ) {
       const key = posKey(block.pos);
@@ -237,7 +247,7 @@ function groupsToDiagnostics(
 
     const allowed = structural.supportPolicy === "decorative" || structural.supportPolicy === "may_float";
     diagnostics.push({
-      severity: allowed ? "warning" : "warning",
+      severity: "warning",
       stage: "support-analysis",
       code: allowed ? `ALLOWED_${code}` : code,
       message: allowed ? `${message} This is allowed by structural intent.` : message,
