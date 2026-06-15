@@ -153,6 +153,56 @@ describe("support analysis", () => {
     }));
   });
 
+  it("merges instance structural metadata with assembly child intent", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Merged Structural Metadata",
+      bounds: { width: 12, height: 12, length: 12 },
+      palette: {
+        foundation: "minecraft:stone",
+        wall: "minecraft:stone",
+        floor: "minecraft:oak_planks",
+        roof: "minecraft:stone",
+        glass: "minecraft:glass",
+        door: "minecraft:oak_door",
+        trim: "minecraft:oak_log",
+      },
+      assemblies: [{
+        id: "floating_module",
+        bounds: { width: 3, height: 3, length: 3 },
+        components: [{
+          id: "body",
+          type: "Platform",
+          placement: { anchor: { x: 0, y: 0, z: 0 }, size: { width: 3, height: 1, length: 3 } },
+          structural: { supportPolicy: "may_float" },
+        }],
+      }],
+      components: [
+        {
+          id: "base",
+          type: "Foundation",
+          placement: { anchor: { x: 0, y: 0, z: 0 }, size: { width: 4, height: 1, length: 4 } },
+        },
+        {
+          id: "floating_instance",
+          type: "Instance",
+          placement: { assembly: "floating_module", anchor: { x: 8, y: 5, z: 8 } },
+          structural: { supportRoots: ["base"], maxCantilever: 3 },
+        },
+      ],
+    };
+
+    const result = analyzeComponentPlanSupport(plan, { includeAllowed: true });
+
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: "ALLOWED_DISCONNECTED_COMPONENT",
+      sourceNodeId: "floating_instance__body__platform",
+      supportPolicy: "may_float",
+      supportRoots: ["base"],
+      maxCantilever: 3,
+    }));
+  });
+
   it("distinguishes connected side-supported spans from disconnected components", () => {
     const plan = basePlan([
       {

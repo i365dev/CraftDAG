@@ -21,6 +21,8 @@ export interface SupportDiagnostic extends Diagnostic {
   count: number;
   bounds: SupportAnalysisBounds;
   supportPolicy: StructuralSupportPolicy;
+  supportRoots?: string[];
+  maxCantilever?: number;
 }
 
 export interface SupportAnalysisOptions {
@@ -174,9 +176,7 @@ function collectInstanceEntries(
   if (!assembly) {
     return;
   }
-  const instanceStructural = component.structural?.supportPolicy
-    ? defaultStructuralIntentForComponent(component)
-    : undefined;
+  const instanceStructural = component.structural;
   for (const assemblyComponent of assembly.components) {
     collectComponentEntry(entries, assemblyComponent, `${prefix}__${assemblyComponent.id}`, instanceStructural);
   }
@@ -186,14 +186,22 @@ function collectComponentEntry(
   entries: SourceStructuralEntry[],
   component: ComponentNode,
   prefix: string,
-  inheritedStructural?: SourceStructuralEntry["structural"]
+  inheritedStructural?: ComponentStructuralIntent
 ): void {
+  const selfStructural = defaultStructuralIntentForComponent(component);
+  const structural = inheritedStructural
+    ? {
+        ...selfStructural,
+        ...inheritedStructural,
+        ...component.structural,
+        supportPolicy: component.structural?.supportPolicy ?? inheritedStructural.supportPolicy ?? selfStructural.supportPolicy,
+      }
+    : selfStructural;
+
   entries.push({
     prefix,
     componentId: component.id,
-    structural: component.structural?.supportPolicy
-      ? defaultStructuralIntentForComponent(component)
-      : inheritedStructural ?? defaultStructuralIntentForComponent(component),
+    structural,
   });
 }
 
@@ -256,6 +264,8 @@ function groupsToDiagnostics(
       count: group.blocks.length,
       bounds: group.bounds,
       supportPolicy: structural.supportPolicy,
+      supportRoots: structural.supportRoots,
+      maxCantilever: structural.maxCantilever,
       repairHint: allowed ? "No repair needed unless the visual result is unintended." : repairHint,
     });
   }
