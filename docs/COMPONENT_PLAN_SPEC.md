@@ -52,7 +52,8 @@ type ComponentPlanDocument = {
   bounds: ComponentSize
   palette: ComponentPalette
   assemblies?: ComponentAssemblyDefinition[]
-  components: ComponentNode[]
+  components?: ComponentNode[]
+  sections?: ComponentPlanSection[]
 }
 
 type ComponentAssemblyDefinition = {
@@ -61,12 +62,20 @@ type ComponentAssemblyDefinition = {
   components: AssemblyComponentNode[]
 }
 
+type ComponentPlanSection = {
+  id: string
+  origin: { x: number; y: number; z: number }
+  bounds: ComponentSize
+  assemblies?: ComponentAssemblyDefinition[]
+  components: ComponentNode[]
+}
+
 type ComponentGrid = {
   unitBlocks?: 1 | 2
 }
 
 type ComponentPlanPolicy = {
-  sizeTier?: "small" | "medium" | "large"
+  sizeTier?: "small" | "medium" | "large" | "monumental"
 }
 
 type ComponentSize = {
@@ -101,6 +110,7 @@ The validator rejects plans that exceed the active tier before expansion or comp
 | `small` | `32 x 32 x 32` | 64 | 32,768 |
 | `medium` | `64 x 48 x 64` | 256 | 196,608 |
 | `large` | `96 x 64 x 96` | 512 | 589,824 |
+| `monumental` | `256 x 96 x 256` | 2,048 | 6,291,456 |
 
 `grid.unitBlocks` affects estimated expanded blocks. A logical solid volume with `unitBlocks: 2` is estimated as eight times as many Minecraft blocks as the same logical volume with `unitBlocks: 1`.
 
@@ -335,6 +345,83 @@ Example:
 ```
 
 Agents should not calculate raw `from` and `to` coordinates for attached components when a semantic placement is available.
+
+## Sections
+
+Sections are local ComponentPlan regions for monumental or long-axis builds. They let agents decompose a large structure into bounded parts such as `bow`, `midship`, `stern`, `garden_axis`, `central_hall`, or `wall_span_03`.
+
+```ts
+type ComponentPlanSection = {
+  id: string
+  origin: { x: number; y: number; z: number }
+  bounds: ComponentSize
+  assemblies?: ComponentAssemblyDefinition[]
+  components: ComponentNode[]
+}
+```
+
+Section components use local coordinates inside `section.bounds`. The expander shifts them by `section.origin` into global ComponentPlan coordinates.
+
+In v0.1:
+
+- root `components` and `sections` may coexist
+- a plan must define at least one root component or one section
+- each section validates against its own local bounds
+- each section must fit inside global `bounds`
+- root assemblies are available to sections
+- section-local assemblies are available only inside that section
+- section-expanded node IDs are deterministic: `<sectionId>__<componentId>__<partName>`
+- assembly instances inside sections expand as `<sectionId>__<instanceId>__<localComponentId>__<partName>`
+- cross-section component references are not supported
+
+Example:
+
+```json
+{
+  "version": "0.1",
+  "name": "Sectioned Wall",
+  "policy": { "sizeTier": "large" },
+  "bounds": { "width": 48, "height": 16, "length": 16 },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:spruce_log"
+  },
+  "sections": [
+    {
+      "id": "west_span",
+      "origin": { "x": 0, "y": 0, "z": 0 },
+      "bounds": { "width": 24, "height": 16, "length": 16 },
+      "components": [
+        {
+          "id": "base",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 5 },
+            "size": { "width": 24, "height": 1, "length": 6 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "east_span",
+      "origin": { "x": 24, "y": 0, "z": 0 },
+      "bounds": { "width": 24, "height": 16, "length": 16 },
+      "components": [
+        {
+          "id": "base",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 5 },
+            "size": { "width": 24, "height": 1, "length": 6 }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## Example
 

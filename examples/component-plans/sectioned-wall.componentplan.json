@@ -1,0 +1,203 @@
+{
+  "version": "0.1",
+  "name": "Sectioned Wall Study",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 48,
+    "height": 16,
+    "length": 16
+  },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:stone_bricks",
+    "floor": "minecraft:smooth_stone",
+    "trim": "minecraft:spruce_log"
+  },
+  "assemblies": [
+    {
+      "id": "watch_pillar",
+      "bounds": {
+        "width": 3,
+        "height": 8,
+        "length": 3
+      },
+      "components": [
+        {
+          "id": "pillar",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "size": {
+              "width": 3,
+              "height": 8,
+              "length": 3
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "west_span",
+      "origin": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "bounds": {
+        "width": 24,
+        "height": 16,
+        "length": 16
+      },
+      "components": [
+        {
+          "id": "base",
+          "type": "Foundation",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 5
+            },
+            "size": {
+              "width": 24,
+              "height": 1,
+              "length": 6
+            }
+          }
+        },
+        {
+          "id": "wall",
+          "type": "Beam",
+          "inputs": [
+            {
+              "ref": "base"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 1,
+              "z": 6
+            },
+            "size": {
+              "width": 24,
+              "height": 5,
+              "length": 4
+            }
+          }
+        },
+        {
+          "id": "left_pillar",
+          "type": "Instance",
+          "inputs": [
+            {
+              "ref": "base"
+            }
+          ],
+          "placement": {
+            "assembly": "watch_pillar",
+            "anchor": {
+              "x": 0,
+              "y": 1,
+              "z": 5
+            }
+          }
+        },
+        {
+          "id": "right_pillar",
+          "type": "Instance",
+          "inputs": [
+            {
+              "ref": "base"
+            }
+          ],
+          "placement": {
+            "assembly": "watch_pillar",
+            "anchor": {
+              "x": 21,
+              "y": 1,
+              "z": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "east_span",
+      "origin": {
+        "x": 24,
+        "y": 0,
+        "z": 0
+      },
+      "bounds": {
+        "width": 24,
+        "height": 16,
+        "length": 16
+      },
+      "components": [
+        {
+          "id": "base",
+          "type": "Foundation",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 5
+            },
+            "size": {
+              "width": 24,
+              "height": 1,
+              "length": 6
+            }
+          }
+        },
+        {
+          "id": "wall",
+          "type": "Beam",
+          "inputs": [
+            {
+              "ref": "base"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 1,
+              "z": 6
+            },
+            "size": {
+              "width": 24,
+              "height": 5,
+              "length": 4
+            }
+          }
+        },
+        {
+          "id": "right_pillar",
+          "type": "Instance",
+          "inputs": [
+            {
+              "ref": "base"
+            }
+          ],
+          "placement": {
+            "assembly": "watch_pillar",
+            "anchor": {
+              "x": 21,
+              "y": 1,
+              "z": 5
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

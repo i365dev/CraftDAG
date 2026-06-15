@@ -17,6 +17,7 @@ describe("ComponentPlan large examples", () => {
   const examples = [
     "large-castle.componentplan.json",
     "long-fortified-bridge.componentplan.json",
+    "sectioned-wall.componentplan.json",
   ];
 
   for (const example of examples) {
@@ -32,7 +33,7 @@ describe("ComponentPlan large examples", () => {
       const layers = generateLayerGuide(voxelPlan);
 
       expect(validated.assemblies?.length).toBeGreaterThan(0);
-      expect(craftDag.nodes.length).toBeGreaterThan(validated.components.length);
+      expect(craftDag.nodes.length).toBeGreaterThan(validated.components?.length ?? 0);
       expect(voxelPlan.blocks.length).toBeGreaterThan(0);
       expect(materials.length).toBeGreaterThan(0);
       expect(layers.length).toBeGreaterThan(0);
