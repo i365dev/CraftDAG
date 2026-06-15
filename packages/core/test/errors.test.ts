@@ -32,6 +32,26 @@ describe("diagnosticsFromError", () => {
     ]);
   });
 
+  it("normalizes array paths from schema validators", () => {
+    const error = new ValidationError("Schema validation failed", [
+      {
+        code: "invalid_type",
+        message: "Expected string.",
+        path: ["components", 0, "placement", "target"],
+      },
+    ]);
+
+    expect(diagnosticsFromError(error)).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        stage: "unknown",
+        code: "invalid_type",
+        message: "Expected string.",
+        path: "components.0.placement.target",
+      }),
+    ]);
+  });
+
   it("normalizes unknown errors into one generic diagnostic", () => {
     expect(diagnosticsFromError(new Error("Something broke"))).toEqual([
       {

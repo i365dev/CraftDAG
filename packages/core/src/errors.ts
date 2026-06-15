@@ -89,7 +89,7 @@ function normalizeDiagnostic(detail: unknown, fallbackMessage: string): Diagnost
     stage: typeof detail.stage === "string" ? detail.stage : "unknown",
     code: typeof detail.code === "string" ? detail.code : "UNKNOWN_ERROR",
     message: typeof detail.message === "string" ? detail.message : fallbackMessage,
-    path: typeof detail.path === "string" ? detail.path : undefined,
+    path: normalizeDiagnosticPath(detail.path),
     componentId: typeof detail.componentId === "string" ? detail.componentId : undefined,
     sectionId: typeof detail.sectionId === "string" ? detail.sectionId : undefined,
     assemblyId: typeof detail.assemblyId === "string" ? detail.assemblyId : undefined,
@@ -98,4 +98,16 @@ function normalizeDiagnostic(detail: unknown, fallbackMessage: string): Diagnost
     availableRefs: Array.isArray(detail.availableRefs) ? detail.availableRefs.filter((ref) => typeof ref === "string") : undefined,
     repairHint: typeof detail.repairHint === "string" ? detail.repairHint : undefined,
   };
+}
+
+function normalizeDiagnosticPath(path: unknown): string | undefined {
+  if (typeof path === "string") {
+    return path;
+  }
+
+  if (Array.isArray(path)) {
+    return path.map((part) => String(part)).join(".");
+  }
+
+  return undefined;
 }

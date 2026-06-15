@@ -344,8 +344,8 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   }
 
   for (const assembly of parsed.assemblies ?? []) {
-    const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
     try {
+      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
       validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
     } catch (error) {
       throw withDiagnosticContext(error, { assemblyId: assembly.id });
@@ -355,12 +355,19 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   validateComponentSet(parsed, parsed.components ?? [], parsed.bounds, componentMap, "ComponentPlan", assemblyMap);
 
   for (const section of parsed.sections ?? []) {
-    const sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
-    const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    let sectionAssemblyMap: Map<string, ComponentAssemblyDefinition>;
+    let sectionComponentMap: Map<string, ComponentNode>;
+
+    try {
+      sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
+      sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    } catch (error) {
+      throw withDiagnosticContext(error, { sectionId: section.id });
+    }
 
     for (const assembly of section.assemblies ?? []) {
-      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
       try {
+        const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
         validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
       } catch (error) {
         throw withDiagnosticContext(error, { sectionId: section.id, assemblyId: assembly.id });
@@ -416,16 +423,36 @@ function withDiagnosticContext(
     error instanceof GraphError ||
     error instanceof CompileError
   ) {
-    const details = Array.isArray(error.details)
-      ? error.details.map((detail) => ({ ...detail, ...missingDiagnosticContext(detail, context) }))
-      : error.details;
+    const details = addDiagnosticContext(error.details, context);
 
-    if (error instanceof GraphError) return new GraphError(error.message, details);
-    if (error instanceof CompileError) return new CompileError(error.message, details);
-    return new ValidationError(error.message, details);
+    let contextualError: Error;
+    if (error instanceof GraphError) {
+      contextualError = new GraphError(error.message, details);
+    } else if (error instanceof CompileError) {
+      contextualError = new CompileError(error.message, details);
+    } else {
+      contextualError = new ValidationError(error.message, details);
+    }
+    contextualError.stack = error.stack;
+    return contextualError;
   }
 
   return error instanceof Error ? error : new Error(String(error));
+}
+
+function addDiagnosticContext(
+  details: unknown,
+  context: Pick<Diagnostic, "sectionId" | "assemblyId" | "instanceId">
+): unknown {
+  if (Array.isArray(details)) {
+    return details.map((detail) => addDiagnosticContext(detail, context));
+  }
+
+  if (typeof details === "object" && details !== null) {
+    return { ...details, ...missingDiagnosticContext(details, context) };
+  }
+
+  return details;
 }
 
 function missingDiagnosticContext(
@@ -721,7 +748,7 @@ export function compileComponentPlan(doc: unknown): VoxelPlan {
 function componentValidationError(issue: Omit<ComponentValidationIssue, "stage" | "severity"> & {
   severity?: ComponentValidationIssue["severity"];
 }): ValidationError {
-  return new ValidationError(issue.message, [{ severity: issue.severity ?? "error", stage: "component-validation", ...issue }]);
+  return new ValidationError(issue.message, [{ stage: "component-validation", ...issue, severity: issue.severity ?? "error" }]);
 }
 
 function unknownRefError(

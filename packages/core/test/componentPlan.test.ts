@@ -1335,6 +1335,123 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("adds assembly context to duplicate component IDs inside root assemblies", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Duplicate Assembly Component",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      assemblies: [
+        {
+          id: "tower_module",
+          bounds: { width: 4, height: 4, length: 4 },
+          components: [
+            {
+              id: "wall",
+              type: "RoomShell",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 4, height: 4, length: 4 },
+              },
+            },
+            {
+              id: "wall",
+              type: "RoomShell",
+              placement: {
+                anchor: { x: 0, y: 0, z: 0 },
+                size: { width: 4, height: 4, length: 4 },
+              },
+            },
+          ],
+        },
+      ],
+      components: [
+        {
+          id: "tower",
+          type: "Instance",
+          placement: {
+            assembly: "tower_module",
+            anchor: { x: 0, y: 0, z: 0 },
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "DUPLICATE_COMPONENT_ID",
+          componentId: "wall",
+          assemblyId: "tower_module",
+        }),
+      ]);
+    }
+  });
+
+  it("adds section and assembly context to duplicate component IDs inside section assemblies", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Duplicate Section Assembly Component",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      sections: [
+        {
+          id: "midship",
+          origin: { x: 0, y: 0, z: 0 },
+          bounds: { width: 8, height: 8, length: 8 },
+          assemblies: [
+            {
+              id: "cabin_module",
+              bounds: { width: 4, height: 4, length: 4 },
+              components: [
+                {
+                  id: "wall",
+                  type: "RoomShell",
+                  placement: {
+                    anchor: { x: 0, y: 0, z: 0 },
+                    size: { width: 4, height: 4, length: 4 },
+                  },
+                },
+                {
+                  id: "wall",
+                  type: "RoomShell",
+                  placement: {
+                    anchor: { x: 0, y: 0, z: 0 },
+                    size: { width: 4, height: 4, length: 4 },
+                  },
+                },
+              ],
+            },
+          ],
+          components: [],
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "DUPLICATE_COMPONENT_ID",
+          componentId: "wall",
+          sectionId: "midship",
+          assemblyId: "cabin_module",
+        }),
+      ]);
+    }
+  });
+
   it("expands sectioned ComponentPlans with section-local coordinates and namespaced node IDs", () => {
     const sectioned: ComponentPlanDocument = {
       version: "0.1",
