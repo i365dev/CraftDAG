@@ -78,6 +78,8 @@ Allowed ComponentPlan v0.1 components:
 - `SteppedTier`
 - `VerticalSetbackVolume`
 - `RailingRun`
+- `ArcadeRun`
+- `SupportBracket`
 - `Door`
 - `Window`
 - `Opening`
@@ -101,6 +103,10 @@ Use `SteppedTier` for large horizontal tiering: pyramids, amphitheater seating, 
 Use `VerticalSetbackVolume` for tall height-driven setback massing: Burj-style towers, pagodas, tiered spires, and skyscrapers. Prefer it when the object gets narrower as it rises. Do not use it for ship bows or horizontal buttresses; use `TaperedVolume` there.
 
 Use `RailingRun` for bounded posts and rails along decks, bridges, walls, and balconies. Prefer it over manually listing many posts. Use `postSpacing` for rhythm and `includeMidRail` for extra detail.
+
+Use `ArcadeRun` for repeated stepped arch-like facade rhythms: colosseum bays, gothic arcades, palace cloisters, bridge arches, and monumental walls. Do not try to describe exact curves; use Minecraft-like blocky arches.
+
+Use `SupportBracket` for visible support under overhangs, balconies, lifeboat shelves, awnings, and light bridge edges. Pair it with `structural.maxCantilever` when the bracket is intended to satisfy support diagnostics. Do not use it to silence unrelated floating structures.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 

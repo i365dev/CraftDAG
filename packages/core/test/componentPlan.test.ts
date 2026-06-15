@@ -1075,6 +1075,125 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands ArcadeRun and SupportBracket components for facade and cantilever support", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Arcade And Bracket Study",
+      bounds: { width: 32, height: 12, length: 12 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        trim: "minecraft:polished_andesite",
+      },
+      components: [
+        {
+          id: "colosseum_arcade",
+          type: "ArcadeRun",
+          role: "colosseum_facade_bays",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 19, height: 7, length: 2 },
+          },
+          options: {
+            axis: "x",
+            bayCount: 3,
+            pierWidth: 1,
+            archHeight: 3,
+          },
+        },
+        {
+          id: "lifeboat_shelf_brackets",
+          type: "SupportBracket",
+          role: "ship_lifeboat_shelf_support",
+          inputs: [{ ref: "colosseum_arcade" }],
+          placement: {
+            anchor: { x: 22, y: 0, z: 0 },
+            size: { width: 9, height: 4, length: 4 },
+          },
+          options: {
+            axis: "x",
+            direction: "positive",
+            spacing: 4,
+            includeTopBeam: true,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "colosseum_arcade__pier_0",
+      params: {
+        from: [0, 0, 0],
+        to: [0, 6, 1],
+        block: "wall",
+      },
+    });
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "colosseum_arcade__bay_1_arch_left_2",
+      params: expect.objectContaining({
+        from: [7, 6, 0],
+        to: [9, 6, 1],
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "lifeboat_shelf_brackets__top_beam",
+      inputs: [{ ref: "colosseum_arcade__pier_0" }],
+      params: expect.objectContaining({
+        from: [22, 3, 0],
+        to: [30, 3, 3],
+        block: "trim",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "lifeboat_shelf_brackets__bracket_1_step_3",
+      params: expect.objectContaining({
+        from: [26, 0, 3],
+        to: [26, 0, 3],
+      }),
+    }));
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects arcade runs whose bays collapse between piers", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Arcade",
+      bounds: { width: 8, height: 6, length: 2 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "crowded_arcade",
+          type: "ArcadeRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 6, length: 2 },
+          },
+          options: {
+            axis: "x",
+            bayCount: 4,
+            pierWidth: 2,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_ARCADE_RUN_BAYS",
+          componentId: "crowded_arcade",
+        }),
+      ]);
+    }
+  });
+
   it("rejects railing runs that emit no physical parts", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

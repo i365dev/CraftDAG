@@ -15,6 +15,7 @@ describe("ComponentPlan large examples", () => {
   const dirname = path.dirname(fileURLToPath(import.meta.url));
   const examplesDir = path.resolve(dirname, "../../../examples/component-plans");
   const examples = [
+    "arcade-bracket-study.componentplan.json",
     "fortified-wall-shape.componentplan.json",
     "large-form-massing.componentplan.json",
     "large-castle.componentplan.json",
@@ -46,7 +47,9 @@ describe("ComponentPlan large examples", () => {
         component.type === "TaperedVolume" ||
         component.type === "SteppedTier" ||
         component.type === "VerticalSetbackVolume" ||
-        component.type === "RailingRun"
+        component.type === "RailingRun" ||
+        component.type === "ArcadeRun" ||
+        component.type === "SupportBracket"
       )).length;
 
       expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
@@ -65,7 +68,9 @@ describe("ComponentPlan large examples", () => {
           node.id.includes("__slice_") ||
           node.id.includes("__tier_") ||
           node.id.includes("__setback_") ||
-          node.id.includes("__post_")
+          node.id.includes("__post_") ||
+          node.id.includes("__pier_") ||
+          node.id.includes("__bracket_")
         ))).toBe(true);
       }
     });

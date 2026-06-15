@@ -208,6 +208,38 @@ const RailingRunComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const ArcadeRunComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("ArcadeRun"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    bayCount: PositiveIntSchema.optional(),
+    pierWidth: PositiveIntSchema.optional(),
+    archHeight: PositiveIntSchema.optional(),
+  }).strict().optional(),
+}).strict();
+
+const SupportBracketComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("SupportBracket"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    direction: z.enum(["positive", "negative"]).optional(),
+    spacing: PositiveIntSchema.optional(),
+    includeTopBeam: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
@@ -312,6 +344,8 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   SteppedTierComponentSchema,
   VerticalSetbackVolumeComponentSchema,
   RailingRunComponentSchema,
+  ArcadeRunComponentSchema,
+  SupportBracketComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -333,6 +367,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   SteppedTierComponentSchema,
   VerticalSetbackVolumeComponentSchema,
   RailingRunComponentSchema,
+  ArcadeRunComponentSchema,
+  SupportBracketComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -376,7 +412,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -821,6 +857,10 @@ function expandComponentToNodes(
       return expandVerticalSetbackVolume(component, componentMap, unit);
     case "RailingRun":
       return expandRailingRun(component, componentMap, unit);
+    case "ArcadeRun":
+      return expandArcadeRun(component, componentMap, unit);
+    case "SupportBracket":
+      return expandSupportBracket(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -1103,6 +1143,42 @@ function expandRailingRun(
   return nodes;
 }
 
+function expandArcadeRun(
+  component: Extract<ComponentNode, { type: "ArcadeRun" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return arcadeRunPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "wall"),
+    },
+  }));
+}
+
+function expandSupportBracket(
+  component: Extract<ComponentNode, { type: "SupportBracket" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return supportBracketPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "trim"),
+    },
+  }));
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -1251,6 +1327,47 @@ function validateShapeComponent(component: ComponentNode): void {
         componentId: component.id,
         message: `RailingRun "${component.id}" needs height greater than 2 to emit a mid rail.`,
         repairHint: "Increase placement.size.height above 2 or disable includeMidRail.",
+      });
+    }
+  }
+
+  if (component.type === "ArcadeRun") {
+    const axis = arcadeAxis(component);
+    const runLength = axis === "x" ? component.placement.size.width : component.placement.size.length;
+    const bayCount = component.options?.bayCount ?? Math.max(1, Math.floor(runLength / 5));
+    const pierWidth = component.options?.pierWidth ?? 1;
+    const archHeight = component.options?.archHeight ?? Math.min(3, Math.max(1, component.placement.size.height - 2));
+    const baySpan = Math.floor((runLength - pierWidth) / bayCount);
+
+    if (component.placement.size.height < 3 || archHeight >= component.placement.size.height) {
+      throw componentValidationError({
+        code: "INVALID_ARCADE_RUN_HEIGHT",
+        componentId: component.id,
+        message: `ArcadeRun "${component.id}" needs enough height for piers and a stepped arch.`,
+        repairHint: "Use placement.size.height >= 3 and archHeight smaller than the full height.",
+      });
+    }
+
+    if (baySpan <= pierWidth || runLength < pierWidth * (bayCount + 1) + bayCount) {
+      throw componentValidationError({
+        code: "INVALID_ARCADE_RUN_BAYS",
+        componentId: component.id,
+        message: `ArcadeRun "${component.id}" bays collapse between piers.`,
+        repairHint: "Reduce bayCount/pierWidth or increase the run length along options.axis.",
+      });
+    }
+  }
+
+  if (component.type === "SupportBracket") {
+    const axis = supportBracketAxis(component);
+    const depth = axis === "x" ? component.placement.size.length : component.placement.size.width;
+
+    if (component.placement.size.height < 2 || depth < 2) {
+      throw componentValidationError({
+        code: "INVALID_SUPPORT_BRACKET_SIZE",
+        componentId: component.id,
+        message: `SupportBracket "${component.id}" needs height and perpendicular depth to form a bracket.`,
+        repairHint: "Use placement.size.height >= 2 and perpendicular width/length >= 2.",
       });
     }
   }
@@ -1587,6 +1704,12 @@ function estimateComponentBlocks(
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "RailingRun":
       return estimateRailingRunBlocks(component, unit);
+    case "ArcadeRun":
+      return arcadeRunPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "SupportBracket":
+      return supportBracketPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "Door":
     case "Window":
     case "Opening":
@@ -1788,6 +1911,140 @@ function railingPostPlacement(
   };
 }
 
+function arcadeRunPlacements(component: Extract<ComponentNode, { type: "ArcadeRun" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}> {
+  const { anchor, size } = component.placement;
+  const axis = arcadeAxis(component);
+  const runLength = axis === "x" ? size.width : size.length;
+  const bayCount = component.options?.bayCount ?? Math.max(1, Math.floor(runLength / 5));
+  const pierWidth = component.options?.pierWidth ?? 1;
+  const archHeight = component.options?.archHeight ?? Math.min(3, Math.max(1, size.height - 2));
+  const baySpan = Math.floor((runLength - pierWidth) / bayCount);
+  const nodes: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize }> = [];
+
+  for (let pier = 0; pier <= bayCount; pier += 1) {
+    const distance = Math.min(pier * baySpan, runLength - pierWidth);
+    nodes.push({
+      part: `pier_${pier}`,
+      anchor: arcadePlacementAnchor(anchor, axis, distance, 0),
+      size: arcadePlacementSize(size, axis, pierWidth, size.height),
+    });
+  }
+
+  nodes.push({
+    part: "top_lintel",
+    anchor: { x: anchor.x, y: anchor.y + size.height - 1, z: anchor.z },
+    size: { width: size.width, height: 1, length: size.length },
+  });
+
+  for (let bay = 0; bay < bayCount; bay += 1) {
+    const bayStart = bay * baySpan + pierWidth;
+    const bayEnd = Math.min((bay + 1) * baySpan - 1, runLength - pierWidth - 1);
+    const openingWidth = bayEnd - bayStart + 1;
+    if (openingWidth <= 0) {
+      continue;
+    }
+
+    for (let step = 0; step < archHeight; step += 1) {
+      const yOffset = size.height - archHeight + step;
+      const sideDepth = Math.min(step + 1, Math.ceil(openingWidth / 2));
+      nodes.push({
+        part: `bay_${bay}_arch_left_${step}`,
+        anchor: arcadePlacementAnchor(anchor, axis, bayStart, yOffset),
+        size: arcadePlacementSize(size, axis, sideDepth, 1),
+      });
+      if (openingWidth - sideDepth > sideDepth) {
+        nodes.push({
+          part: `bay_${bay}_arch_right_${step}`,
+          anchor: arcadePlacementAnchor(anchor, axis, bayEnd - sideDepth + 1, yOffset),
+          size: arcadePlacementSize(size, axis, sideDepth, 1),
+        });
+      }
+    }
+  }
+
+  return nodes;
+}
+
+function supportBracketPlacements(component: Extract<ComponentNode, { type: "SupportBracket" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}> {
+  const { anchor, size } = component.placement;
+  const axis = supportBracketAxis(component);
+  const direction = component.options?.direction ?? "positive";
+  const spacing = component.options?.spacing ?? 4;
+  const includeTopBeam = component.options?.includeTopBeam ?? true;
+  const runLength = axis === "x" ? size.width : size.length;
+  const depth = axis === "x" ? size.length : size.width;
+  const bracketCount = Math.floor((runLength - 1) / spacing) + 1;
+  const nodes: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize }> = [];
+
+  if (includeTopBeam) {
+    nodes.push({
+      part: "top_beam",
+      anchor: { x: anchor.x, y: anchor.y + size.height - 1, z: anchor.z },
+      size: { width: size.width, height: 1, length: size.length },
+    });
+  }
+
+  for (let bracket = 0; bracket < bracketCount; bracket += 1) {
+    const distance = Math.min(bracket * spacing, runLength - 1);
+    for (let step = 0; step < Math.min(size.height, depth); step += 1) {
+      const crossOffset = direction === "positive" ? step : depth - step - 1;
+      const yOffset = size.height - step - 1;
+      nodes.push({
+        part: `bracket_${bracket}_step_${step}`,
+        anchor: bracketPlacementAnchor(anchor, axis, distance, crossOffset, yOffset),
+        size: { width: 1, height: 1, length: 1 },
+      });
+    }
+  }
+
+  return nodes;
+}
+
+function arcadeAxis(component: Extract<ComponentNode, { type: "ArcadeRun" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function supportBracketAxis(component: Extract<ComponentNode, { type: "SupportBracket" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function arcadePlacementAnchor(
+  anchor: { x: number; y: number; z: number },
+  axis: "x" | "z",
+  distance: number,
+  yOffset: number
+): { x: number; y: number; z: number } {
+  return axis === "x"
+    ? { x: anchor.x + distance, y: anchor.y + yOffset, z: anchor.z }
+    : { x: anchor.x, y: anchor.y + yOffset, z: anchor.z + distance };
+}
+
+function arcadePlacementSize(size: ComponentSize, axis: "x" | "z", runWidth: number, height: number): ComponentSize {
+  return axis === "x"
+    ? { width: runWidth, height, length: size.length }
+    : { width: size.width, height, length: runWidth };
+}
+
+function bracketPlacementAnchor(
+  anchor: { x: number; y: number; z: number },
+  axis: "x" | "z",
+  distance: number,
+  crossOffset: number,
+  yOffset: number
+): { x: number; y: number; z: number } {
+  return axis === "x"
+    ? { x: anchor.x + distance, y: anchor.y + yOffset, z: anchor.z + crossOffset }
+    : { x: anchor.x + crossOffset, y: anchor.y + yOffset, z: anchor.z + distance };
+}
+
 function estimateRailingRunBlocks(component: Extract<ComponentNode, { type: "RailingRun" }>, unit: 1 | 2): number {
   const { size } = component.placement;
   const axis = railingAxis(component);
@@ -1855,7 +2112,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, or SupportPost component.",
       });
     }
 
@@ -1947,6 +2204,10 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       }
       return fallbacks;
     }
+    case "ArcadeRun":
+      return [{ role: "main", value: "wall" }];
+    case "SupportBracket":
+      return [{ role: "main", value: "trim" }];
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -2021,6 +2282,10 @@ function outputPart(component: ComponentNode): string {
       return "setback_0";
     case "RailingRun":
       return railingOutputPart(component);
+    case "ArcadeRun":
+      return "pier_0";
+    case "SupportBracket":
+      return supportBracketOutputPart(component);
     case "Door":
     case "Window":
     case "Opening":
@@ -2070,6 +2335,13 @@ function railingOutputPart(component: Extract<ComponentNode, { type: "RailingRun
   return "top_rail";
 }
 
+function supportBracketOutputPart(component: Extract<ComponentNode, { type: "SupportBracket" }>): string {
+  if (component.options?.includeTopBeam ?? true) {
+    return "top_beam";
+  }
+  return "bracket_0_step_0";
+}
+
 function expandRepeat(
   component: Extract<ComponentNode, { type: "Repeat" }>,
   componentMap: Map<string, ComponentNode>,
@@ -2081,7 +2353,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, or SupportPost component.",
     });
   }
 
@@ -2181,6 +2453,10 @@ function expandRepeatableComponent(
       return expandVerticalSetbackVolume(repeated, componentMap, unit, inputs);
     case "RailingRun":
       return expandRailingRun(repeated, componentMap, unit, inputs);
+    case "ArcadeRun":
+      return expandArcadeRun(repeated, componentMap, unit, inputs);
+    case "SupportBracket":
+      return expandSupportBracket(repeated, componentMap, unit, inputs);
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -2532,6 +2808,8 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "SteppedTier" ||
     component.type === "VerticalSetbackVolume" ||
     component.type === "RailingRun" ||
+    component.type === "ArcadeRun" ||
+    component.type === "SupportBracket" ||
     component.type === "SupportPost"
   );
 }
