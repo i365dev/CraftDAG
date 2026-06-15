@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GraphError, ValidationError } from "./errors.js";
+import { CompileError, Diagnostic, GraphError, ValidationError } from "./errors.js";
 import { compileDocument } from "./compiler/compileDocument.js";
 import {
   AssemblyComponentNode,
@@ -271,14 +271,8 @@ const COMPONENT_BUDGETS: Record<ComponentPlanSizeTier, ComponentBudget> = {
   },
 };
 
-interface ComponentValidationIssue {
+interface ComponentValidationIssue extends Diagnostic {
   stage: "component-validation";
-  code: string;
-  componentId?: string;
-  path?: string;
-  message: string;
-  availableRefs?: string[];
-  repairHint?: string;
 }
 
 /**
@@ -288,6 +282,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   const result = ComponentPlanSchema.safeParse(doc);
   if (!result.success) {
     const details: ComponentValidationIssue[] = result.error.errors.map((err) => ({
+      severity: "error",
       stage: "component-validation",
       code: "SCHEMA_VALIDATION_FAILED",
       path: err.path.join("."),
@@ -339,6 +334,7 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
       throw componentValidationError({
         code: "DUPLICATE_SECTION_ID",
         componentId: section.id,
+        sectionId: section.id,
         message: `Duplicate section ID found: "${section.id}".`,
         repairHint: "Rename one section and update any section-specific references.",
       });
@@ -348,29 +344,48 @@ export function validateComponentPlan(doc: unknown): ComponentPlanDocument {
   }
 
   for (const assembly of parsed.assemblies ?? []) {
-    const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
-    validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+    try {
+      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+      validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+    } catch (error) {
+      throw withDiagnosticContext(error, { assemblyId: assembly.id });
+    }
   }
 
   validateComponentSet(parsed, parsed.components ?? [], parsed.bounds, componentMap, "ComponentPlan", assemblyMap);
 
   for (const section of parsed.sections ?? []) {
-    const sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
-    const sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    let sectionAssemblyMap: Map<string, ComponentAssemblyDefinition>;
+    let sectionComponentMap: Map<string, ComponentNode>;
 
-    for (const assembly of section.assemblies ?? []) {
-      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
-      validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+    try {
+      sectionAssemblyMap = buildSectionAssemblyMap(assemblyMap, section);
+      sectionComponentMap = buildComponentMap(section.components, `Section "${section.id}"`);
+    } catch (error) {
+      throw withDiagnosticContext(error, { sectionId: section.id });
     }
 
-    validateComponentSet(
-      parsed,
-      section.components,
-      section.bounds,
-      sectionComponentMap,
-      `Section "${section.id}"`,
-      sectionAssemblyMap
-    );
+    for (const assembly of section.assemblies ?? []) {
+      try {
+        const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+        validateComponentSet(parsed, assembly.components, assembly.bounds, localComponentMap, `Assembly "${assembly.id}"`);
+      } catch (error) {
+        throw withDiagnosticContext(error, { sectionId: section.id, assemblyId: assembly.id });
+      }
+    }
+
+    try {
+      validateComponentSet(
+        parsed,
+        section.components,
+        section.bounds,
+        sectionComponentMap,
+        `Section "${section.id}"`,
+        sectionAssemblyMap
+      );
+    } catch (error) {
+      throw withDiagnosticContext(error, { sectionId: section.id });
+    }
   }
 
   validateBudgetPolicy(parsed, componentMap, assemblyMap);
@@ -397,6 +412,63 @@ function buildSectionAssemblyMap(
   }
 
   return assemblyMap;
+}
+
+function withDiagnosticContext(
+  error: unknown,
+  context: Pick<Diagnostic, "sectionId" | "assemblyId" | "instanceId">
+): Error {
+  if (
+    error instanceof ValidationError ||
+    error instanceof GraphError ||
+    error instanceof CompileError
+  ) {
+    const details = addDiagnosticContext(error.details, context);
+
+    let contextualError: Error;
+    if (error instanceof GraphError) {
+      contextualError = new GraphError(error.message, details);
+    } else if (error instanceof CompileError) {
+      contextualError = new CompileError(error.message, details);
+    } else {
+      contextualError = new ValidationError(error.message, details);
+    }
+    contextualError.stack = error.stack;
+    return contextualError;
+  }
+
+  return error instanceof Error ? error : new Error(String(error));
+}
+
+function addDiagnosticContext(
+  details: unknown,
+  context: Pick<Diagnostic, "sectionId" | "assemblyId" | "instanceId">
+): unknown {
+  if (Array.isArray(details)) {
+    return details.map((detail) => addDiagnosticContext(detail, context));
+  }
+
+  if (typeof details === "object" && details !== null) {
+    return { ...details, ...missingDiagnosticContext(details, context) };
+  }
+
+  return details;
+}
+
+function missingDiagnosticContext(
+  detail: unknown,
+  context: Pick<Diagnostic, "sectionId" | "assemblyId" | "instanceId">
+): Pick<Diagnostic, "sectionId" | "assemblyId" | "instanceId"> {
+  if (typeof detail !== "object" || detail === null) {
+    return context;
+  }
+
+  const current = detail as Partial<Diagnostic>;
+  return {
+    sectionId: current.sectionId ?? context.sectionId,
+    assemblyId: current.assemblyId ?? context.assemblyId,
+    instanceId: current.instanceId ?? context.instanceId,
+  };
 }
 
 function buildComponentMap(
@@ -463,6 +535,7 @@ function validateComponentSet(
         throw componentValidationError({
           code: "UNKNOWN_ASSEMBLY_REF",
           componentId: component.id,
+          instanceId: component.id,
           message: `Instance "${component.id}" references unknown assembly "${component.placement.assembly}".`,
           availableRefs: [...assemblyMap.keys()],
           repairHint: "Change placement.assembly to an existing assembly ID or define that assembly.",
@@ -672,8 +745,10 @@ export function compileComponentPlan(doc: unknown): VoxelPlan {
   return compileDocument(expandComponentPlan(doc));
 }
 
-function componentValidationError(issue: Omit<ComponentValidationIssue, "stage">): ValidationError {
-  return new ValidationError(issue.message, [{ stage: "component-validation", ...issue }]);
+function componentValidationError(issue: Omit<ComponentValidationIssue, "stage" | "severity"> & {
+  severity?: ComponentValidationIssue["severity"];
+}): ValidationError {
+  return new ValidationError(issue.message, [{ stage: "component-validation", ...issue, severity: issue.severity ?? "error" }]);
 }
 
 function unknownRefError(
@@ -723,6 +798,8 @@ function validateInstanceBounds(
     throw componentValidationError({
       code: "INSTANCE_OUT_OF_BOUNDS",
       componentId: component.id,
+      instanceId: component.id,
+      assemblyId: assembly.id,
       message: `Instance "${component.id}" placement exceeds ComponentPlan bounds.`,
       repairHint: `Move the instance anchor, reduce assembly "${assembly.id}" bounds, or increase plan bounds.`,
     });
@@ -740,6 +817,7 @@ function validateSectionBounds(bounds: ComponentSize, section: ComponentPlanSect
     throw componentValidationError({
       code: "SECTION_OUT_OF_BOUNDS",
       componentId: section.id,
+      sectionId: section.id,
       message: `Section "${section.id}" placement exceeds ComponentPlan bounds.`,
       repairHint: "Move the section origin, reduce section bounds, or increase global plan bounds.",
     });
@@ -795,8 +873,10 @@ function validateComponentGraph(components: readonly ComponentNode[]): void {
     throw new GraphError(
       `ComponentPlan dependency cycle detected among components: ${cycleComponentIds.join(", ")}`,
       [{
+        severity: "error",
         stage: "component-validation",
         code: "COMPONENT_DEPENDENCY_CYCLE",
+        message: `ComponentPlan dependency cycle detected among components: ${cycleComponentIds.join(", ")}`,
         availableRefs: components.map((component) => component.id),
         repairHint: "Remove or redirect one semantic dependency so the component graph is acyclic.",
       }]
@@ -1360,6 +1440,7 @@ function expandInstance(
     throw componentValidationError({
       code: "UNKNOWN_ASSEMBLY_REF",
       componentId: component.id,
+      instanceId: component.id,
       message: `Instance "${component.id}" references unknown assembly "${component.placement.assembly}".`,
       repairHint: "Change placement.assembly to an existing assembly ID or define that assembly.",
     });
@@ -1375,7 +1456,12 @@ function expandInstance(
   ];
 
   for (const localComponent of assembly.components) {
-    const localNodes = expandComponentToNodes(localComponent, localComponentMap, assembly.bounds, unit);
+    let localNodes: CraftDagNode[];
+    try {
+      localNodes = expandComponentToNodes(localComponent, localComponentMap, assembly.bounds, unit);
+    } catch (error) {
+      throw withDiagnosticContext(error, { assemblyId: assembly.id, instanceId: component.id });
+    }
     for (const localNode of localNodes) {
       shiftedNodes.push(namespaceAndShiftNode(localNode, component.id, shift, externalInputs));
     }

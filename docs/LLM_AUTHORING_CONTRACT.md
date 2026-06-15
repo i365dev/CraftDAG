@@ -359,6 +359,23 @@ Do not include this brief inside strict ComponentPlan JSON unless the caller exp
 
 When validation fails, repair the plan. Do not switch to code, commands, or raw block placement.
 
+Agents should use structured diagnostics when available. Prefer `diagnosticsFromError(error)` over parsing `error.message`.
+
+A diagnostic may include:
+
+- `severity`
+- `stage`
+- `code`
+- `path`
+- `componentId`
+- `sectionId`
+- `assemblyId`
+- `instanceId`
+- `availableRefs`
+- `repairHint`
+
+Use IDs and `path` to locate the failing authoring unit, then apply `repairHint` with the smallest valid edit.
+
 Common repairs:
 
 | Failure | Repair |
