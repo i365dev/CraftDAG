@@ -1194,6 +1194,82 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands TreeCanopy and OrganicPatch components for landscape features", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Landscape Features",
+      bounds: { width: 20, height: 10, length: 16 },
+      palette: {
+        trim: "minecraft:cherry_log",
+        roof: "minecraft:pink_wool",
+        floor: "minecraft:water",
+      },
+      components: [
+        {
+          id: "sakura_tree",
+          type: "TreeCanopy",
+          role: "sakura_tree",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 7, height: 7, length: 7 },
+          },
+          options: {
+            trunkHeight: 3,
+            canopyStyle: "rounded",
+          },
+        },
+        {
+          id: "koi_pond",
+          type: "OrganicPatch",
+          role: "irregular_koi_pond",
+          placement: {
+            anchor: { x: 10, y: 0, z: 2 },
+            size: { width: 7, height: 1, length: 5 },
+          },
+          options: {
+            roughness: 1,
+            includeBorder: false,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "sakura_tree__trunk",
+      params: expect.objectContaining({
+        from: [4, 0, 4],
+        to: [4, 2, 4],
+        block: "trim",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "sakura_tree__canopy_1",
+      params: expect.objectContaining({
+        from: [1, 4, 1],
+        to: [7, 4, 7],
+        block: "roof",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "koi_pond__fill_0",
+      params: expect.objectContaining({
+        from: [11, 0, 2],
+        to: [15, 0, 2],
+        block: "floor",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "koi_pond__fill_2",
+      params: expect.objectContaining({
+        from: [10, 0, 4],
+        to: [16, 0, 4],
+      }),
+    }));
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
   it("rejects railing runs that emit no physical parts", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

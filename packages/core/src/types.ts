@@ -244,6 +244,19 @@ export interface SupportBracketOptions {
 }
 export type SupportBracketComponent = BaseComponentNode<"SupportBracket", AnchoredComponentPlacement, SupportBracketOptions>;
 
+export interface TreeCanopyOptions {
+  trunkHeight?: number;
+  trunkWidth?: number;
+  canopyStyle?: "rounded" | "tiered" | "weeping" | "flat";
+}
+export type TreeCanopyComponent = BaseComponentNode<"TreeCanopy", AnchoredComponentPlacement, TreeCanopyOptions>;
+
+export interface OrganicPatchOptions {
+  roughness?: number;
+  includeBorder?: boolean;
+}
+export type OrganicPatchComponent = BaseComponentNode<"OrganicPatch", AnchoredComponentPlacement, OrganicPatchOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -267,6 +280,8 @@ export type AssemblyComponentNode =
   | RailingRunComponent
   | ArcadeRunComponent
   | SupportBracketComponent
+  | TreeCanopyComponent
+  | OrganicPatchComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

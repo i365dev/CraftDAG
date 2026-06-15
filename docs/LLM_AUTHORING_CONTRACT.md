@@ -80,6 +80,8 @@ Allowed ComponentPlan v0.1 components:
 - `RailingRun`
 - `ArcadeRun`
 - `SupportBracket`
+- `TreeCanopy`
+- `OrganicPatch`
 - `Door`
 - `Window`
 - `Opening`
@@ -107,6 +109,10 @@ Use `RailingRun` for bounded posts and rails along decks, bridges, walls, and ba
 Use `ArcadeRun` for repeated stepped arch-like facade rhythms: colosseum bays, gothic arcades, palace cloisters, bridge arches, and monumental walls. Do not try to describe exact curves; use Minecraft-like blocky arches.
 
 Use `SupportBracket` for visible support under overhangs, balconies, lifeboat shelves, awnings, and light bridge edges. Pair it with `structural.maxCantilever` when the bracket is intended to satisfy support diagnostics. Do not use it to silence unrelated floating structures.
+
+Use `TreeCanopy` for stylized trees such as sakura, garden trees, and village trees. Use `materials.trunk` for wood and `materials.leaf` for leaves or blossoms. Prefer it over manually stacking boxes for tree crowns.
+
+Use `OrganicPatch` for ponds, gravel beds, moss patches, flower beds, and irregular ground cover. Prefer it over one large rectangle when the prompt asks for natural edges. Do not use it for structural floors.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 

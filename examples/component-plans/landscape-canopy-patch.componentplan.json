@@ -1,0 +1,158 @@
+{
+  "version": "0.1",
+  "name": "Landscape Canopy Patch Study",
+  "policy": {
+    "sizeTier": "medium"
+  },
+  "bounds": {
+    "width": 48,
+    "height": 18,
+    "length": 42
+  },
+  "palette": {
+    "foundation": "minecraft:grass_block",
+    "floor": "minecraft:water",
+    "wall": "minecraft:moss_block",
+    "trim": "minecraft:cherry_log",
+    "roof": "minecraft:pink_wool",
+    "leaf": "minecraft:cherry_leaves",
+    "border": "minecraft:stone"
+  },
+  "components": [
+    {
+      "id": "garden_ground",
+      "type": "Foundation",
+      "role": "garden_ground_plane",
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "size": {
+          "width": 48,
+          "height": 1,
+          "length": 42
+        }
+      }
+    },
+    {
+      "id": "koi_pond",
+      "type": "OrganicPatch",
+      "role": "irregular_koi_pond",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 12,
+          "y": 1,
+          "z": 12
+        },
+        "size": {
+          "width": 20,
+          "height": 1,
+          "length": 12
+        }
+      },
+      "materials": {
+        "fill": "floor",
+        "border": "border"
+      },
+      "options": {
+        "roughness": 2,
+        "includeBorder": true
+      }
+    },
+    {
+      "id": "moss_bed",
+      "type": "OrganicPatch",
+      "role": "soft_moss_garden_patch",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 5,
+          "y": 1,
+          "z": 27
+        },
+        "size": {
+          "width": 28,
+          "height": 1,
+          "length": 9
+        }
+      },
+      "materials": {
+        "fill": "wall"
+      },
+      "options": {
+        "roughness": 1
+      }
+    },
+    {
+      "id": "sakura_left",
+      "type": "TreeCanopy",
+      "role": "rounded_sakura_tree",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 5,
+          "y": 1,
+          "z": 5
+        },
+        "size": {
+          "width": 9,
+          "height": 9,
+          "length": 9
+        }
+      },
+      "materials": {
+        "trunk": "trim",
+        "leaf": "roof"
+      },
+      "options": {
+        "trunkHeight": 4,
+        "canopyStyle": "rounded"
+      }
+    },
+    {
+      "id": "sakura_right",
+      "type": "TreeCanopy",
+      "role": "weeping_sakura_tree",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 32,
+          "y": 1,
+          "z": 20
+        },
+        "size": {
+          "width": 9,
+          "height": 8,
+          "length": 9
+        }
+      },
+      "materials": {
+        "trunk": "trim",
+        "leaf": "leaf"
+      },
+      "options": {
+        "trunkHeight": 3,
+        "canopyStyle": "weeping"
+      }
+    }
+  ]
+}

@@ -240,6 +240,35 @@ const SupportBracketComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const TreeCanopyComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("TreeCanopy"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    trunkHeight: PositiveIntSchema.optional(),
+    trunkWidth: PositiveIntSchema.optional(),
+    canopyStyle: z.enum(["rounded", "tiered", "weeping", "flat"]).optional(),
+  }).strict().optional(),
+}).strict();
+
+const OrganicPatchComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("OrganicPatch"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    roughness: NonNegativeIntSchema.optional(),
+    includeBorder: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
@@ -346,6 +375,8 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   RailingRunComponentSchema,
   ArcadeRunComponentSchema,
   SupportBracketComponentSchema,
+  TreeCanopyComponentSchema,
+  OrganicPatchComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -369,6 +400,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   RailingRunComponentSchema,
   ArcadeRunComponentSchema,
   SupportBracketComponentSchema,
+  TreeCanopyComponentSchema,
+  OrganicPatchComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -412,7 +445,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -861,6 +894,10 @@ function expandComponentToNodes(
       return expandArcadeRun(component, componentMap, unit);
     case "SupportBracket":
       return expandSupportBracket(component, componentMap, unit);
+    case "TreeCanopy":
+      return expandTreeCanopy(component, componentMap, unit);
+    case "OrganicPatch":
+      return expandOrganicPatch(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -1179,6 +1216,42 @@ function expandSupportBracket(
   }));
 }
 
+function expandTreeCanopy(
+  component: Extract<ComponentNode, { type: "TreeCanopy" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return treeCanopyPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, placement.materialRole, placement.materialFallback),
+    },
+  }));
+}
+
+function expandOrganicPatch(
+  component: Extract<ComponentNode, { type: "OrganicPatch" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return organicPatchPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, placement.materialRole, placement.materialFallback),
+    },
+  }));
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -1368,6 +1441,28 @@ function validateShapeComponent(component: ComponentNode): void {
         componentId: component.id,
         message: `SupportBracket "${component.id}" needs height and perpendicular depth to form a bracket.`,
         repairHint: "Use placement.size.height >= 2 and perpendicular width/length >= 2.",
+      });
+    }
+  }
+
+  if (component.type === "TreeCanopy") {
+    if (component.placement.size.height < 3 || component.placement.size.width < 3 || component.placement.size.length < 3) {
+      throw componentValidationError({
+        code: "INVALID_TREE_CANOPY_SIZE",
+        componentId: component.id,
+        message: `TreeCanopy "${component.id}" needs enough room for a trunk and canopy.`,
+        repairHint: "Use placement.size width/height/length of at least 3.",
+      });
+    }
+  }
+
+  if (component.type === "OrganicPatch") {
+    if (organicPatchPlacements(component).length === 0) {
+      throw componentValidationError({
+        code: "INVALID_ORGANIC_PATCH_ROUGHNESS",
+        componentId: component.id,
+        message: `OrganicPatch "${component.id}" roughness collapses the patch.`,
+        repairHint: "Reduce options.roughness or increase placement.size width/length.",
       });
     }
   }
@@ -1710,6 +1805,12 @@ function estimateComponentBlocks(
     case "SupportBracket":
       return supportBracketPlacements(component)
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "TreeCanopy":
+      return treeCanopyPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "OrganicPatch":
+      return organicPatchPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "Door":
     case "Window":
     case "Opening":
@@ -2045,6 +2146,112 @@ function bracketPlacementAnchor(
     : { x: anchor.x + crossOffset, y: anchor.y + yOffset, z: anchor.z + distance };
 }
 
+function treeCanopyPlacements(component: Extract<ComponentNode, { type: "TreeCanopy" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+  materialRole: string;
+  materialFallback: string;
+}> {
+  const { anchor, size } = component.placement;
+  const trunkHeight = Math.min(component.options?.trunkHeight ?? Math.max(2, Math.floor(size.height / 2)), size.height - 1);
+  const trunkWidth = Math.min(component.options?.trunkWidth ?? 1, size.width, size.length);
+  const style = component.options?.canopyStyle ?? "rounded";
+  const trunkX = anchor.x + Math.floor((size.width - trunkWidth) / 2);
+  const trunkZ = anchor.z + Math.floor((size.length - trunkWidth) / 2);
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize; materialRole: string; materialFallback: string }> = [{
+    part: "trunk",
+    anchor: { x: trunkX, y: anchor.y, z: trunkZ },
+    size: { width: trunkWidth, height: trunkHeight, length: trunkWidth },
+    materialRole: "trunk",
+    materialFallback: "trim",
+  }];
+
+  const canopyHeight = size.height - trunkHeight;
+  for (let layer = 0; layer < canopyHeight; layer += 1) {
+    const trim = canopyLayerTrim(style, layer, canopyHeight);
+    const width = size.width - trim * 2;
+    const length = size.length - trim * 2;
+    if (width <= 0 || length <= 0) {
+      continue;
+    }
+    placements.push({
+      part: `canopy_${layer}`,
+      anchor: { x: anchor.x + trim, y: anchor.y + trunkHeight + layer, z: anchor.z + trim },
+      size: { width, height: 1, length },
+      materialRole: "leaf",
+      materialFallback: "roof",
+    });
+  }
+
+  return placements;
+}
+
+function canopyLayerTrim(style: "rounded" | "tiered" | "weeping" | "flat", layer: number, canopyHeight: number): number {
+  switch (style) {
+    case "flat":
+      return 0;
+    case "tiered":
+      return Math.floor(layer / 2);
+    case "weeping":
+      return Math.max(0, layer - 1);
+    case "rounded":
+      return Math.abs(layer - Math.floor((canopyHeight - 1) / 2));
+  }
+}
+
+function organicPatchPlacements(component: Extract<ComponentNode, { type: "OrganicPatch" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+  materialRole: string;
+  materialFallback: string;
+}> {
+  const { anchor, size } = component.placement;
+  const roughness = component.options?.roughness ?? 1;
+  const includeBorder = component.options?.includeBorder ?? false;
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize; materialRole: string; materialFallback: string }> = [];
+
+  for (let z = 0; z < size.length; z += 1) {
+    const trim = organicRowTrim(z, size.length, roughness);
+    const width = size.width - trim * 2;
+    if (width <= 0) {
+      continue;
+    }
+    placements.push({
+      part: `fill_${z}`,
+      anchor: { x: anchor.x + trim, y: anchor.y, z: anchor.z + z },
+      size: { width, height: size.height, length: 1 },
+      materialRole: "fill",
+      materialFallback: "floor",
+    });
+    if (includeBorder && trim > 0) {
+      placements.push({
+        part: `border_left_${z}`,
+        anchor: { x: anchor.x + trim - 1, y: anchor.y, z: anchor.z + z },
+        size: { width: 1, height: size.height, length: 1 },
+        materialRole: "border",
+        materialFallback: "trim",
+      });
+      placements.push({
+        part: `border_right_${z}`,
+        anchor: { x: anchor.x + trim + width, y: anchor.y, z: anchor.z + z },
+        size: { width: 1, height: size.height, length: 1 },
+        materialRole: "border",
+        materialFallback: "trim",
+      });
+    }
+  }
+
+  return placements;
+}
+
+function organicRowTrim(row: number, totalRows: number, roughness: number): number {
+  const edgeTrim = Math.min(row, totalRows - row - 1);
+  const waveTrim = roughness === 0 ? 0 : (row % 3 === 1 ? 1 : 0);
+  return Math.max(0, roughness - edgeTrim) + waveTrim;
+}
+
 function estimateRailingRunBlocks(component: Extract<ComponentNode, { type: "RailingRun" }>, unit: 1 | 2): number {
   const { size } = component.placement;
   const axis = railingAxis(component);
@@ -2112,7 +2319,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, or SupportPost component.",
       });
     }
 
@@ -2208,6 +2415,15 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       return [{ role: "main", value: "wall" }];
     case "SupportBracket":
       return [{ role: "main", value: "trim" }];
+    case "TreeCanopy":
+      return [{ role: "trunk", value: "trim" }, { role: "leaf", value: "roof" }];
+    case "OrganicPatch": {
+      const fallbacks = [{ role: "fill", value: "floor" }];
+      if (component.options?.includeBorder ?? false) {
+        fallbacks.push({ role: "border", value: "trim" });
+      }
+      return fallbacks;
+    }
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -2286,6 +2502,10 @@ function outputPart(component: ComponentNode): string {
       return "pier_0";
     case "SupportBracket":
       return supportBracketOutputPart(component);
+    case "TreeCanopy":
+      return "trunk";
+    case "OrganicPatch":
+      return "fill_0";
     case "Door":
     case "Window":
     case "Opening":
@@ -2353,7 +2573,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, or SupportPost component.",
     });
   }
 
@@ -2457,6 +2677,10 @@ function expandRepeatableComponent(
       return expandArcadeRun(repeated, componentMap, unit, inputs);
     case "SupportBracket":
       return expandSupportBracket(repeated, componentMap, unit, inputs);
+    case "TreeCanopy":
+      return expandTreeCanopy(repeated, componentMap, unit, inputs);
+    case "OrganicPatch":
+      return expandOrganicPatch(repeated, componentMap, unit, inputs);
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -2810,6 +3034,8 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "RailingRun" ||
     component.type === "ArcadeRun" ||
     component.type === "SupportBracket" ||
+    component.type === "TreeCanopy" ||
+    component.type === "OrganicPatch" ||
     component.type === "SupportPost"
   );
 }
