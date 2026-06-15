@@ -82,6 +82,8 @@ Allowed ComponentPlan v0.1 components:
 - `SupportBracket`
 - `TreeCanopy`
 - `OrganicPatch`
+- `PathRun`
+- `RockCluster`
 - `Door`
 - `Window`
 - `Opening`
@@ -113,6 +115,10 @@ Use `SupportBracket` for visible support under overhangs, balconies, lifeboat sh
 Use `TreeCanopy` for stylized trees such as sakura, garden trees, and village trees. Use `materials.trunk` for wood and `materials.leaf` for leaves or blossoms. Prefer it over manually stacking boxes for tree crowns.
 
 Use `OrganicPatch` for ponds, gravel beds, moss patches, flower beds, and irregular ground cover. Prefer it over one large rectangle when the prompt asks for natural edges. Do not use it for structural floors.
+
+Use `PathRun` for garden paths, gravel walks, and stepping stones. Use local `waypoints` for simple meanders instead of manually enumerating every stone.
+
+Use `RockCluster` for boulders, fake mountains, dry gardens, and small cliff accents. Use `role` for domain intent such as `dry_garden_rocks` or `pond_boulders`.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 

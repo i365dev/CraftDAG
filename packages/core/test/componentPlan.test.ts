@@ -1270,6 +1270,127 @@ describe("ComponentPlan", () => {
     expect(() => compileComponentPlan(plan)).not.toThrow();
   });
 
+  it("expands PathRun and RockCluster components for garden composition", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Path And Rock Study",
+      bounds: { width: 24, height: 8, length: 20 },
+      palette: {
+        floor: "minecraft:gravel",
+        wall: "minecraft:stone",
+      },
+      components: [
+        {
+          id: "stepping_path",
+          type: "PathRun",
+          role: "meandering_stepping_stones",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 12, height: 1, length: 10 },
+          },
+          options: {
+            style: "stepping_stones",
+            stepSpacing: 3,
+            waypoints: [
+              { x: 0, z: 0 },
+              { x: 6, z: 0 },
+              { x: 6, z: 5 },
+              { x: 11, z: 5 },
+            ],
+          },
+        },
+        {
+          id: "rock_garden",
+          type: "RockCluster",
+          role: "dry_garden_rocks",
+          placement: {
+            anchor: { x: 14, y: 0, z: 2 },
+            size: { width: 8, height: 5, length: 8 },
+          },
+          options: {
+            count: 3,
+            heightVariation: 2,
+            roughness: 1,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "stepping_path__stone_0",
+      params: expect.objectContaining({
+        from: [1, 0, 1],
+        to: [1, 0, 1],
+        block: "floor",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "stepping_path__stone_6",
+      params: expect.objectContaining({
+        from: [7, 0, 1],
+        to: [7, 0, 1],
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "rock_garden__rock_0",
+      params: expect.objectContaining({
+        from: [14, 0, 2],
+        to: [16, 1, 4],
+        block: "wall",
+      }),
+    }));
+    expect(craftDag.nodes).toContainEqual(expect.objectContaining({
+      id: "rock_garden__rock_2",
+      params: expect.objectContaining({
+        from: [14, 0, 4],
+        to: [16, 3, 6],
+      }),
+    }));
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects PathRun waypoints outside local bounds", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Path",
+      bounds: { width: 12, height: 4, length: 12 },
+      palette: {
+        floor: "minecraft:gravel",
+      },
+      components: [
+        {
+          id: "bad_path",
+          type: "PathRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 6, height: 1, length: 6 },
+          },
+          options: {
+            waypoints: [
+              { x: 0, z: 0 },
+              { x: 7, z: 0 },
+            ],
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_PATH_RUN_WAYPOINT",
+          componentId: "bad_path",
+        }),
+      ]);
+    }
+  });
+
   it("rejects railing runs that emit no physical parts", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

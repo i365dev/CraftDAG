@@ -31,6 +31,11 @@ const ComponentAnchorSchema = z.object({
   z: NonNegativeIntSchema,
 }).strict();
 
+const PathWaypointSchema = z.object({
+  x: NonNegativeIntSchema,
+  z: NonNegativeIntSchema,
+}).strict();
+
 const ComponentInputSchema = z.object({
   ref: z.string().min(1),
 }).strict();
@@ -269,6 +274,37 @@ const OrganicPatchComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const PathRunComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("PathRun"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    style: z.enum(["continuous", "stepping_stones", "gravel"]).optional(),
+    width: PositiveIntSchema.optional(),
+    stepSpacing: PositiveIntSchema.optional(),
+    waypoints: z.array(PathWaypointSchema).min(2).optional(),
+  }).strict().optional(),
+}).strict();
+
+const RockClusterComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("RockCluster"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    count: PositiveIntSchema.optional(),
+    heightVariation: NonNegativeIntSchema.optional(),
+    roughness: NonNegativeIntSchema.optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
@@ -377,6 +413,8 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   SupportBracketComponentSchema,
   TreeCanopyComponentSchema,
   OrganicPatchComponentSchema,
+  PathRunComponentSchema,
+  RockClusterComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -402,6 +440,8 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   SupportBracketComponentSchema,
   TreeCanopyComponentSchema,
   OrganicPatchComponentSchema,
+  PathRunComponentSchema,
+  RockClusterComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -445,7 +485,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -898,6 +938,10 @@ function expandComponentToNodes(
       return expandTreeCanopy(component, componentMap, unit);
     case "OrganicPatch":
       return expandOrganicPatch(component, componentMap, unit);
+    case "PathRun":
+      return expandPathRun(component, componentMap, unit);
+    case "RockCluster":
+      return expandRockCluster(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -1252,6 +1296,42 @@ function expandOrganicPatch(
   }));
 }
 
+function expandPathRun(
+  component: Extract<ComponentNode, { type: "PathRun" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return pathRunPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "floor"),
+    },
+  }));
+}
+
+function expandRockCluster(
+  component: Extract<ComponentNode, { type: "RockCluster" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return rockClusterPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "wall"),
+    },
+  }));
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -1466,6 +1546,28 @@ function validateShapeComponent(component: ComponentNode): void {
       });
     }
   }
+
+  if (component.type === "PathRun") {
+    const waypoints = component.options?.waypoints ?? [];
+    const width = component.options?.width ?? (component.options?.style === "stepping_stones" ? 1 : 2);
+    if (width > component.placement.size.width || width > component.placement.size.length) {
+      throw componentValidationError({
+        code: "INVALID_PATH_RUN_WIDTH",
+        componentId: component.id,
+        message: `PathRun "${component.id}" width does not fit inside its bounds.`,
+        repairHint: "Reduce options.width or increase placement.size width/length.",
+      });
+    }
+    if (waypoints.some((point) => point.x >= component.placement.size.width || point.z >= component.placement.size.length)) {
+      throw componentValidationError({
+        code: "INVALID_PATH_RUN_WAYPOINT",
+        componentId: component.id,
+        message: `PathRun "${component.id}" has a waypoint outside its local bounds.`,
+        repairHint: "Keep waypoint x/z coordinates within placement.size width/length.",
+      });
+    }
+  }
+
 }
 
 function validateSectionBounds(bounds: ComponentSize, section: ComponentPlanSection): void {
@@ -1810,6 +1912,12 @@ function estimateComponentBlocks(
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "OrganicPatch":
       return organicPatchPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "PathRun":
+      return pathRunPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "RockCluster":
+      return rockClusterPlacements(component)
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "Door":
     case "Window":
@@ -2252,6 +2360,96 @@ function organicRowTrim(row: number, totalRows: number, roughness: number): numb
   return Math.max(0, roughness - edgeTrim) + waveTrim;
 }
 
+function pathRunPlacements(component: Extract<ComponentNode, { type: "PathRun" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}> {
+  const { anchor, size } = component.placement;
+  const style = component.options?.style ?? "continuous";
+  const width = component.options?.width ?? (style === "stepping_stones" ? 1 : 2);
+  const stepSpacing = component.options?.stepSpacing ?? 2;
+  const waypoints = component.options?.waypoints ?? [
+    { x: 0, z: Math.floor(size.length / 2) },
+    { x: size.width - 1, z: Math.floor(size.length / 2) },
+  ];
+  const cells = pathCells(waypoints);
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize }> = [];
+
+  for (let index = 0; index < cells.length; index += 1) {
+    if (style === "stepping_stones" && index % stepSpacing !== 0) {
+      continue;
+    }
+    const cell = cells[index];
+    const half = Math.floor(width / 2);
+    const localX = Math.max(0, Math.min(size.width - width, cell.x - half));
+    const localZ = Math.max(0, Math.min(size.length - width, cell.z - half));
+    placements.push({
+      part: `${style === "stepping_stones" ? "stone" : "path"}_${index}`,
+      anchor: { x: anchor.x + localX, y: anchor.y, z: anchor.z + localZ },
+      size: { width, height: size.height, length: width },
+    });
+  }
+
+  return placements;
+}
+
+function pathCells(waypoints: Array<{ x: number; z: number }>): Array<{ x: number; z: number }> {
+  const cells: Array<{ x: number; z: number }> = [];
+  for (let index = 0; index < waypoints.length - 1; index += 1) {
+    const start = waypoints[index];
+    const end = waypoints[index + 1];
+    let x = start.x;
+    let z = start.z;
+    appendPathCell(cells, x, z);
+    while (x !== end.x) {
+      x += x < end.x ? 1 : -1;
+      appendPathCell(cells, x, z);
+    }
+    while (z !== end.z) {
+      z += z < end.z ? 1 : -1;
+      appendPathCell(cells, x, z);
+    }
+  }
+  return cells;
+}
+
+function appendPathCell(cells: Array<{ x: number; z: number }>, x: number, z: number): void {
+  const last = cells[cells.length - 1];
+  if (!last || last.x !== x || last.z !== z) {
+    cells.push({ x, z });
+  }
+}
+
+function rockClusterPlacements(component: Extract<ComponentNode, { type: "RockCluster" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}> {
+  const { anchor, size } = component.placement;
+  const count = component.options?.count ?? 3;
+  const heightVariation = component.options?.heightVariation ?? 2;
+  const roughness = component.options?.roughness ?? 1;
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize }> = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const width = Math.max(1, Math.floor(size.width / 3) + ((index + roughness) % 2));
+    const length = Math.max(1, Math.floor(size.length / 3) + ((index + 1) % 2));
+    const height = Math.max(1, Math.min(size.height, Math.floor(size.height / 2) + (index % (heightVariation + 1))));
+    const maxX = Math.max(0, size.width - width);
+    const maxZ = Math.max(0, size.length - length);
+    const x = maxX === 0 ? 0 : (index * (roughness + 2)) % (maxX + 1);
+    const z = maxZ === 0 ? 0 : (index * (roughness + 3)) % (maxZ + 1);
+    placements.push({
+      part: `rock_${index}`,
+      anchor: { x: anchor.x + x, y: anchor.y, z: anchor.z + z },
+      size: { width, height, length },
+    });
+  }
+
+  return placements;
+}
+
 function estimateRailingRunBlocks(component: Extract<ComponentNode, { type: "RailingRun" }>, unit: 1 | 2): number {
   const { size } = component.placement;
   const axis = railingAxis(component);
@@ -2319,7 +2517,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, or SupportPost component.",
       });
     }
 
@@ -2424,6 +2622,10 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       }
       return fallbacks;
     }
+    case "PathRun":
+      return [{ role: "main", value: "floor" }];
+    case "RockCluster":
+      return [{ role: "main", value: "wall" }];
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -2506,6 +2708,10 @@ function outputPart(component: ComponentNode): string {
       return "trunk";
     case "OrganicPatch":
       return "fill_0";
+    case "PathRun":
+      return pathRunOutputPart(component);
+    case "RockCluster":
+      return "rock_0";
     case "Door":
     case "Window":
     case "Opening":
@@ -2562,6 +2768,10 @@ function supportBracketOutputPart(component: Extract<ComponentNode, { type: "Sup
   return "bracket_0_step_0";
 }
 
+function pathRunOutputPart(component: Extract<ComponentNode, { type: "PathRun" }>): string {
+  return component.options?.style === "stepping_stones" ? "stone_0" : "path_0";
+}
+
 function expandRepeat(
   component: Extract<ComponentNode, { type: "Repeat" }>,
   componentMap: Map<string, ComponentNode>,
@@ -2573,7 +2783,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, or SupportPost component.",
     });
   }
 
@@ -2681,6 +2891,10 @@ function expandRepeatableComponent(
       return expandTreeCanopy(repeated, componentMap, unit, inputs);
     case "OrganicPatch":
       return expandOrganicPatch(repeated, componentMap, unit, inputs);
+    case "PathRun":
+      return expandPathRun(repeated, componentMap, unit, inputs);
+    case "RockCluster":
+      return expandRockCluster(repeated, componentMap, unit, inputs);
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -3036,6 +3250,8 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "SupportBracket" ||
     component.type === "TreeCanopy" ||
     component.type === "OrganicPatch" ||
+    component.type === "PathRun" ||
+    component.type === "RockCluster" ||
     component.type === "SupportPost"
   );
 }

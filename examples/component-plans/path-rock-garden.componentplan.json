@@ -1,0 +1,165 @@
+{
+  "version": "0.1",
+  "name": "Path And Rock Garden Study",
+  "policy": {
+    "sizeTier": "medium"
+  },
+  "bounds": {
+    "width": 56,
+    "height": 16,
+    "length": 44
+  },
+  "palette": {
+    "foundation": "minecraft:grass_block",
+    "floor": "minecraft:gravel",
+    "wall": "minecraft:stone",
+    "trim": "minecraft:andesite"
+  },
+  "components": [
+    {
+      "id": "garden_ground",
+      "type": "Foundation",
+      "role": "garden_ground_plane",
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "size": {
+          "width": 56,
+          "height": 1,
+          "length": 44
+        }
+      }
+    },
+    {
+      "id": "meandering_gravel_path",
+      "type": "PathRun",
+      "role": "meandering_gravel_path",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 1,
+          "z": 4
+        },
+        "size": {
+          "width": 42,
+          "height": 1,
+          "length": 28
+        }
+      },
+      "materials": {
+        "main": "floor"
+      },
+      "options": {
+        "style": "gravel",
+        "width": 2,
+        "waypoints": [
+          {
+            "x": 0,
+            "z": 2
+          },
+          {
+            "x": 13,
+            "z": 2
+          },
+          {
+            "x": 13,
+            "z": 15
+          },
+          {
+            "x": 28,
+            "z": 15
+          },
+          {
+            "x": 38,
+            "z": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "stepping_stones",
+      "type": "PathRun",
+      "role": "stepping_stone_side_path",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 8,
+          "y": 1,
+          "z": 30
+        },
+        "size": {
+          "width": 32,
+          "height": 1,
+          "length": 8
+        }
+      },
+      "materials": {
+        "main": "trim"
+      },
+      "options": {
+        "style": "stepping_stones",
+        "stepSpacing": 3,
+        "waypoints": [
+          {
+            "x": 0,
+            "z": 3
+          },
+          {
+            "x": 14,
+            "z": 3
+          },
+          {
+            "x": 20,
+            "z": 6
+          },
+          {
+            "x": 30,
+            "z": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "dry_garden_rocks",
+      "type": "RockCluster",
+      "role": "dry_garden_rock_cluster",
+      "inputs": [
+        {
+          "ref": "garden_ground"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 36,
+          "y": 1,
+          "z": 8
+        },
+        "size": {
+          "width": 14,
+          "height": 7,
+          "length": 14
+        }
+      },
+      "materials": {
+        "main": "wall"
+      },
+      "options": {
+        "count": 5,
+        "heightVariation": 3,
+        "roughness": 2
+      }
+    }
+  ]
+}

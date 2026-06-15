@@ -194,6 +194,8 @@ Start with a small component vocabulary:
 - `SupportBracket`
 - `TreeCanopy`
 - `OrganicPatch`
+- `PathRun`
+- `RockCluster`
 - `Door`
 - `Window`
 - `Opening`
@@ -233,6 +235,10 @@ Use `SupportBracket` for repeated visible supports under shelves, balconies, ove
 Use `TreeCanopy` for stylized trees in gardens, parks, villages, and landscape scenes. It expands into a centered trunk and deterministic canopy layers. Use `materials.trunk` and `materials.leaf` for wood and leaf/blossom blocks.
 
 Use `OrganicPatch` for irregular ground features such as ponds, flower beds, moss patches, gravel beds, and soft-edged garden zones. It expands into deterministic trimmed rows and optional border blocks. It is not a freeform terrain generator.
+
+Use `PathRun` for garden paths, stepping stones, gravel walks, and simple meandering walkways. It can use local `waypoints` inside the placement bounds. It is not a pathfinding system.
+
+Use `RockCluster` for boulders, dry gardens, fake mountains, small cliffs, and natural rock accents. It expands deterministic rough blocks inside one bounding box. It is not terrain erosion or mesh sculpting.
 
 Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnings, tower caps, simple flat roofs, and other one-logical-unit-thick covers.
 
@@ -289,7 +295,7 @@ Supported policies:
 Default policies:
 
 - `Foundation`: `must_connect_to_ground`
-- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `SupportPost`: `must_connect_to_input`
+- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
 - `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
 - `Repeat`, `Instance`: `must_connect_to_input`
 
@@ -353,7 +359,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 

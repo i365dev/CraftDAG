@@ -257,6 +257,26 @@ export interface OrganicPatchOptions {
 }
 export type OrganicPatchComponent = BaseComponentNode<"OrganicPatch", AnchoredComponentPlacement, OrganicPatchOptions>;
 
+export interface PathWaypoint {
+  x: number;
+  z: number;
+}
+
+export interface PathRunOptions {
+  style?: "continuous" | "stepping_stones" | "gravel";
+  width?: number;
+  stepSpacing?: number;
+  waypoints?: PathWaypoint[];
+}
+export type PathRunComponent = BaseComponentNode<"PathRun", AnchoredComponentPlacement, PathRunOptions>;
+
+export interface RockClusterOptions {
+  count?: number;
+  heightVariation?: number;
+  roughness?: number;
+}
+export type RockClusterComponent = BaseComponentNode<"RockCluster", AnchoredComponentPlacement, RockClusterOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -282,6 +302,8 @@ export type AssemblyComponentNode =
   | SupportBracketComponent
   | TreeCanopyComponent
   | OrganicPatchComponent
+  | PathRunComponent
+  | RockClusterComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

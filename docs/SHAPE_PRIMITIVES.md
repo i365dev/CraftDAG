@@ -307,6 +307,88 @@ Example:
 }
 ```
 
+### PathRun
+
+`PathRun` represents a deterministic local path inside one anchored bounding box.
+
+Use it for:
+
+- garden paths
+- gravel walks
+- stepping stones
+- village footpaths
+- simple meandering walkways
+
+Do not use it as a pathfinding system or road network solver.
+
+Key options:
+
+- `style`: `"continuous"`, `"stepping_stones"`, or `"gravel"`; defaults to `"continuous"`
+- `width`: positive integer path width; defaults to `1` for stepping stones and `2` otherwise
+- `stepSpacing`: positive integer spacing for `stepping_stones`; defaults to `2`
+- `waypoints`: local `{ x, z }` points inside `placement.size`; defaults to a straight centerline
+
+Example:
+
+```json
+{
+  "id": "meandering_gravel_path",
+  "type": "PathRun",
+  "placement": {
+    "anchor": { "x": 4, "y": 1, "z": 4 },
+    "size": { "width": 42, "height": 1, "length": 28 }
+  },
+  "options": {
+    "style": "gravel",
+    "width": 2,
+    "waypoints": [
+      { "x": 0, "z": 2 },
+      { "x": 13, "z": 2 },
+      { "x": 13, "z": 15 },
+      { "x": 28, "z": 15 }
+    ]
+  }
+}
+```
+
+### RockCluster
+
+`RockCluster` represents a deterministic group of rough boulders inside one anchored bounding box.
+
+Use it for:
+
+- rock gardens
+- boulders around ponds
+- fake mountains
+- small cliff accents
+- natural stone clusters
+
+Do not use it for exact terrain erosion, caves, or large mountain generation.
+
+Key options:
+
+- `count`: positive integer number of boulders; defaults to `3`
+- `heightVariation`: non-negative integer vertical variation; defaults to `2`
+- `roughness`: non-negative integer deterministic horizontal scatter; defaults to `1`
+
+Example:
+
+```json
+{
+  "id": "dry_garden_rocks",
+  "type": "RockCluster",
+  "placement": {
+    "anchor": { "x": 36, "y": 1, "z": 8 },
+    "size": { "width": 14, "height": 7, "length": 14 }
+  },
+  "options": {
+    "count": 5,
+    "heightVariation": 3,
+    "roughness": 2
+  }
+}
+```
+
 ## Non-Goals
 
 - no arbitrary meshes

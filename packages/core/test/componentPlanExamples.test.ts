@@ -22,6 +22,7 @@ describe("ComponentPlan large examples", () => {
     "large-castle.componentplan.json",
     "large-ship-interior.componentplan.json",
     "long-fortified-bridge.componentplan.json",
+    "path-rock-garden.componentplan.json",
     "sectioned-wall.componentplan.json",
     "ship-bow-shape.componentplan.json",
   ];
@@ -52,7 +53,9 @@ describe("ComponentPlan large examples", () => {
         component.type === "ArcadeRun" ||
         component.type === "SupportBracket" ||
         component.type === "TreeCanopy" ||
-        component.type === "OrganicPatch"
+        component.type === "OrganicPatch" ||
+        component.type === "PathRun" ||
+        component.type === "RockCluster"
       )).length;
 
       expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
@@ -75,7 +78,10 @@ describe("ComponentPlan large examples", () => {
           node.id.includes("__pier_") ||
           node.id.includes("__bracket_") ||
           node.id.includes("__canopy_") ||
-          node.id.includes("__fill_")
+          node.id.includes("__fill_") ||
+          node.id.includes("__path_") ||
+          node.id.includes("__stone_") ||
+          node.id.includes("__rock_")
         ))).toBe(true);
       }
     });
