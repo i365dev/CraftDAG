@@ -15,10 +15,12 @@ describe("ComponentPlan large examples", () => {
   const dirname = path.dirname(fileURLToPath(import.meta.url));
   const examplesDir = path.resolve(dirname, "../../../examples/component-plans");
   const examples = [
+    "fortified-wall-shape.componentplan.json",
     "large-castle.componentplan.json",
     "large-ship-interior.componentplan.json",
     "long-fortified-bridge.componentplan.json",
     "sectioned-wall.componentplan.json",
+    "ship-bow-shape.componentplan.json",
   ];
 
   for (const example of examples) {
@@ -36,8 +38,12 @@ describe("ComponentPlan large examples", () => {
       const sectionComponentCount = validated.sections?.reduce((total, section) => total + section.components.length, 0) ?? 0;
       const rootAssemblyCount = validated.assemblies?.length ?? 0;
       const sectionAssemblyCount = validated.sections?.reduce((total, section) => total + (section.assemblies?.length ?? 0), 0) ?? 0;
+      const shapeComponentCount = [
+        ...(validated.components ?? []),
+        ...(validated.sections?.flatMap((section) => section.components) ?? []),
+      ].filter((component) => component.type === "TaperedVolume" || component.type === "RailingRun").length;
 
-      expect(rootAssemblyCount + sectionAssemblyCount).toBeGreaterThan(0);
+      expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
       expect(craftDag.nodes.length).toBeGreaterThanOrEqual(rootComponentCount + sectionComponentCount);
       if (example === "large-ship-interior.componentplan.json") {
         expect(craftDag.nodes.filter((node) => node.id.includes("corridor")).length).toBeGreaterThan(4);
@@ -45,7 +51,12 @@ describe("ComponentPlan large examples", () => {
       expect(voxelPlan.blocks.length).toBeGreaterThan(0);
       expect(materials.length).toBeGreaterThan(0);
       expect(layers.length).toBeGreaterThan(0);
-      expect(craftDag.nodes.some((node) => node.id.includes("__") && node.id.split("__").length >= 3)).toBe(true);
+      if (rootAssemblyCount + sectionAssemblyCount > 0) {
+        expect(craftDag.nodes.some((node) => node.id.includes("__") && node.id.split("__").length >= 3)).toBe(true);
+      }
+      if (shapeComponentCount > 0) {
+        expect(craftDag.nodes.some((node) => node.id.includes("__slice_") || node.id.includes("__post_"))).toBe(true);
+      }
     });
   }
 });
