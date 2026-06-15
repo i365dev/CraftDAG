@@ -984,6 +984,45 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("rejects mid rails on railing runs that are too short to emit them", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Short Mid Rail",
+      bounds: { width: 8, height: 3, length: 2 },
+      palette: {
+        trim: "minecraft:dark_oak_fence",
+      },
+      components: [
+        {
+          id: "short_rail",
+          type: "RailingRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 8, height: 2, length: 1 },
+          },
+          options: {
+            includePosts: false,
+            includeTopRail: false,
+            includeMidRail: true,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_RAILING_MID_RAIL_HEIGHT",
+          componentId: "short_rail",
+        }),
+      ]);
+    }
+  });
+
   it("requires floor or explicit material for Platform components", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

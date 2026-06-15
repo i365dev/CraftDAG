@@ -979,9 +979,7 @@ function expandRailingRun(
       params: {
         ...scaledBox({
           anchor: { x: anchor.x, y: anchor.y + size.height - 1, z: anchor.z },
-          size: axis === "x"
-            ? { width: size.width, height: 1, length: size.length }
-            : { width: size.width, height: 1, length: size.length },
+          size: { width: size.width, height: 1, length: size.length },
         }, unit),
         block: material(component, "rail", "trim"),
       },
@@ -996,9 +994,7 @@ function expandRailingRun(
       params: {
         ...scaledBox({
           anchor: { x: anchor.x, y: anchor.y + Math.floor(size.height / 2), z: anchor.z },
-          size: axis === "x"
-            ? { width: size.width, height: 1, length: size.length }
-            : { width: size.width, height: 1, length: size.length },
+          size: { width: size.width, height: 1, length: size.length },
         }, unit),
         block: material(component, "rail", "trim"),
       },
@@ -1121,6 +1117,15 @@ function validateShapeComponent(component: ComponentNode): void {
         componentId: component.id,
         message: `RailingRun "${component.id}" must emit at least one physical part.`,
         repairHint: "Enable includePosts, includeTopRail, or includeMidRail.",
+      });
+    }
+
+    if (includeMidRail && component.placement.size.height <= 2) {
+      throw componentValidationError({
+        code: "INVALID_RAILING_MID_RAIL_HEIGHT",
+        componentId: component.id,
+        message: `RailingRun "${component.id}" needs height greater than 2 to emit a mid rail.`,
+        repairHint: "Increase placement.size.height above 2 or disable includeMidRail.",
       });
     }
   }
