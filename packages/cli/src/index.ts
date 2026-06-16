@@ -282,6 +282,10 @@ component
         writeJson({ ok: true, ...result });
       } else {
         console.log(`Support diagnostics: ${result.diagnostics.length}`);
+        console.log(`Quality gate: ${result.summary.qualityGate.status}`);
+        console.log(`Blocking diagnostics: ${result.summary.diagnostics.blockingDiagnostics}`);
+        console.log(`Review diagnostics: ${result.summary.diagnostics.reviewDiagnostics}`);
+        console.log(`Allowed diagnostics: ${result.summary.diagnostics.allowedDiagnostics}`);
         console.log(`Total blocks: ${result.totalBlocks}`);
         console.log(`Vertical unsupported blocks: ${result.verticalUnsupportedBlocks}`);
         console.log(`Disconnected blocks: ${result.disconnectedBlocks}`);

@@ -91,6 +91,12 @@ craftdag component export path/to/plan.componentplan.json --format schem --out b
 
 Prefer JSON output for agent loops. Human-formatted output is useful for local debugging, but agents need stable fields such as `stage`, `code`, `componentId`, `path`, and `repairHint`.
 
+For support checks, read `summary.qualityGate.status` first:
+
+- `pass`: no blocking or review diagnostics.
+- `review`: connected spans, eaves, rails, roofs, trees, or stairs need visual/structural review before publishing.
+- `block`: unexpected disconnected or floating source nodes should be repaired before export or publishing confidence.
+
 ## Error Repair Pattern
 
 When a command fails, agents should treat diagnostics as edit instructions:

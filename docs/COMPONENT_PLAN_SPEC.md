@@ -684,6 +684,33 @@ The analyzer reports:
 
 Support roots can be configured with `groundY`, `rootSourceNodeIdPrefixes`, or explicit coordinate `rootBoxes`. Noise can be reduced with `ignoredBlockNames`, `ignoredSourceNodeIdPrefixes`, `maxDiagnosticsPerCode`, `maxDiagnosticsPerSource`, and `minDiagnosticBlocks`.
 
+The result includes a `summary` field for agent and product quality gates:
+
+```json
+{
+  "qualityGate": {
+    "status": "pass | review | block",
+    "blockingReasons": ["DISCONNECTED_COMPONENT"],
+    "reviewReasons": ["NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED"]
+  },
+  "diagnostics": {
+    "totalDiagnostics": 1,
+    "blockingDiagnostics": 0,
+    "reviewDiagnostics": 1,
+    "allowedDiagnostics": 0,
+    "byCode": {
+      "NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED": 1
+    }
+  }
+}
+```
+
+Quality gate status is conservative:
+
+- `block`: at least one unallowed `DISCONNECTED_COMPONENT` or `FLOATING_SOURCE_NODE`.
+- `review`: no blocking diagnostics, but at least one `LARGE_CANTILEVER` or `NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED`.
+- `pass`: no blocking or review diagnostics. Allowed diagnostics do not downgrade the status.
+
 The result also includes `sourceSummaries`, which aggregate total blocks, bounds, disconnected block counts, vertical unsupported counts, and large cantilever counts by `sourceNodeId`.
 
 By default, diagnostics for `decorative` and `may_float` components are filtered out. Use `includeAllowed: true` when a UI or repair loop wants to show allowed floating elements for inspection.
