@@ -27,6 +27,7 @@ describe("ComponentPlan large examples", () => {
     "ship-bow-shape.componentplan.json",
     "stair-run-multilevel.componentplan.json",
     "taj-dome-study.componentplan.json",
+    "temple-palace-dome-study.componentplan.json",
   ];
 
   for (const example of examples) {

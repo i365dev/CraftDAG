@@ -1,0 +1,224 @@
+{
+  "version": "0.1",
+  "name": "Temple Palace Dome Study",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 72,
+    "height": 34,
+    "length": 64
+  },
+  "palette": {
+    "foundation": "minecraft:smooth_sandstone",
+    "wall": "minecraft:sandstone",
+    "floor": "minecraft:cut_sandstone",
+    "roof": "minecraft:smooth_quartz",
+    "trim": "minecraft:chiseled_sandstone",
+    "glass": "minecraft:yellow_stained_glass",
+    "door": "minecraft:dark_oak_door"
+  },
+  "components": [
+    {
+      "id": "ceremonial_podium",
+      "type": "SteppedTier",
+      "role": "temple_palace_podium",
+      "placement": {
+        "anchor": {
+          "x": 6,
+          "y": 0,
+          "z": 6
+        },
+        "size": {
+          "width": 60,
+          "height": 5,
+          "length": 52
+        }
+      },
+      "options": {
+        "axis": "both",
+        "levels": 3,
+        "stepHeight": 2,
+        "insetPerLevel": 2
+      }
+    },
+    {
+      "id": "rotunda_hall",
+      "type": "RoomShell",
+      "role": "central_temple_rotunda",
+      "inputs": [
+        {
+          "ref": "ceremonial_podium"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 22,
+          "y": 5,
+          "z": 18
+        },
+        "size": {
+          "width": 28,
+          "height": 12,
+          "length": 28
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "rotunda_arcade",
+      "type": "ArcadeRun",
+      "role": "temple_front_arch_rhythm",
+      "inputs": [
+        {
+          "ref": "rotunda_hall"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 24,
+          "y": 6,
+          "z": 17
+        },
+        "size": {
+          "width": 24,
+          "height": 9,
+          "length": 2
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 4,
+        "pierWidth": 2,
+        "archHeight": 4
+      }
+    },
+    {
+      "id": "rotunda_dome",
+      "type": "SteppedDome",
+      "role": "hollow_observatory_style_dome",
+      "inputs": [
+        {
+          "ref": "rotunda_hall"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 25,
+          "y": 17,
+          "z": 21
+        },
+        "size": {
+          "width": 22,
+          "height": 9,
+          "length": 22
+        }
+      },
+      "options": {
+        "levels": 6,
+        "insetPerLevel": 2,
+        "hollow": true
+      }
+    },
+    {
+      "id": "dome_lantern",
+      "type": "SupportPost",
+      "role": "small_roof_lantern",
+      "inputs": [
+        {
+          "ref": "rotunda_dome"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 35,
+          "y": 26,
+          "z": 31
+        },
+        "size": {
+          "width": 2,
+          "height": 4,
+          "length": 2
+        }
+      },
+      "materials": {
+        "main": "trim"
+      }
+    },
+    {
+      "id": "palace_pavilion",
+      "type": "RoomShell",
+      "role": "corner_palace_pavilion",
+      "inputs": [
+        {
+          "ref": "ceremonial_podium"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 10,
+          "y": 5,
+          "z": 10
+        },
+        "size": {
+          "width": 12,
+          "height": 8,
+          "length": 12
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "pavilion_dome",
+      "type": "SteppedDome",
+      "role": "palace_corner_pavilion_dome",
+      "inputs": [
+        {
+          "ref": "palace_pavilion"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 11,
+          "y": 13,
+          "z": 11
+        },
+        "size": {
+          "width": 10,
+          "height": 5,
+          "length": 10
+        }
+      },
+      "options": {
+        "levels": 5,
+        "insetPerLevel": 1
+      }
+    },
+    {
+      "id": "front_pavilion_copy",
+      "type": "Repeat",
+      "placement": {
+        "source": "palace_pavilion",
+        "axis": "x",
+        "count": 2,
+        "step": 40
+      }
+    },
+    {
+      "id": "front_pavilion_dome_copy",
+      "type": "Repeat",
+      "placement": {
+        "source": "pavilion_dome",
+        "axis": "x",
+        "count": 2,
+        "step": 40
+      }
+    }
+  ]
+}
