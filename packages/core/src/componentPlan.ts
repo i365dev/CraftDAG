@@ -305,6 +305,22 @@ const RockClusterComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const StairRunComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("StairRun"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    axis: z.enum(["x", "z"]).optional(),
+    direction: z.enum(["positive", "negative"]).optional(),
+    style: z.literal("solid").optional(),
+    includeSideRails: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const DoorComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Door"),
@@ -415,6 +431,7 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   OrganicPatchComponentSchema,
   PathRunComponentSchema,
   RockClusterComponentSchema,
+  StairRunComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -442,6 +459,7 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   OrganicPatchComponentSchema,
   PathRunComponentSchema,
   RockClusterComponentSchema,
+  StairRunComponentSchema,
   DoorComponentSchema,
   WindowComponentSchema,
   OpeningComponentSchema,
@@ -485,7 +503,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -942,6 +960,8 @@ function expandComponentToNodes(
       return expandPathRun(component, componentMap, unit);
     case "RockCluster":
       return expandRockCluster(component, componentMap, unit);
+    case "StairRun":
+      return expandStairRun(component, componentMap, unit);
     case "Door":
       return [{
         id: nodeId(component.id, "opening"),
@@ -1332,6 +1352,24 @@ function expandRockCluster(
   }));
 }
 
+function expandStairRun(
+  component: Extract<ComponentNode, { type: "StairRun" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return stairRunPlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, placement.materialRole, placement.materialFallback),
+    },
+  }));
+}
+
 function unknownRefError(
   component: ComponentNode,
   field: string,
@@ -1568,6 +1606,31 @@ function validateShapeComponent(component: ComponentNode): void {
     }
   }
 
+  if (component.type === "StairRun") {
+    const axis = stairRunAxis(component);
+    const runLength = axis === "x" ? component.placement.size.width : component.placement.size.length;
+    const crossWidth = axis === "x" ? component.placement.size.length : component.placement.size.width;
+    const includeSideRails = component.options?.includeSideRails ?? false;
+
+    if (runLength < component.placement.size.height) {
+      throw componentValidationError({
+        code: "INVALID_STAIR_RUN_LENGTH",
+        componentId: component.id,
+        message: `StairRun "${component.id}" is too short for its height.`,
+        repairHint: "Increase the run length, reduce placement.size.height, or wait for a future steeper stair style.",
+      });
+    }
+
+    if (includeSideRails && crossWidth < 3) {
+      throw componentValidationError({
+        code: "INVALID_STAIR_RUN_RAIL_WIDTH",
+        componentId: component.id,
+        message: `StairRun "${component.id}" needs enough width for side rails.`,
+        repairHint: "Use perpendicular width/length >= 3 or disable includeSideRails.",
+      });
+    }
+  }
+
 }
 
 function validateSectionBounds(bounds: ComponentSize, section: ComponentPlanSection): void {
@@ -1683,6 +1746,7 @@ function validateAttachments(components: readonly ComponentNode[], componentMap:
       });
     }
   }
+
 }
 
 function validateCovers(
@@ -1918,6 +1982,9 @@ function estimateComponentBlocks(
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "RockCluster":
       return rockClusterPlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "StairRun":
+      return stairRunPlacements(component)
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "Door":
     case "Window":
@@ -2450,6 +2517,95 @@ function rockClusterPlacements(component: Extract<ComponentNode, { type: "RockCl
   return placements;
 }
 
+function stairRunPlacements(component: Extract<ComponentNode, { type: "StairRun" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+  materialRole: string;
+  materialFallback: string;
+}> {
+  const { anchor, size } = component.placement;
+  const axis = stairRunAxis(component);
+  const direction = component.options?.direction ?? "positive";
+  const includeSideRails = component.options?.includeSideRails ?? false;
+  const runLength = axis === "x" ? size.width : size.length;
+  const crossWidth = axis === "x" ? size.length : size.width;
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize; materialRole: string; materialFallback: string }> = [];
+
+  for (let step = 0; step < size.height; step += 1) {
+    const stepStart = Math.floor((step * runLength) / size.height);
+    const stepEnd = Math.floor(((step + 1) * runLength) / size.height);
+    const treadDepth = stepEnd - stepStart;
+    const start = direction === "positive"
+      ? stepStart
+      : runLength - stepEnd;
+    placements.push({
+      part: `step_${step}`,
+      anchor: stairPlacementAnchor(anchor, axis, start, 0, step),
+      size: stairPlacementSize(axis, treadDepth, 1, crossWidth),
+      materialRole: "main",
+      materialFallback: "floor",
+    });
+  }
+
+  if (includeSideRails) {
+    placements.push({
+      part: "left_rail",
+      anchor: stairRailAnchor(anchor, axis, 0),
+      size: stairRailSize(axis, runLength, size.height, 1),
+      materialRole: "rail",
+      materialFallback: "trim",
+    });
+    placements.push({
+      part: "right_rail",
+      anchor: stairRailAnchor(anchor, axis, crossWidth - 1),
+      size: stairRailSize(axis, runLength, size.height, 1),
+      materialRole: "rail",
+      materialFallback: "trim",
+    });
+  }
+
+  return placements;
+}
+
+function stairRunAxis(component: Extract<ComponentNode, { type: "StairRun" }>): "x" | "z" {
+  return component.options?.axis ?? (component.placement.size.width >= component.placement.size.length ? "x" : "z");
+}
+
+function stairPlacementAnchor(
+  anchor: { x: number; y: number; z: number },
+  axis: "x" | "z",
+  runOffset: number,
+  crossOffset: number,
+  yOffset: number
+): { x: number; y: number; z: number } {
+  return axis === "x"
+    ? { x: anchor.x + runOffset, y: anchor.y + yOffset, z: anchor.z + crossOffset }
+    : { x: anchor.x + crossOffset, y: anchor.y + yOffset, z: anchor.z + runOffset };
+}
+
+function stairPlacementSize(axis: "x" | "z", runLength: number, height: number, crossWidth: number): ComponentSize {
+  return axis === "x"
+    ? { width: runLength, height, length: crossWidth }
+    : { width: crossWidth, height, length: runLength };
+}
+
+function stairRailAnchor(
+  anchor: { x: number; y: number; z: number },
+  axis: "x" | "z",
+  crossOffset: number
+): { x: number; y: number; z: number } {
+  return axis === "x"
+    ? { x: anchor.x, y: anchor.y, z: anchor.z + crossOffset }
+    : { x: anchor.x + crossOffset, y: anchor.y, z: anchor.z };
+}
+
+function stairRailSize(axis: "x" | "z", runLength: number, height: number, railWidth: number): ComponentSize {
+  return axis === "x"
+    ? { width: runLength, height, length: railWidth }
+    : { width: railWidth, height, length: runLength };
+}
+
 function estimateRailingRunBlocks(component: Extract<ComponentNode, { type: "RailingRun" }>, unit: 1 | 2): number {
   const { size } = component.placement;
   const axis = railingAxis(component);
@@ -2517,7 +2673,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
       });
     }
 
@@ -2626,6 +2782,13 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       return [{ role: "main", value: "floor" }];
     case "RockCluster":
       return [{ role: "main", value: "wall" }];
+    case "StairRun": {
+      const fallbacks = [{ role: "main", value: "floor" }];
+      if (component.options?.includeSideRails ?? false) {
+        fallbacks.push({ role: "rail", value: "trim" });
+      }
+      return fallbacks;
+    }
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -2712,6 +2875,8 @@ function outputPart(component: ComponentNode): string {
       return pathRunOutputPart(component);
     case "RockCluster":
       return "rock_0";
+    case "StairRun":
+      return "step_0";
     case "Door":
     case "Window":
     case "Opening":
@@ -2783,7 +2948,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
     });
   }
 
@@ -2895,6 +3060,8 @@ function expandRepeatableComponent(
       return expandPathRun(repeated, componentMap, unit, inputs);
     case "RockCluster":
       return expandRockCluster(repeated, componentMap, unit, inputs);
+    case "StairRun":
+      return expandStairRun(repeated, componentMap, unit, inputs);
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -3252,6 +3419,7 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "OrganicPatch" ||
     component.type === "PathRun" ||
     component.type === "RockCluster" ||
+    component.type === "StairRun" ||
     component.type === "SupportPost"
   );
 }

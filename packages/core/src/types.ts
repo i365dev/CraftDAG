@@ -277,6 +277,14 @@ export interface RockClusterOptions {
 }
 export type RockClusterComponent = BaseComponentNode<"RockCluster", AnchoredComponentPlacement, RockClusterOptions>;
 
+export interface StairRunOptions {
+  axis?: "x" | "z";
+  direction?: "positive" | "negative";
+  style?: "solid";
+  includeSideRails?: boolean;
+}
+export type StairRunComponent = BaseComponentNode<"StairRun", AnchoredComponentPlacement, StairRunOptions>;
+
 export type DoorComponent = BaseComponentNode<"Door", WallAttachmentPlacement>;
 export type WindowComponent = BaseComponentNode<"Window", WallAttachmentPlacement>;
 export type OpeningComponent = BaseComponentNode<"Opening", WallAttachmentPlacement>;
@@ -304,6 +312,7 @@ export type AssemblyComponentNode =
   | OrganicPatchComponent
   | PathRunComponent
   | RockClusterComponent
+  | StairRunComponent
   | DoorComponent
   | WindowComponent
   | OpeningComponent

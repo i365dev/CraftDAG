@@ -1391,6 +1391,147 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands StairRun components for vertical circulation", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Stair Run Study",
+      bounds: { width: 12, height: 8, length: 14 },
+      palette: {
+        floor: "minecraft:stone_bricks",
+        trim: "minecraft:spruce_planks",
+      },
+      components: [
+        {
+          id: "main_stair",
+          type: "StairRun",
+          role: "main_deck_stair",
+          placement: {
+            anchor: { x: 2, y: 1, z: 3 },
+            size: { width: 3, height: 4, length: 8 },
+          },
+          options: {
+            axis: "z",
+            direction: "positive",
+            style: "solid",
+            includeSideRails: true,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "main_stair__step_0",
+      "main_stair__step_1",
+      "main_stair__step_2",
+      "main_stair__step_3",
+      "main_stair__left_rail",
+      "main_stair__right_rail",
+    ]);
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "main_stair__step_0",
+      params: {
+        from: [2, 1, 3],
+        to: [4, 1, 4],
+        block: "floor",
+      },
+    });
+    expect(craftDag.nodes[3]).toMatchObject({
+      id: "main_stair__step_3",
+      params: {
+        from: [2, 4, 9],
+        to: [4, 4, 10],
+      },
+    });
+    expect(craftDag.nodes[4]).toMatchObject({
+      id: "main_stair__left_rail",
+      params: {
+        from: [2, 1, 3],
+        to: [2, 4, 10],
+        block: "trim",
+      },
+    });
+    expect(craftDag.nodes[5]).toMatchObject({
+      id: "main_stair__right_rail",
+      params: {
+        from: [4, 1, 3],
+        to: [4, 4, 10],
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects StairRun components that are too short for the requested height", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Stair",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        floor: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "too_short_stair",
+          type: "StairRun",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 3, height: 5, length: 4 },
+          },
+          options: {
+            axis: "z",
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_STAIR_RUN_LENGTH",
+          componentId: "too_short_stair",
+        }),
+      ]);
+    }
+  });
+
+  it("spans the full StairRun length when run length is not divisible by height", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Uneven Stair Run",
+      bounds: { width: 8, height: 8, length: 12 },
+      palette: {
+        floor: "minecraft:stone_bricks",
+      },
+      components: [
+        {
+          id: "uneven_stair",
+          type: "StairRun",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 3, height: 4, length: 10 },
+          },
+          options: {
+            axis: "z",
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes.map((node) => node.params)).toEqual([
+      expect.objectContaining({ from: [1, 0, 1], to: [3, 0, 2] }),
+      expect.objectContaining({ from: [1, 1, 3], to: [3, 1, 5] }),
+      expect.objectContaining({ from: [1, 2, 6], to: [3, 2, 7] }),
+      expect.objectContaining({ from: [1, 3, 8], to: [3, 3, 10] }),
+    ]);
+  });
+
   it("rejects railing runs that emit no physical parts", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",

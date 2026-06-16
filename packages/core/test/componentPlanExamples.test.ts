@@ -25,6 +25,7 @@ describe("ComponentPlan large examples", () => {
     "path-rock-garden.componentplan.json",
     "sectioned-wall.componentplan.json",
     "ship-bow-shape.componentplan.json",
+    "stair-run-multilevel.componentplan.json",
   ];
 
   for (const example of examples) {
@@ -55,7 +56,8 @@ describe("ComponentPlan large examples", () => {
         component.type === "TreeCanopy" ||
         component.type === "OrganicPatch" ||
         component.type === "PathRun" ||
-        component.type === "RockCluster"
+        component.type === "RockCluster" ||
+        component.type === "StairRun"
       )).length;
 
       expect(rootAssemblyCount + sectionAssemblyCount + shapeComponentCount).toBeGreaterThan(0);
@@ -81,7 +83,8 @@ describe("ComponentPlan large examples", () => {
           node.id.includes("__fill_") ||
           node.id.includes("__path_") ||
           node.id.includes("__stone_") ||
-          node.id.includes("__rock_")
+          node.id.includes("__rock_") ||
+          node.id.includes("__step_")
         ))).toBe(true);
       }
     });

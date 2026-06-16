@@ -186,6 +186,7 @@ Start with a small component vocabulary:
 - `RoomShell`
 - `Compartment`
 - `Corridor`
+- `StairRun`
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
@@ -219,6 +220,8 @@ Use `RoomShell` for one-off exterior or interior hollow volumes.
 Use `Compartment` for bounded interior rooms, holds, machinery spaces, cabins, cells, galleries, or any other semantic room-like subdivision. Domain meaning should normally go in `role`, for example `role: "boiler_room"` or `role: "passenger_cabin"`, instead of creating a new component type.
 
 Use `Corridor` for open-ended interior circulation runs. It expands to a floor, two side walls, and an optional ceiling. Corridors default to the longer horizontal axis, or agents can set `options.axis` to `"x"` or `"z"`.
+
+Use `StairRun` for blocky vertical circulation in multi-level builds, such as survival bases, castle towers, ship decks, palaces, dungeons, and subway entrances. It expands to stepped `SolidBox` treads and optional side rails. Use `Platform` for flat decks, `Corridor` for horizontal circulation, and `SupportPost` for vertical supports; use `StairRun` when the authoring intent is walkable vertical movement between levels.
 
 Use `TaperedVolume` for bounded Minecraft-style tapered massing, such as ship bows, tower legs, buttresses, stepped bridge supports, and simplified landmark silhouettes. It expands into one-block-thick logical slices along `options.axis`, with integer `startInset` and `endInset` values controlling the taper. It is not a freeform curve or mesh.
 
@@ -295,7 +298,7 @@ Supported policies:
 Default policies:
 
 - `Foundation`: `must_connect_to_ground`
-- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
+- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
 - `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
 - `Repeat`, `Instance`: `must_connect_to_input`
 
@@ -359,7 +362,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 

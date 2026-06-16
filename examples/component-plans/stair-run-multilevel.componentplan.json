@@ -1,0 +1,159 @@
+{
+  "version": "0.1",
+  "name": "Stair Run Multilevel Study",
+  "policy": {
+    "sizeTier": "medium"
+  },
+  "bounds": {
+    "width": 32,
+    "height": 18,
+    "length": 28
+  },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:spruce_planks",
+    "floor": "minecraft:stone_bricks",
+    "trim": "minecraft:spruce_planks",
+    "roof": "minecraft:dark_oak_planks",
+    "glass": "minecraft:glass",
+    "door": "minecraft:spruce_door"
+  },
+  "components": [
+    {
+      "id": "ground_slab",
+      "type": "Foundation",
+      "role": "survival_base_ground_slab",
+      "placement": {
+        "anchor": {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        "size": {
+          "width": 24,
+          "height": 1,
+          "length": 20
+        }
+      }
+    },
+    {
+      "id": "lower_room",
+      "type": "RoomShell",
+      "role": "lower_living_level",
+      "inputs": [
+        {
+          "ref": "ground_slab"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 1,
+          "z": 4
+        },
+        "size": {
+          "width": 18,
+          "height": 5,
+          "length": 14
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "upper_deck",
+      "type": "Platform",
+      "role": "upper_workshop_deck",
+      "inputs": [
+        {
+          "ref": "lower_room"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 6,
+          "z": 4
+        },
+        "size": {
+          "width": 18,
+          "height": 1,
+          "length": 14
+        }
+      }
+    },
+    {
+      "id": "main_stair",
+      "type": "StairRun",
+      "role": "main_upper_deck_access",
+      "inputs": [
+        {
+          "ref": "ground_slab"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 7,
+          "y": 1,
+          "z": 7
+        },
+        "size": {
+          "width": 3,
+          "height": 5,
+          "length": 10
+        }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "upper_railing",
+      "type": "RailingRun",
+      "role": "upper_deck_guardrail",
+      "inputs": [
+        {
+          "ref": "upper_deck"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 7,
+          "z": 4
+        },
+        "size": {
+          "width": 18,
+          "height": 3,
+          "length": 1
+        }
+      },
+      "options": {
+        "axis": "x",
+        "postSpacing": 4
+      }
+    },
+    {
+      "id": "roof",
+      "type": "FlatRoof",
+      "role": "simple_flat_roof",
+      "inputs": [
+        {
+          "ref": "lower_room"
+        }
+      ],
+      "placement": {
+        "over": "lower_room",
+        "overhang": 1
+      }
+    }
+  ]
+}

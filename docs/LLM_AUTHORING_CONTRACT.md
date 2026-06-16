@@ -74,6 +74,7 @@ Allowed ComponentPlan v0.1 components:
 - `RoomShell`
 - `Compartment`
 - `Corridor`
+- `StairRun`
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
@@ -99,6 +100,8 @@ Use `Foundation` for ground/base slabs. Use `Platform` for elevated decks, count
 Use `Compartment` for generic interior rooms such as cabins, holds, boiler rooms, galleries, cells, storage rooms, and machine rooms. Put the domain intent in `role`; do not invent component types like `BoilerRoom`, `DiningHall`, or `CargoHold`.
 
 Use `Corridor` for open-ended circulation runs inside large builds. It creates a floor, two side walls, and an optional ceiling. Set `options.axis` when the intended direction is ambiguous.
+
+Use `StairRun` for vertical circulation between levels: survival bases, castle towers, ship decks, underground bases, palaces, dungeons, and subway entrances. Size the horizontal run at least as long as the height. Use `includeSideRails` only when the perpendicular width is at least 3. Do not use it for spiral stairs, elevators, ramps, or decorative tiering.
 
 Use `TaperedVolume` for recognizable non-box massing such as ship bows, tower leg taper, buttresses, and simplified stepped silhouettes. Set `options.axis`, then use integer `startInset` and `endInset` values. Keep the taper Minecraft-like and blocky; do not describe exact curves.
 

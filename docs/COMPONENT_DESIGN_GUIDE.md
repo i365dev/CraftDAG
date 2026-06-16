@@ -64,6 +64,7 @@ Examples:
 - `RoomShell`
 - `Compartment`
 - `Corridor`
+- `StairRun`
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
@@ -253,6 +254,7 @@ If an existing component plus clearer docs solves the problem, do not add a new 
 - `RoomShell`: hollow volume
 - `Compartment`: semantic room-like subdivision
 - `Corridor`: interior circulation run
+- `StairRun`: blocky vertical circulation run
 - `SupportPost`: vertical support
 
 ### Shape primitives
@@ -313,6 +315,7 @@ TaperedVolume
 SteppedTier
 VerticalSetbackVolume
 ArcadeRun
+StairRun
 TreeCanopy
 OrganicPatch
 Assembly + role metadata
