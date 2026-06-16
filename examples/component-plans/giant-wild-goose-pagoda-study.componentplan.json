@@ -1,0 +1,376 @@
+{
+  "version": "0.1",
+  "name": "Giant Wild Goose Pagoda Landmark Study",
+  "grid": {
+    "unitBlocks": 1
+  },
+  "policy": {
+    "sizeTier": "monumental"
+  },
+  "bounds": {
+    "width": 72,
+    "height": 74,
+    "length": 72
+  },
+  "palette": {
+    "foundation": "minecraft:stone_bricks",
+    "wall": "minecraft:sandstone",
+    "floor": "minecraft:cut_sandstone",
+    "roof": "minecraft:smooth_sandstone",
+    "trim": "minecraft:chiseled_sandstone",
+    "glass": "minecraft:orange_stained_glass",
+    "door": "minecraft:dark_oak_door"
+  },
+  "components": [
+    {
+      "id": "temple_court",
+      "type": "Foundation",
+      "role": "temple_courtyard_plinth",
+      "placement": {
+        "anchor": {
+          "x": 4,
+          "y": 0,
+          "z": 4
+        },
+        "size": {
+          "width": 64,
+          "height": 1,
+          "length": 64
+        }
+      }
+    },
+    {
+      "id": "pagoda_base",
+      "type": "SteppedTier",
+      "role": "square_pagoda_base_platform",
+      "inputs": [
+        {
+          "ref": "temple_court"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 16,
+          "y": 1,
+          "z": 16
+        },
+        "size": {
+          "width": 40,
+          "height": 5,
+          "length": 40
+        }
+      },
+      "options": {
+        "axis": "both",
+        "levels": 3,
+        "stepHeight": 1,
+        "insetPerLevel": 2
+      }
+    },
+    {
+      "id": "pagoda_tower_mass",
+      "type": "VerticalSetbackVolume",
+      "role": "tall_tang_pagoda_body",
+      "inputs": [
+        {
+          "ref": "pagoda_base"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 22,
+          "y": 6,
+          "z": 22
+        },
+        "size": {
+          "width": 28,
+          "height": 54,
+          "length": 28
+        }
+      },
+      "materials": {
+        "main": "wall"
+      },
+      "options": {
+        "levels": 7,
+        "setbackPerLevel": 1,
+        "levelHeight": 7
+      }
+    },
+    {
+      "id": "north_entry",
+      "type": "Opening",
+      "role": "ground_level_pagoda_entrance",
+      "placement": {
+        "target": "pagoda_tower_mass",
+        "wall": "front",
+        "offset": 11,
+        "y": 7,
+        "width": 6,
+        "height": 7
+      }
+    },
+    {
+      "id": "front_stair",
+      "type": "StairRun",
+      "role": "broad_stair_to_pagoda_door",
+      "inputs": [
+        {
+          "ref": "temple_court"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 32,
+          "y": 1,
+          "z": 8
+        },
+        "size": {
+          "width": 8,
+          "height": 5,
+          "length": 10
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "first_eave",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_1",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 20,
+          "y": 13,
+          "z": 20
+        },
+        "size": {
+          "width": 32,
+          "height": 1,
+          "length": 32
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "eave_two",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_2",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 21,
+          "y": 20,
+          "z": 21
+        },
+        "size": {
+          "width": 30,
+          "height": 1,
+          "length": 30
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "eave_three",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_3",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 22,
+          "y": 27,
+          "z": 22
+        },
+        "size": {
+          "width": 28,
+          "height": 1,
+          "length": 28
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "eave_four",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_4",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 23,
+          "y": 34,
+          "z": 23
+        },
+        "size": {
+          "width": 26,
+          "height": 1,
+          "length": 26
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "eave_five",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_5",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 24,
+          "y": 41,
+          "z": 24
+        },
+        "size": {
+          "width": 24,
+          "height": 1,
+          "length": 24
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "eave_six",
+      "type": "Platform",
+      "role": "projecting_pagoda_eave_level_6",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 25,
+          "y": 48,
+          "z": 25
+        },
+        "size": {
+          "width": 22,
+          "height": 1,
+          "length": 22
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 3
+      }
+    },
+    {
+      "id": "top_roof",
+      "type": "SteppedDome",
+      "role": "small_square_pagoda_roof_cap",
+      "inputs": [
+        {
+          "ref": "pagoda_tower_mass"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 26,
+          "y": 60,
+          "z": 26
+        },
+        "size": {
+          "width": 20,
+          "height": 8,
+          "length": 20
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "options": {
+        "levels": 4,
+        "insetPerLevel": 2,
+        "hollow": false
+      },
+      "structural": {
+        "supportPolicy": "decorative"
+      }
+    },
+    {
+      "id": "pagoda_finial",
+      "type": "SupportPost",
+      "role": "pagoda_roof_finial",
+      "inputs": [
+        {
+          "ref": "top_roof"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 35,
+          "y": 68,
+          "z": 35
+        },
+        "size": {
+          "width": 2,
+          "height": 4,
+          "length": 2
+        }
+      },
+      "materials": {
+        "main": "trim"
+      },
+      "structural": {
+        "supportPolicy": "decorative"
+      }
+    }
+  ]
+}

@@ -17,6 +17,7 @@ describe("ComponentPlan large examples", () => {
   const examples = [
     "arcade-bracket-study.componentplan.json",
     "fortified-wall-shape.componentplan.json",
+    "giant-wild-goose-pagoda-study.componentplan.json",
     "large-form-massing.componentplan.json",
     "landscape-canopy-patch.componentplan.json",
     "large-castle.componentplan.json",
@@ -28,6 +29,7 @@ describe("ComponentPlan large examples", () => {
     "stair-run-multilevel.componentplan.json",
     "taj-dome-study.componentplan.json",
     "temple-palace-dome-study.componentplan.json",
+    "xi-an-bell-tower-study.componentplan.json",
   ];
 
   for (const example of examples) {

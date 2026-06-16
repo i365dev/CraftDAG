@@ -138,6 +138,8 @@ Functional/redstone tasks should wait for module support. Until then, describe d
 - `examples/component-plans/long-fortified-bridge.componentplan.json`
 - `examples/component-plans/taj-dome-study.componentplan.json`
 - `examples/component-plans/temple-palace-dome-study.componentplan.json`
+- `examples/component-plans/xi-an-bell-tower-study.componentplan.json`
+- `examples/component-plans/giant-wild-goose-pagoda-study.componentplan.json`
 - `examples/component-plans/landscape-canopy-patch.componentplan.json`
 - `examples/component-plans/path-rock-garden.componentplan.json`
 

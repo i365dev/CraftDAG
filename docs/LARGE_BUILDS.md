@@ -92,8 +92,12 @@ Large-build probes live in `examples/component-plans`.
 - `large-castle.componentplan.json` exercises repeated tower and wall-bay instances around a courtyard and keep.
 - `long-fortified-bridge.componentplan.json` exercises repeated bridge deck, pier, and tower modules across a long span.
 - `sectioned-wall.componentplan.json` exercises section-local components, root assemblies reused inside sections, and global coordinate composition.
+- `xi-an-bell-tower-study.componentplan.json` exercises a large landmark with a square masonry base, cross passages, stacked timber halls, broad eaves, stairs, railings, and a roof finial.
+- `giant-wild-goose-pagoda-study.componentplan.json` exercises tall setback massing, repeated eave levels, a high vertical silhouette, and support diagnostics on monumental tower forms.
 
 These are not polished product templates. They are regression fixtures and authoring probes for checking whether the current ComponentPlan surface is large enough for agent-generated structures.
+
+For the current coverage matrix and support-diagnostic interpretation, see `docs/BUILD_COVERAGE_MATRIX.md`.
 
 ## Relationship To Redstone
 
