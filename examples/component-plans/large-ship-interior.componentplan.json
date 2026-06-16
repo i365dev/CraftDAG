@@ -169,6 +169,37 @@
               "length": 10
             }
           }
+        },
+        {
+          "id": "service_stair_to_cabin_deck",
+          "type": "StairRun",
+          "role": "machinery_to_cabin_deck_access",
+          "inputs": [
+            {
+              "ref": "keel_floor"
+            }
+          ],
+          "placement": {
+            "anchor": {
+              "x": 34,
+              "y": 1,
+              "z": 19
+            },
+            "size": {
+              "width": 4,
+              "height": 7,
+              "length": 10
+            }
+          },
+          "materials": {
+            "main": "floor",
+            "rail": "trim"
+          },
+          "options": {
+            "axis": "z",
+            "direction": "positive",
+            "includeSideRails": true
+          }
         }
       ]
     },
