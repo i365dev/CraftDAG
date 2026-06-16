@@ -1,0 +1,64 @@
+CraftDAG model authoring quick context
+
+Goal
+Author ComponentPlan JSON for Minecraft builds. ComponentPlan is the agent-authored DSL. CraftDAG expands it to low-level CraftDAG IR, compiles it to VoxelPlan target state, and can export Sponge .schem files.
+
+Primary docs
+- docs/COMPONENT_PLAN_SPEC.md: complete ComponentPlan schema and semantics.
+- docs/LLM_AUTHORING_CONTRACT.md: model-facing rules, anti-patterns, and examples.
+- docs/LARGE_BUILDS.md: sections, assemblies, instances, and large-build decomposition.
+- docs/SHAPE_PRIMITIVES.md: large-form, facade, support, landscape, path, rock, stair, and dome primitives.
+- docs/AGENT_TOOLKIT.md: harness-agent workflow and current command contracts.
+
+Authoring rules
+1. Output strict JSON only. Do not include comments or extra fields.
+2. Prefer ComponentPlan components over low-level coordinates.
+3. Use palette roles: foundation, wall, floor, roof, trim, glass, door.
+4. Keep every anchored component within bounds.
+5. Use inputs to express support/order. Most non-foundation physical components should reference a supporting component.
+6. Use role for domain intent. Do not invent component types such as BoilerRoom, TajMahalDome, TitanicHull, or SakuraTree.
+7. Use Repeat for simple linear repetition. Use assemblies and Instance for repeated multi-component modules.
+8. Use sections for large builds that are hard to reason about in one coordinate space.
+9. Downscope before producing huge flat component arrays.
+10. If validation fails, repair the plan instead of loosening schema or validation.
+
+Allowed ComponentPlan components
+Foundation, Platform, Beam, RoomShell, Compartment, Corridor, StairRun, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, Door, Window, Opening, Portal, GableRoof, FlatRoof, SupportPost, Repeat, Instance.
+
+When to use key components
+- RoomShell: one exterior or interior hollow volume.
+- Compartment: semantic room subdivision such as cabin, boiler room, storage, gallery, or cell. Put exact meaning in role.
+- Corridor: horizontal circulation.
+- StairRun: walkable vertical circulation between levels.
+- TaperedVolume: ship bows, buttresses, tower legs, blocky taper.
+- SteppedTier: pyramids, amphitheater seating, podiums, terraces.
+- VerticalSetbackVolume: tall towers, pagodas, skyscrapers, spires.
+- SteppedDome: Minecraft-style dome roofs and caps.
+- ArcadeRun: repeated blocky arches in facades or bridges.
+- SupportBracket: visible supports under overhangs, balconies, lifeboat shelves.
+- TreeCanopy, OrganicPatch, PathRun, RockCluster: landscape and garden detail.
+
+Common repair hints
+- COMPONENT_OUT_OF_BOUNDS: move anchor inward, reduce size, or increase plan bounds.
+- UNKNOWN_COMPONENT_REF: fix inputs, target, source, or assembly reference.
+- UNKNOWN_MATERIAL_REF: use a palette key or minecraft: block id.
+- PLAN_BOUNDS_OVER_BUDGET / PLAN_COMPONENTS_OVER_BUDGET / PLAN_ESTIMATED_BLOCKS_OVER_BUDGET: reduce bounds, repeated counts, levels, sections, or detail components.
+- INVALID_STEPPED_TIER_INSET / INVALID_VERTICAL_SETBACK_INSET / INVALID_STEPPED_DOME_INSET: reduce levels or inset; increase width/length.
+- INVALID_STAIR_RUN_LENGTH: make run length at least requested height.
+
+Reference examples
+- examples/component-plans/stair-run-multilevel.componentplan.json
+- examples/component-plans/large-castle.componentplan.json
+- examples/component-plans/large-ship-interior.componentplan.json
+- examples/component-plans/long-fortified-bridge.componentplan.json
+- examples/component-plans/taj-dome-study.componentplan.json
+- examples/component-plans/temple-palace-dome-study.componentplan.json
+- examples/component-plans/landscape-canopy-patch.componentplan.json
+- examples/component-plans/path-rock-garden.componentplan.json
+
+Current limitations
+- Do not rely on rotation or mirroring.
+- Do not use nested Instance inside assemblies.
+- Do not synthesize arbitrary redstone circuits yet.
+- Do not require exact landmark replication, sculpture-level details, or smooth curves.
+- Ring/radial array primitives are future work; approximate with assemblies and existing primitives for now.

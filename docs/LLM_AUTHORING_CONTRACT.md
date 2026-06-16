@@ -2,6 +2,8 @@
 
 This is the model-facing contract for agents that generate Minecraft build plans with CraftDAG.
 
+For short prompt context, start with `docs/llm.txt`. For repository-based harness agents, also read `docs/AGENT_TOOLKIT.md`.
+
 For product workflows, generate `ComponentPlan` first. Raw CraftDAG is the lower-level compiler IR and should mainly be used for fixtures, tests, debugging, and fallback generation.
 
 ```text
