@@ -78,6 +78,7 @@ Allowed ComponentPlan v0.1 components:
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
+- `SteppedDome`
 - `RailingRun`
 - `ArcadeRun`
 - `SupportBracket`
@@ -108,6 +109,8 @@ Use `TaperedVolume` for recognizable non-box massing such as ship bows, tower le
 Use `SteppedTier` for large horizontal tiering: pyramids, amphitheater seating, palace terraces, stepped podiums, and tiered plinths. Prefer it over manually stacking many `Platform` components. Do not use it for arbitrary organic slopes.
 
 Use `VerticalSetbackVolume` for tall height-driven setback massing: Burj-style towers, pagodas, tiered spires, and skyscrapers. Prefer it when the object gets narrower as it rises. Do not use it for ship bows or horizontal buttresses; use `TaperedVolume` there.
+
+Use `SteppedDome` for bounded Minecraft-style dome roofs and caps: Taj-style domes, temple or mosque roofs, observatories, rotundas, and fantasy tower crowns. Prefer it over manually stacking many `Platform` components. Do not invent `TajMahalDome`, `MosqueDome`, or landmark-specific dome types.
 
 Use `RailingRun` for bounded posts and rails along decks, bridges, walls, and balconies. Prefer it over manually listing many posts. Use `postSpacing` for rhythm and `includeMidRail` for extra detail.
 

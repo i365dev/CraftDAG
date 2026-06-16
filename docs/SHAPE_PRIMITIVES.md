@@ -111,6 +111,49 @@ Example:
 }
 ```
 
+### SteppedDome
+
+`SteppedDome` represents a bounded Minecraft-style dome approximation made of stacked shrinking tiers.
+
+Use it for:
+
+- Taj-style central domes
+- temple and mosque roofs
+- observatories and rotundas
+- fantasy tower crowns
+- palace pavilion caps
+
+Do not use it for exact smooth curves, freeform meshes, organic sculptures, or landmark-specific component types such as `TajMahalDome`.
+
+Key options:
+
+- `levels`: positive integer tier count; defaults to the placement height
+- `insetPerLevel`: non-negative integer shrink amount per tier; defaults to `1`
+- `hollow`: optional boolean; when `true`, each tier emits perimeter bands instead of one filled box
+
+The engine rejects configurations where width, length, levels, or inset collapse any emitted dome level.
+
+Example:
+
+```json
+{
+  "id": "main_dome",
+  "type": "SteppedDome",
+  "placement": {
+    "anchor": { "x": 20, "y": 18, "z": 20 },
+    "size": { "width": 17, "height": 9, "length": 17 }
+  },
+  "materials": {
+    "main": "minecraft:smooth_quartz"
+  },
+  "options": {
+    "levels": 5,
+    "insetPerLevel": 2,
+    "hollow": false
+  }
+}
+```
+
 ### RailingRun
 
 `RailingRun` represents a bounded run of posts and horizontal rails.

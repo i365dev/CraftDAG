@@ -219,6 +219,13 @@ export interface VerticalSetbackVolumeOptions {
 }
 export type VerticalSetbackVolumeComponent = BaseComponentNode<"VerticalSetbackVolume", AnchoredComponentPlacement, VerticalSetbackVolumeOptions>;
 
+export interface SteppedDomeOptions {
+  levels?: number;
+  insetPerLevel?: number;
+  hollow?: boolean;
+}
+export type SteppedDomeComponent = BaseComponentNode<"SteppedDome", AnchoredComponentPlacement, SteppedDomeOptions>;
+
 export interface RailingRunOptions {
   axis?: "x" | "z";
   postSpacing?: number;
@@ -305,6 +312,7 @@ export type AssemblyComponentNode =
   | TaperedVolumeComponent
   | SteppedTierComponent
   | VerticalSetbackVolumeComponent
+  | SteppedDomeComponent
   | RailingRunComponent
   | ArcadeRunComponent
   | SupportBracketComponent

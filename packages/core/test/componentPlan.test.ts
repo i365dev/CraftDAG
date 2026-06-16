@@ -1075,6 +1075,134 @@ describe("ComponentPlan", () => {
     }
   });
 
+  it("expands SteppedDome components for landmark roofs", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Stepped Dome Study",
+      bounds: { width: 20, height: 12, length: 20 },
+      palette: {
+        roof: "minecraft:smooth_quartz",
+      },
+      components: [
+        {
+          id: "main_dome",
+          type: "SteppedDome",
+          role: "taj_style_central_dome",
+          placement: {
+            anchor: { x: 2, y: 1, z: 2 },
+            size: { width: 9, height: 5, length: 9 },
+          },
+          options: {
+            levels: 5,
+            insetPerLevel: 1,
+          },
+        },
+      ],
+    };
+
+    const validated = validateComponentPlan(plan);
+    expect(validated.components?.[0]).toMatchObject({ type: "SteppedDome" });
+
+    const craftDag = expandComponentPlan(plan);
+    expect(craftDag.nodes.map((node) => node.id)).toEqual([
+      "main_dome__dome_0",
+      "main_dome__dome_1",
+      "main_dome__dome_2",
+      "main_dome__dome_3",
+      "main_dome__dome_4",
+    ]);
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "main_dome__dome_0",
+      params: {
+        from: [2, 1, 2],
+        to: [10, 1, 10],
+        block: "roof",
+      },
+    });
+    expect(craftDag.nodes[4]).toMatchObject({
+      id: "main_dome__dome_4",
+      params: {
+        from: [6, 5, 6],
+        to: [6, 5, 6],
+      },
+    });
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("expands hollow SteppedDome components as perimeter tiers", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Hollow Dome Study",
+      bounds: { width: 16, height: 8, length: 16 },
+      palette: {
+        roof: "minecraft:smooth_quartz",
+      },
+      components: [
+        {
+          id: "hollow_dome",
+          type: "SteppedDome",
+          placement: {
+            anchor: { x: 1, y: 1, z: 1 },
+            size: { width: 7, height: 3, length: 7 },
+          },
+          options: {
+            levels: 3,
+            hollow: true,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+    expect(craftDag.nodes.map((node) => node.id)).toContain("hollow_dome__dome_0_front");
+    expect(craftDag.nodes.map((node) => node.id)).toContain("hollow_dome__dome_0_right");
+    expect(craftDag.nodes[0]).toMatchObject({
+      id: "hollow_dome__dome_0_front",
+      params: {
+        from: [1, 1, 1],
+        to: [7, 1, 1],
+      },
+    });
+  });
+
+  it("rejects SteppedDome components whose insets collapse a level", () => {
+    const invalid: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Bad Dome",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        roof: "minecraft:smooth_quartz",
+      },
+      components: [
+        {
+          id: "collapsed_dome",
+          type: "SteppedDome",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 5, height: 4, length: 5 },
+          },
+          options: {
+            levels: 4,
+            insetPerLevel: 1,
+          },
+        },
+      ],
+    };
+
+    try {
+      validateComponentPlan(invalid);
+      throw new Error("Expected validation to fail");
+    } catch (error) {
+      expect(diagnosticsFromError(error)).toEqual([
+        expect.objectContaining({
+          stage: "component-validation",
+          code: "INVALID_STEPPED_DOME_INSET",
+          componentId: "collapsed_dome",
+        }),
+      ]);
+    }
+  });
+
   it("expands ArcadeRun and SupportBracket components for facade and cantilever support", () => {
     const plan: ComponentPlanDocument = {
       version: "0.1",

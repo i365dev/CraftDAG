@@ -1,0 +1,190 @@
+{
+  "version": "0.1",
+  "name": "Taj Dome Study",
+  "policy": {
+    "sizeTier": "large"
+  },
+  "bounds": {
+    "width": 64,
+    "height": 36,
+    "length": 64
+  },
+  "palette": {
+    "foundation": "minecraft:smooth_quartz",
+    "wall": "minecraft:smooth_quartz",
+    "floor": "minecraft:polished_diorite",
+    "roof": "minecraft:smooth_quartz",
+    "trim": "minecraft:gold_block",
+    "glass": "minecraft:light_blue_stained_glass",
+    "door": "minecraft:dark_oak_door"
+  },
+  "components": [
+    {
+      "id": "marble_plinth",
+      "type": "SteppedTier",
+      "role": "raised_marble_plinth",
+      "placement": {
+        "anchor": {
+          "x": 6,
+          "y": 0,
+          "z": 6
+        },
+        "size": {
+          "width": 52,
+          "height": 4,
+          "length": 52
+        }
+      },
+      "options": {
+        "levels": 2,
+        "stepHeight": 2,
+        "insetPerLevel": 2
+      }
+    },
+    {
+      "id": "central_mausoleum",
+      "type": "RoomShell",
+      "role": "central_mausoleum_body",
+      "inputs": [
+        {
+          "ref": "marble_plinth"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 18,
+          "y": 4,
+          "z": 18
+        },
+        "size": {
+          "width": 28,
+          "height": 14,
+          "length": 28
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "front_iwan",
+      "type": "ArcadeRun",
+      "role": "front_monumental_arch",
+      "inputs": [
+        {
+          "ref": "central_mausoleum"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 22,
+          "y": 5,
+          "z": 17
+        },
+        "size": {
+          "width": 20,
+          "height": 10,
+          "length": 2
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 3,
+        "pierWidth": 2,
+        "archHeight": 5
+      }
+    },
+    {
+      "id": "main_dome",
+      "type": "SteppedDome",
+      "role": "taj_style_central_dome",
+      "inputs": [
+        {
+          "ref": "central_mausoleum"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 21,
+          "y": 18,
+          "z": 21
+        },
+        "size": {
+          "width": 22,
+          "height": 10,
+          "length": 22
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "options": {
+        "levels": 6,
+        "insetPerLevel": 2,
+        "hollow": false
+      }
+    },
+    {
+      "id": "dome_finial",
+      "type": "SupportPost",
+      "role": "gold_finial",
+      "inputs": [
+        {
+          "ref": "main_dome"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 31,
+          "y": 28,
+          "z": 31
+        },
+        "size": {
+          "width": 2,
+          "height": 5,
+          "length": 2
+        }
+      },
+      "materials": {
+        "main": "trim"
+      }
+    },
+    {
+      "id": "corner_chhatri",
+      "type": "SteppedDome",
+      "role": "corner_kiosk_dome",
+      "inputs": [
+        {
+          "ref": "marble_plinth"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 10,
+          "y": 12,
+          "z": 10
+        },
+        "size": {
+          "width": 9,
+          "height": 5,
+          "length": 9
+        }
+      },
+      "options": {
+        "levels": 5,
+        "insetPerLevel": 1
+      }
+    },
+    {
+      "id": "corner_chhatris",
+      "type": "Repeat",
+      "placement": {
+        "source": "corner_chhatri",
+        "axis": "x",
+        "count": 2,
+        "step": 35
+      }
+    }
+  ]
+}

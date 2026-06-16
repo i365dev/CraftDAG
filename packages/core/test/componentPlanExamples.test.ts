@@ -26,6 +26,7 @@ describe("ComponentPlan large examples", () => {
     "sectioned-wall.componentplan.json",
     "ship-bow-shape.componentplan.json",
     "stair-run-multilevel.componentplan.json",
+    "taj-dome-study.componentplan.json",
   ];
 
   for (const example of examples) {
@@ -50,6 +51,7 @@ describe("ComponentPlan large examples", () => {
         component.type === "TaperedVolume" ||
         component.type === "SteppedTier" ||
         component.type === "VerticalSetbackVolume" ||
+        component.type === "SteppedDome" ||
         component.type === "RailingRun" ||
         component.type === "ArcadeRun" ||
         component.type === "SupportBracket" ||
@@ -76,6 +78,7 @@ describe("ComponentPlan large examples", () => {
           node.id.includes("__slice_") ||
           node.id.includes("__tier_") ||
           node.id.includes("__setback_") ||
+          node.id.includes("__dome_") ||
           node.id.includes("__post_") ||
           node.id.includes("__pier_") ||
           node.id.includes("__bracket_") ||

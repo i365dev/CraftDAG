@@ -190,6 +190,7 @@ Start with a small component vocabulary:
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
+- `SteppedDome`
 - `RailingRun`
 - `ArcadeRun`
 - `SupportBracket`
@@ -228,6 +229,8 @@ Use `TaperedVolume` for bounded Minecraft-style tapered massing, such as ship bo
 Use `SteppedTier` for large horizontal tiering, such as pyramids, amphitheater seating, palace podiums, stepped plinths, and terraced roofs. It expands into stacked horizontal tiers inside one anchored bounding box. Use `options.axis` to shrink along `"x"`, `"z"`, or `"both"`; keep `levels`, `stepHeight`, and `insetPerLevel` small enough that no tier collapses.
 
 Use `VerticalSetbackVolume` for tall landmark massing with discrete setbacks, such as Burj-style towers, pagodas, tiered spires, and skyscraper podiums. It expands into stacked vertical segments. Prefer it over many manual `Platform` or `TaperedVolume` components when the shape is primarily height-driven.
+
+Use `SteppedDome` for bounded Minecraft-style dome approximations, such as Taj-style central domes, temple or mosque roofs, observatories, rotundas, and fantasy tower caps. It expands into stacked shrinking tiers inside one anchored box. Use it when the authoring intent is a dome-like roof or cap; use `SteppedTier` for horizontal terraces and `VerticalSetbackVolume` for tall setback towers. Do not add landmark-specific dome component types.
 
 Use `RailingRun` for repeated posts plus horizontal rails along bridges, decks, walls, balconies, and platforms. It is a bounded run, not a fence/pathfinding simulator. Use `postSpacing`, `includeTopRail`, and `includeMidRail` for controlled detail.
 
@@ -298,7 +301,7 @@ Supported policies:
 Default policies:
 
 - `Foundation`: `must_connect_to_ground`
-- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
+- `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SteppedDome`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
 - `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
 - `Repeat`, `Instance`: `must_connect_to_input`
 
@@ -362,7 +365,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SteppedDome`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 

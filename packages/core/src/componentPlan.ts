@@ -196,6 +196,21 @@ const VerticalSetbackVolumeComponentSchema = z.object({
   }).strict().optional(),
 }).strict();
 
+const SteppedDomeComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("SteppedDome"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+  options: z.object({
+    levels: PositiveIntSchema.optional(),
+    insetPerLevel: NonNegativeIntSchema.optional(),
+    hollow: z.boolean().optional(),
+  }).strict().optional(),
+}).strict();
+
 const RailingRunComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("RailingRun"),
@@ -424,6 +439,7 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   TaperedVolumeComponentSchema,
   SteppedTierComponentSchema,
   VerticalSetbackVolumeComponentSchema,
+  SteppedDomeComponentSchema,
   RailingRunComponentSchema,
   ArcadeRunComponentSchema,
   SupportBracketComponentSchema,
@@ -452,6 +468,7 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   TaperedVolumeComponentSchema,
   SteppedTierComponentSchema,
   VerticalSetbackVolumeComponentSchema,
+  SteppedDomeComponentSchema,
   RailingRunComponentSchema,
   ArcadeRunComponentSchema,
   SupportBracketComponentSchema,
@@ -503,7 +520,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "SteppedDome" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "SupportPost";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -946,6 +963,8 @@ function expandComponentToNodes(
       return expandSteppedTier(component, componentMap, unit);
     case "VerticalSetbackVolume":
       return expandVerticalSetbackVolume(component, componentMap, unit);
+    case "SteppedDome":
+      return expandSteppedDome(component, componentMap, unit);
     case "RailingRun":
       return expandRailingRun(component, componentMap, unit);
     case "ArcadeRun":
@@ -1174,6 +1193,24 @@ function expandVerticalSetbackVolume(
     params: {
       ...scaledBox(placement, unit),
       block: material(component, "main", "wall"),
+    },
+  }));
+}
+
+function expandSteppedDome(
+  component: Extract<ComponentNode, { type: "SteppedDome" }>,
+  componentMap: Map<string, ComponentNode>,
+  unit: 1 | 2,
+  inputOverride?: { ref: string }[]
+): CraftDagNode[] {
+  const inputs = inputOverride ?? expandInputs(component, componentMap);
+  return steppedDomePlacements(component).map((placement) => ({
+    id: nodeId(component.id, placement.part),
+    type: "SolidBox",
+    inputs,
+    params: {
+      ...scaledBox(placement, unit),
+      block: material(component, "main", "roof"),
     },
   }));
 }
@@ -1494,6 +1531,20 @@ function validateShapeComponent(component: ComponentNode): void {
         componentId: component.id,
         message: `VerticalSetbackVolume "${component.id}" setbacks collapse one or more levels.`,
         repairHint: "Reduce levels/setbackPerLevel, choose a single axis, or increase placement.size width/length.",
+      });
+    }
+  }
+
+  if (component.type === "SteppedDome") {
+    const placements = steppedDomePlacements(component);
+    const levels = component.options?.levels ?? component.placement.size.height;
+    const minHorizontalSize = Math.min(component.placement.size.width, component.placement.size.length);
+    if (minHorizontalSize < 3 || !steppedDomeHasAllLevels(placements, levels)) {
+      throw componentValidationError({
+        code: "INVALID_STEPPED_DOME_INSET",
+        componentId: component.id,
+        message: `SteppedDome "${component.id}" dimensions collapse one or more dome levels.`,
+        repairHint: "Increase width/length, reduce levels, or reduce options.insetPerLevel.",
       });
     }
   }
@@ -1963,6 +2014,9 @@ function estimateComponentBlocks(
     case "VerticalSetbackVolume":
       return verticalSetbackVolumePlacements(component)
         .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
+    case "SteppedDome":
+      return steppedDomePlacements(component)
+        .reduce((total, placement) => total + componentVolume(placement.size) * unit * unit * unit, 0);
     case "RailingRun":
       return estimateRailingRunBlocks(component, unit);
     case "ArcadeRun":
@@ -2138,6 +2192,75 @@ function verticalSetbackVolumePlacements(component: Extract<ComponentNode, { typ
   }
 
   return placements;
+}
+
+function steppedDomePlacements(component: Extract<ComponentNode, { type: "SteppedDome" }>): Array<{
+  part: string;
+  anchor: { x: number; y: number; z: number };
+  size: ComponentSize;
+}> {
+  const { anchor, size } = component.placement;
+  const levels = component.options?.levels ?? size.height;
+  const insetPerLevel = component.options?.insetPerLevel ?? 1;
+  const hollow = component.options?.hollow ?? false;
+  const placements: Array<{ part: string; anchor: { x: number; y: number; z: number }; size: ComponentSize }> = [];
+
+  for (let level = 0; level < levels; level += 1) {
+    const yOffset = Math.floor((level * size.height) / levels);
+    const nextYOffset = Math.floor(((level + 1) * size.height) / levels);
+    const height = nextYOffset - yOffset;
+    const inset = level * insetPerLevel;
+    const width = size.width - inset * 2;
+    const length = size.length - inset * 2;
+
+    if (height <= 0 || width <= 0 || length <= 0) {
+      continue;
+    }
+
+    const levelAnchor = { x: anchor.x + inset, y: anchor.y + yOffset, z: anchor.z + inset };
+    if (!hollow || width <= 2 || length <= 2) {
+      placements.push({
+        part: `dome_${level}`,
+        anchor: levelAnchor,
+        size: { width, height, length },
+      });
+      continue;
+    }
+
+    placements.push({
+      part: `dome_${level}_front`,
+      anchor: levelAnchor,
+      size: { width, height, length: 1 },
+    });
+    placements.push({
+      part: `dome_${level}_back`,
+      anchor: { x: levelAnchor.x, y: levelAnchor.y, z: levelAnchor.z + length - 1 },
+      size: { width, height, length: 1 },
+    });
+    placements.push({
+      part: `dome_${level}_left`,
+      anchor: { x: levelAnchor.x, y: levelAnchor.y, z: levelAnchor.z + 1 },
+      size: { width: 1, height, length: length - 2 },
+    });
+    placements.push({
+      part: `dome_${level}_right`,
+      anchor: { x: levelAnchor.x + width - 1, y: levelAnchor.y, z: levelAnchor.z + 1 },
+      size: { width: 1, height, length: length - 2 },
+    });
+  }
+
+  return placements;
+}
+
+function steppedDomeHasAllLevels(placements: Array<{ part: string }>, levels: number): boolean {
+  const emittedLevels = new Set<number>();
+  for (const placement of placements) {
+    const match = /^dome_(\d+)/.exec(placement.part);
+    if (match) {
+      emittedLevels.add(Number(match[1]));
+    }
+  }
+  return emittedLevels.size === levels;
 }
 
 function insetBox(
@@ -2673,7 +2796,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
       });
     }
 
@@ -2752,6 +2875,8 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       return [{ role: "main", value: "foundation" }];
     case "VerticalSetbackVolume":
       return [{ role: "main", value: "wall" }];
+    case "SteppedDome":
+      return [{ role: "main", value: "roof" }];
     case "RailingRun": {
       const fallbacks: { role: string; value: string }[] = [];
       if (component.options?.includePosts ?? true) {
@@ -2861,6 +2986,8 @@ function outputPart(component: ComponentNode): string {
       return "tier_0";
     case "VerticalSetbackVolume":
       return "setback_0";
+    case "SteppedDome":
+      return component.options?.hollow ? "dome_0_front" : "dome_0";
     case "RailingRun":
       return railingOutputPart(component);
     case "ArcadeRun":
@@ -2948,7 +3075,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
     });
   }
 
@@ -3046,6 +3173,8 @@ function expandRepeatableComponent(
       return expandSteppedTier(repeated, componentMap, unit, inputs);
     case "VerticalSetbackVolume":
       return expandVerticalSetbackVolume(repeated, componentMap, unit, inputs);
+    case "SteppedDome":
+      return expandSteppedDome(repeated, componentMap, unit, inputs);
     case "RailingRun":
       return expandRailingRun(repeated, componentMap, unit, inputs);
     case "ArcadeRun":
@@ -3412,6 +3541,7 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "TaperedVolume" ||
     component.type === "SteppedTier" ||
     component.type === "VerticalSetbackVolume" ||
+    component.type === "SteppedDome" ||
     component.type === "RailingRun" ||
     component.type === "ArcadeRun" ||
     component.type === "SupportBracket" ||

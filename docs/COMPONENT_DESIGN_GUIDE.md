@@ -68,6 +68,7 @@ Examples:
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
+- `SteppedDome`
 - `ArcadeRun`
 - `TreeCanopy`
 - `OrganicPatch`
@@ -262,6 +263,7 @@ If an existing component plus clearer docs solves the problem, do not add a new 
 - `TaperedVolume`: axis-based tapered massing
 - `SteppedTier`: horizontal stepped tiers
 - `VerticalSetbackVolume`: vertical setback segments
+- `SteppedDome`: bounded stepped dome approximation
 - `GableRoof`: pitched roof volume
 - `FlatRoof`: flat cover/cap/canopy
 
@@ -314,6 +316,7 @@ Prefer:
 TaperedVolume
 SteppedTier
 VerticalSetbackVolume
+SteppedDome
 ArcadeRun
 StairRun
 TreeCanopy
