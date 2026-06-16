@@ -1,0 +1,620 @@
+{
+  "version": "0.1",
+  "name": "Xi'an Bell Tower Landmark Study",
+  "grid": {
+    "unitBlocks": 1
+  },
+  "policy": {
+    "sizeTier": "monumental"
+  },
+  "bounds": {
+    "width": 88,
+    "height": 52,
+    "length": 88
+  },
+  "palette": {
+    "foundation": "minecraft:deepslate_bricks",
+    "wall": "minecraft:stripped_oak_wood",
+    "floor": "minecraft:smooth_stone",
+    "roof": "minecraft:green_concrete",
+    "trim": "minecraft:gold_block",
+    "glass": "minecraft:yellow_stained_glass",
+    "door": "minecraft:dark_oak_door"
+  },
+  "assemblies": [
+    {
+      "id": "corner_balcony_post_module",
+      "bounds": {
+        "width": 2,
+        "height": 7,
+        "length": 2
+      },
+      "components": [
+        {
+          "id": "post",
+          "type": "SupportPost",
+          "role": "painted_wood_balcony_column",
+          "placement": {
+            "anchor": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "size": {
+              "width": 2,
+              "height": 7,
+              "length": 2
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "city_center_plaza",
+      "type": "Foundation",
+      "role": "road_intersection_plaza",
+      "placement": {
+        "anchor": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "size": {
+          "width": 88,
+          "height": 1,
+          "length": 88
+        }
+      }
+    },
+    {
+      "id": "brick_pedestal",
+      "type": "RoomShell",
+      "role": "square_masonry_pedestal_with_cross_passages",
+      "inputs": [
+        {
+          "ref": "city_center_plaza"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 16,
+          "y": 1,
+          "z": 16
+        },
+        "size": {
+          "width": 56,
+          "height": 9,
+          "length": 56
+        }
+      },
+      "materials": {
+        "main": "foundation"
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "north_arch_passage",
+      "type": "Opening",
+      "role": "north_south_cross_street_arch",
+      "placement": {
+        "target": "brick_pedestal",
+        "wall": "front",
+        "offset": 23,
+        "y": 2,
+        "width": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "south_arch_passage",
+      "type": "Opening",
+      "role": "north_south_cross_street_arch",
+      "placement": {
+        "target": "brick_pedestal",
+        "wall": "back",
+        "offset": 23,
+        "y": 2,
+        "width": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "west_arch_passage",
+      "type": "Opening",
+      "role": "east_west_cross_street_arch",
+      "placement": {
+        "target": "brick_pedestal",
+        "wall": "left",
+        "offset": 23,
+        "y": 2,
+        "width": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "east_arch_passage",
+      "type": "Opening",
+      "role": "east_west_cross_street_arch",
+      "placement": {
+        "target": "brick_pedestal",
+        "wall": "right",
+        "offset": 23,
+        "y": 2,
+        "width": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "upper_podium",
+      "type": "SteppedTier",
+      "role": "broad_stepped_tower_platform",
+      "inputs": [
+        {
+          "ref": "brick_pedestal"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 18,
+          "y": 10,
+          "z": 18
+        },
+        "size": {
+          "width": 52,
+          "height": 4,
+          "length": 52
+        }
+      },
+      "materials": {
+        "main": "floor"
+      },
+      "options": {
+        "axis": "both",
+        "levels": 2,
+        "stepHeight": 2,
+        "insetPerLevel": 2
+      }
+    },
+    {
+      "id": "front_stair",
+      "type": "StairRun",
+      "role": "visitor_stairs_to_pedestal",
+      "inputs": [
+        {
+          "ref": "city_center_plaza"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 41,
+          "y": 1,
+          "z": 6
+        },
+        "size": {
+          "width": 6,
+          "height": 9,
+          "length": 12
+        }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "timber_hall_lower",
+      "type": "RoomShell",
+      "role": "lower_timber_hall",
+      "inputs": [
+        {
+          "ref": "upper_podium"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 25,
+          "y": 14,
+          "z": 25
+        },
+        "size": {
+          "width": 38,
+          "height": 9,
+          "length": 38
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "lower_hall_front_entry",
+      "type": "Opening",
+      "role": "public_entry_into_lower_bell_tower_hall",
+      "placement": {
+        "target": "timber_hall_lower",
+        "wall": "front",
+        "offset": 16,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "interior_stair_to_upper_hall",
+      "type": "StairRun",
+      "role": "visitor_stair_between_bell_tower_levels",
+      "inputs": [
+        {
+          "ref": "timber_hall_lower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 42,
+          "y": 14,
+          "z": 34
+        },
+        "size": {
+          "width": 4,
+          "height": 10,
+          "length": 12
+        }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "lower_front_arcade",
+      "type": "ArcadeRun",
+      "role": "painted_lower_floor_window_bays",
+      "inputs": [
+        {
+          "ref": "timber_hall_lower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 29,
+          "y": 16,
+          "z": 24
+        },
+        "size": {
+          "width": 30,
+          "height": 6,
+          "length": 2
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 5,
+        "pierWidth": 1,
+        "archHeight": 3
+      }
+    },
+    {
+      "id": "lower_back_arcade",
+      "type": "ArcadeRun",
+      "role": "painted_lower_floor_window_bays",
+      "inputs": [
+        {
+          "ref": "timber_hall_lower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 29,
+          "y": 16,
+          "z": 62
+        },
+        "size": {
+          "width": 30,
+          "height": 6,
+          "length": 2
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 5,
+        "pierWidth": 1,
+        "archHeight": 3
+      }
+    },
+    {
+      "id": "lower_eave_slab",
+      "type": "Platform",
+      "role": "wide_first_eave_green_tiles",
+      "inputs": [
+        {
+          "ref": "timber_hall_lower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 20,
+          "y": 23,
+          "z": 20
+        },
+        "size": {
+          "width": 48,
+          "height": 1,
+          "length": 48
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 6
+      }
+    },
+    {
+      "id": "upper_balcony_floor",
+      "type": "Platform",
+      "role": "second_storey_balcony_floor",
+      "inputs": [
+        {
+          "ref": "lower_eave_slab"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 27,
+          "y": 24,
+          "z": 27
+        },
+        "size": {
+          "width": 34,
+          "height": 1,
+          "length": 34
+        }
+      }
+    },
+    {
+      "id": "timber_hall_upper",
+      "type": "RoomShell",
+      "role": "upper_timber_hall",
+      "inputs": [
+        {
+          "ref": "upper_balcony_floor"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 30,
+          "y": 25,
+          "z": 30
+        },
+        "size": {
+          "width": 28,
+          "height": 7,
+          "length": 28
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": false
+      }
+    },
+    {
+      "id": "upper_hall_front_entry",
+      "type": "Opening",
+      "role": "public_entry_into_upper_bell_tower_hall",
+      "placement": {
+        "target": "timber_hall_upper",
+        "wall": "front",
+        "offset": 11,
+        "y": 1,
+        "width": 6,
+        "height": 4
+      }
+    },
+    {
+      "id": "upper_front_arcade",
+      "type": "ArcadeRun",
+      "role": "upper_floor_window_bays",
+      "inputs": [
+        {
+          "ref": "timber_hall_upper"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 33,
+          "y": 26,
+          "z": 29
+        },
+        "size": {
+          "width": 22,
+          "height": 5,
+          "length": 2
+        }
+      },
+      "options": {
+        "axis": "x",
+        "bayCount": 4,
+        "pierWidth": 1,
+        "archHeight": 3
+      }
+    },
+    {
+      "id": "roof_corner_nw",
+      "type": "Instance",
+      "role": "visible_timber_corner_column",
+      "inputs": [
+        {
+          "ref": "upper_balcony_floor"
+        }
+      ],
+      "placement": {
+        "assembly": "corner_balcony_post_module",
+        "anchor": {
+          "x": 29,
+          "y": 25,
+          "z": 29
+        }
+      }
+    },
+    {
+      "id": "roof_corner_ne",
+      "type": "Instance",
+      "role": "visible_timber_corner_column",
+      "inputs": [
+        {
+          "ref": "upper_balcony_floor"
+        }
+      ],
+      "placement": {
+        "assembly": "corner_balcony_post_module",
+        "anchor": {
+          "x": 57,
+          "y": 25,
+          "z": 29
+        }
+      }
+    },
+    {
+      "id": "roof_corner_sw",
+      "type": "Instance",
+      "role": "visible_timber_corner_column",
+      "inputs": [
+        {
+          "ref": "upper_balcony_floor"
+        }
+      ],
+      "placement": {
+        "assembly": "corner_balcony_post_module",
+        "anchor": {
+          "x": 29,
+          "y": 25,
+          "z": 57
+        }
+      }
+    },
+    {
+      "id": "roof_corner_se",
+      "type": "Instance",
+      "role": "visible_timber_corner_column",
+      "inputs": [
+        {
+          "ref": "upper_balcony_floor"
+        }
+      ],
+      "placement": {
+        "assembly": "corner_balcony_post_module",
+        "anchor": {
+          "x": 57,
+          "y": 25,
+          "z": 57
+        }
+      }
+    },
+    {
+      "id": "main_green_roof",
+      "type": "SteppedDome",
+      "role": "four_sided_pavilion_roof_approximated_as_stepped_spire",
+      "inputs": [
+        {
+          "ref": "timber_hall_upper"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 24,
+          "y": 32,
+          "z": 24
+        },
+        "size": {
+          "width": 40,
+          "height": 10,
+          "length": 40
+        }
+      },
+      "materials": {
+        "main": "roof"
+      },
+      "options": {
+        "levels": 5,
+        "insetPerLevel": 3,
+        "hollow": false
+      },
+      "structural": {
+        "supportPolicy": "decorative",
+        "maxCantilever": 8
+      }
+    },
+    {
+      "id": "gold_roof_finial",
+      "type": "SupportPost",
+      "role": "golden_roof_finial",
+      "inputs": [
+        {
+          "ref": "main_green_roof"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 43,
+          "y": 42,
+          "z": 43
+        },
+        "size": {
+          "width": 2,
+          "height": 5,
+          "length": 2
+        }
+      },
+      "materials": {
+        "main": "trim"
+      },
+      "structural": {
+        "supportPolicy": "decorative"
+      }
+    },
+    {
+      "id": "balcony_front_rail",
+      "type": "RailingRun",
+      "role": "open_balcony_rail",
+      "inputs": [
+        {
+          "ref": "upper_podium"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 20,
+          "y": 14,
+          "z": 19
+        },
+        "size": {
+          "width": 48,
+          "height": 3,
+          "length": 1
+        }
+      },
+      "options": {
+        "axis": "x",
+        "postSpacing": 4,
+        "includeMidRail": true
+      }
+    }
+  ]
+}
