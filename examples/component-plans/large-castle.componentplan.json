@@ -387,6 +387,25 @@
       "placement": { "over": "gatehouse" }
     },
     {
+      "id": "north_wall_access_stair",
+      "type": "StairRun",
+      "role": "courtyard_to_wall_walk_access",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 19, "y": 2, "z": 17 },
+        "size": { "width": 3, "height": 8, "length": 8 }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "negative",
+        "includeSideRails": true
+      }
+    },
+    {
       "id": "keep",
       "type": "RoomShell",
       "inputs": [{ "ref": "courtyard_floor" }],
@@ -395,6 +414,25 @@
         "size": { "width": 22, "height": 16, "length": 18 }
       },
       "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "keep_upper_stair",
+      "type": "StairRun",
+      "role": "keep_upper_level_access",
+      "inputs": [{ "ref": "keep" }],
+      "placement": {
+        "anchor": { "x": 32, "y": 2, "z": 35 },
+        "size": { "width": 3, "height": 12, "length": 12 }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
     },
     {
       "id": "keep_door",
