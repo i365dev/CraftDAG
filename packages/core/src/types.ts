@@ -219,6 +219,16 @@ export interface VerticalSetbackVolumeOptions {
 }
 export type VerticalSetbackVolumeComponent = BaseComponentNode<"VerticalSetbackVolume", AnchoredComponentPlacement, VerticalSetbackVolumeOptions>;
 
+export interface FloorStackOptions {
+  levels?: number;
+  levelHeight?: number;
+  setbackPerLevel?: number;
+  stairStyle?: "ladder" | "stair" | "none";
+  stairSide?: "front" | "back" | "left" | "right";
+}
+export type FloorStackComponent = BaseComponentNode<"FloorStack", AnchoredComponentPlacement, FloorStackOptions>;
+
+
 export interface SteppedDomeOptions {
   levels?: number;
   insetPerLevel?: number;
@@ -312,6 +322,7 @@ export type AssemblyComponentNode =
   | TaperedVolumeComponent
   | SteppedTierComponent
   | VerticalSetbackVolumeComponent
+  | FloorStackComponent
   | SteppedDomeComponent
   | RailingRunComponent
   | ArcadeRunComponent
