@@ -153,6 +153,8 @@ describe("CLI Integration", () => {
     expect(layers.layers.length).toBeGreaterThan(0);
     expect(support.ok).toBe(true);
     expect(support.totalBlocks).toBeGreaterThan(0);
+    expect(support.summary.qualityGate.status).toBe("pass");
+    expect(support.summary.diagnostics.totalDiagnostics).toBe(0);
     expect(Array.isArray(support.diagnostics)).toBe(true);
   });
 

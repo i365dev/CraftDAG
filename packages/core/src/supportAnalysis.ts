@@ -32,6 +32,31 @@ export interface SupportDiagnostic extends Diagnostic {
   maxCantilever?: number;
 }
 
+export type SupportDiagnosticClassification = "blocking" | "review" | "allowed";
+
+export interface SupportDiagnosticSummary {
+  totalDiagnostics: number;
+  blockingDiagnostics: number;
+  reviewDiagnostics: number;
+  allowedDiagnostics: number;
+  byCode: Record<string, number>;
+}
+
+export interface SupportQualityGateSummary {
+  status: "pass" | "review" | "block";
+  blockingReasons: string[];
+  reviewReasons: string[];
+}
+
+export interface SupportAnalysisSummary {
+  totalBlocks: number;
+  verticalUnsupportedBlocks: number;
+  disconnectedBlocks: number;
+  largeCantileverBlocks: number;
+  diagnostics: SupportDiagnosticSummary;
+  qualityGate: SupportQualityGateSummary;
+}
+
 export interface SupportSourceSummary {
   sourceNodeId: string;
   componentId?: string;
@@ -59,6 +84,7 @@ export interface SupportAnalysisOptions {
 }
 
 export interface SupportAnalysisResult {
+  summary: SupportAnalysisSummary;
   diagnostics: SupportDiagnostic[];
   sourceSummaries: SupportSourceSummary[];
   totalBlocks: number;
@@ -157,14 +183,91 @@ function analyzeVoxelSupportInternal(
     ),
   ];
 
-  return {
-    diagnostics: limitDiagnostics(diagnostics, options.maxDiagnosticsPerCode ?? 20, options.maxDiagnosticsPerSource),
-    sourceSummaries: summarizeSources(blocks, verticalUnsupported, disconnected, largeCantilever, ignoredSourceNodeIdPrefixes, options),
+  const limitedDiagnostics = limitDiagnostics(diagnostics, options.maxDiagnosticsPerCode ?? 20, options.maxDiagnosticsPerSource);
+  const sourceSummaries = summarizeSources(blocks, verticalUnsupported, disconnected, largeCantilever, ignoredSourceNodeIdPrefixes, options);
+  const totals = {
     totalBlocks: blocks.length,
     verticalUnsupportedBlocks: verticalUnsupported.length,
     disconnectedBlocks: disconnected.length,
     largeCantileverBlocks: largeCantilever.length,
   };
+
+  return {
+    summary: summarizeSupportAnalysis(limitedDiagnostics, totals),
+    diagnostics: limitedDiagnostics,
+    sourceSummaries,
+    totalBlocks: blocks.length,
+    verticalUnsupportedBlocks: verticalUnsupported.length,
+    disconnectedBlocks: disconnected.length,
+    largeCantileverBlocks: largeCantilever.length,
+  };
+}
+
+export function classifySupportDiagnostic(diagnostic: SupportDiagnostic): SupportDiagnosticClassification {
+  if (diagnostic.code.startsWith("ALLOWED_")) {
+    return "allowed";
+  }
+
+  switch (diagnostic.code) {
+    case "DISCONNECTED_COMPONENT":
+    case "FLOATING_SOURCE_NODE":
+      return "blocking";
+    case "LARGE_CANTILEVER":
+    case "NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED":
+      return "review";
+    default:
+      return "review";
+  }
+}
+
+function summarizeSupportAnalysis(
+  diagnostics: SupportDiagnostic[],
+  totals: Pick<SupportAnalysisSummary, "totalBlocks" | "verticalUnsupportedBlocks" | "disconnectedBlocks" | "largeCantileverBlocks">
+): SupportAnalysisSummary {
+  const byCode: Record<string, number> = {};
+  let blockingDiagnostics = 0;
+  let reviewDiagnostics = 0;
+  let allowedDiagnostics = 0;
+
+  for (const diagnostic of diagnostics) {
+    byCode[diagnostic.code] = (byCode[diagnostic.code] ?? 0) + 1;
+
+    switch (classifySupportDiagnostic(diagnostic)) {
+      case "blocking":
+        blockingDiagnostics += 1;
+        break;
+      case "review":
+        reviewDiagnostics += 1;
+        break;
+      case "allowed":
+        allowedDiagnostics += 1;
+        break;
+    }
+  }
+
+  return {
+    ...totals,
+    diagnostics: {
+      totalDiagnostics: diagnostics.length,
+      blockingDiagnostics,
+      reviewDiagnostics,
+      allowedDiagnostics,
+      byCode,
+    },
+    qualityGate: {
+      status: blockingDiagnostics > 0 ? "block" : reviewDiagnostics > 0 ? "review" : "pass",
+      blockingReasons: blockingDiagnostics > 0 ? blockingReasonCodes(byCode) : [],
+      reviewReasons: reviewDiagnostics > 0 ? reviewReasonCodes(byCode) : [],
+    },
+  };
+}
+
+function blockingReasonCodes(byCode: Record<string, number>): string[] {
+  return ["DISCONNECTED_COMPONENT", "FLOATING_SOURCE_NODE"].filter((code) => (byCode[code] ?? 0) > 0);
+}
+
+function reviewReasonCodes(byCode: Record<string, number>): string[] {
+  return ["LARGE_CANTILEVER", "NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED"].filter((code) => (byCode[code] ?? 0) > 0);
 }
 
 export function defaultStructuralIntentForComponent(component: ComponentNode): Required<Pick<ComponentStructuralIntent, "supportPolicy">> & ComponentStructuralIntent {

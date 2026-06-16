@@ -62,6 +62,13 @@ describe("support analysis", () => {
     const result = analyzeComponentPlanSupport(plan);
 
     expect(result.disconnectedBlocks).toBe(9);
+    expect(result.summary.qualityGate.status).toBe("block");
+    expect(result.summary.diagnostics.blockingDiagnostics).toBe(2);
+    expect(result.summary.diagnostics.reviewDiagnostics).toBe(0);
+    expect(result.summary.qualityGate.blockingReasons).toEqual([
+      "DISCONNECTED_COMPONENT",
+      "FLOATING_SOURCE_NODE",
+    ]);
     expect(result.diagnostics).toContainEqual(expect.objectContaining({
       code: "DISCONNECTED_COMPONENT",
       sourceNodeId: "floating_platform__platform",
@@ -94,11 +101,15 @@ describe("support analysis", () => {
 
     expect(result.disconnectedBlocks).toBe(9);
     expect(result.diagnostics).toEqual([]);
+    expect(result.summary.qualityGate.status).toBe("pass");
+    expect(result.summary.diagnostics.allowedDiagnostics).toBe(0);
     expect(withAllowed.diagnostics).toContainEqual(expect.objectContaining({
       code: "ALLOWED_DISCONNECTED_COMPONENT",
       sourceNodeId: "floating_banner__platform",
       supportPolicy: "may_float",
     }));
+    expect(withAllowed.summary.qualityGate.status).toBe("pass");
+    expect(withAllowed.summary.diagnostics.allowedDiagnostics).toBe(2);
   });
 
   it("inherits instance structural policy for assembly children", () => {
@@ -224,6 +235,8 @@ describe("support analysis", () => {
     const result = analyzeComponentPlanSupport(plan);
 
     expect(result.disconnectedBlocks).toBe(0);
+    expect(result.summary.qualityGate.status).toBe("review");
+    expect(result.summary.diagnostics.reviewDiagnostics).toBe(1);
     expect(result.diagnostics).toContainEqual(expect.objectContaining({
       code: "NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED",
       sourceNodeId: "bridge_span__platform",
@@ -288,6 +301,24 @@ describe("support analysis", () => {
     expect(result.verticalUnsupportedBlocks).toBe(0);
     expect(result.largeCantileverBlocks).toBe(0);
     expect(result.diagnostics).toEqual([]);
+    expect(result.summary).toMatchObject({
+      totalBlocks: 3,
+      disconnectedBlocks: 0,
+      verticalUnsupportedBlocks: 0,
+      largeCantileverBlocks: 0,
+      diagnostics: {
+        totalDiagnostics: 0,
+        blockingDiagnostics: 0,
+        reviewDiagnostics: 0,
+        allowedDiagnostics: 0,
+        byCode: {},
+      },
+      qualityGate: {
+        status: "pass",
+        blockingReasons: [],
+        reviewReasons: [],
+      },
+    });
   });
 
   it("reports a disconnected floating voxel platform", () => {
@@ -363,6 +394,8 @@ describe("support analysis", () => {
     const result = analyzeVoxelSupport(voxelPlan(blocks), { maxCantilever: 2 });
 
     expect(result.largeCantileverBlocks).toBeGreaterThan(0);
+    expect(result.summary.qualityGate.status).toBe("review");
+    expect(result.summary.qualityGate.reviewReasons).toContain("LARGE_CANTILEVER");
     expect(result.diagnostics).toContainEqual(expect.objectContaining({
       code: "LARGE_CANTILEVER",
       sourceNodeId: "bridge_span",
