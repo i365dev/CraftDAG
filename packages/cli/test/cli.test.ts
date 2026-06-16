@@ -6,7 +6,11 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 describe("CLI Integration", () => {
   const cliPath = path.resolve(__dirname, "../dist/index.js");
   const tempJsonPath = path.resolve(__dirname, "temp-test.json");
+  const tempComponentJsonPath = path.resolve(__dirname, "temp-component-test.json");
+  const tempExpandedPath = path.resolve(__dirname, "temp-component-expanded.json");
+  const tempVoxelPath = path.resolve(__dirname, "temp-component.voxel.json");
   const tempSchemPath = path.resolve(__dirname, "temp-test.schem");
+  const tempComponentSchemPath = path.resolve(__dirname, "temp-component-test.schem");
 
   const validDoc = {
     version: "0.1",
@@ -25,8 +29,45 @@ describe("CLI Integration", () => {
     ],
   };
 
+  const validComponentPlan = {
+    version: "0.1",
+    name: "CLI Component Test House",
+    bounds: { width: 8, height: 8, length: 8 },
+    palette: {
+      foundation: "minecraft:cobblestone",
+      wall: "minecraft:oak_planks",
+      roof: "minecraft:spruce_planks",
+      glass: "minecraft:glass",
+      door: "minecraft:oak_door",
+    },
+    components: [
+      {
+        id: "foundation",
+        type: "Foundation",
+        placement: {
+          anchor: { x: 0, y: 0, z: 0 },
+          size: { width: 5, height: 1, length: 5 },
+        },
+      },
+      {
+        id: "room",
+        type: "RoomShell",
+        inputs: [{ ref: "foundation" }],
+        placement: {
+          anchor: { x: 0, y: 1, z: 0 },
+          size: { width: 5, height: 3, length: 5 },
+        },
+        options: {
+          includeFloor: false,
+          includeCeiling: false,
+        },
+      },
+    ],
+  };
+
   beforeAll(() => {
     fs.writeFileSync(tempJsonPath, JSON.stringify(validDoc, null, 2), "utf-8");
+    fs.writeFileSync(tempComponentJsonPath, JSON.stringify(validComponentPlan, null, 2), "utf-8");
   });
 
   afterAll(() => {
@@ -35,6 +76,11 @@ describe("CLI Integration", () => {
     }
     if (fs.existsSync(tempSchemPath)) {
       fs.unlinkSync(tempSchemPath);
+    }
+    for (const filePath of [tempComponentJsonPath, tempExpandedPath, tempVoxelPath, tempComponentSchemPath]) {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
   });
 
@@ -76,5 +122,44 @@ describe("CLI Integration", () => {
     const output = execSync(`node ${cliPath} export ${tempJsonPath} --format schem --out ${tempSchemPath} --data-version 3578`).toString();
     expect(output).toContain("✓ Sponge schematic exported successfully to");
     expect(fs.existsSync(tempSchemPath)).toBe(true);
+  });
+
+  it("should validate ComponentPlan JSON with machine-readable output", () => {
+    const output = execSync(`node ${cliPath} component validate ${tempComponentJsonPath} --json`).toString();
+    const result = JSON.parse(output);
+    expect(result).toEqual({ ok: true, diagnostics: [] });
+  });
+
+  it("should expand and compile ComponentPlan JSON with --out", () => {
+    execSync(`node ${cliPath} component expand ${tempComponentJsonPath} --out ${tempExpandedPath}`);
+    execSync(`node ${cliPath} component compile ${tempComponentJsonPath} --out ${tempVoxelPath}`);
+
+    const expanded = JSON.parse(fs.readFileSync(tempExpandedPath, "utf-8"));
+    const voxel = JSON.parse(fs.readFileSync(tempVoxelPath, "utf-8"));
+
+    expect(expanded.nodes.map((node: { id: string }) => node.id)).toContain("foundation__solid");
+    expect(voxel.name).toBe("CLI Component Test House");
+    expect(voxel.blocks.length).toBeGreaterThan(0);
+  });
+
+  it("should emit ComponentPlan materials, layers, and support as JSON", () => {
+    const materials = JSON.parse(execSync(`node ${cliPath} component materials ${tempComponentJsonPath} --json`).toString());
+    const layers = JSON.parse(execSync(`node ${cliPath} component layers ${tempComponentJsonPath} --json`).toString());
+    const support = JSON.parse(execSync(`node ${cliPath} component support ${tempComponentJsonPath} --json`).toString());
+
+    expect(materials.ok).toBe(true);
+    expect(materials.materials.length).toBeGreaterThan(0);
+    expect(layers.ok).toBe(true);
+    expect(layers.layers.length).toBeGreaterThan(0);
+    expect(support.ok).toBe(true);
+    expect(support.totalBlocks).toBeGreaterThan(0);
+    expect(Array.isArray(support.diagnostics)).toBe(true);
+  });
+
+  it("should export ComponentPlan JSON to Sponge schematic", () => {
+    const output = execSync(`node ${cliPath} component export ${tempComponentJsonPath} --format schem --out ${tempComponentSchemPath}`).toString();
+    expect(output).toContain("✓ Sponge schematic exported successfully to");
+    expect(fs.existsSync(tempComponentSchemPath)).toBe(true);
+    expect(fs.statSync(tempComponentSchemPath).size).toBeGreaterThan(0);
   });
 });

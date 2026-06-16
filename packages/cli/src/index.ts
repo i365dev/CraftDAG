@@ -3,11 +3,16 @@ import fs from "fs";
 import path from "path";
 import { Command } from "commander";
 import {
+  analyzeComponentPlanSupport,
+  compileComponentPlan,
   validateDocument,
   compileDocument,
+  diagnosticsFromError,
+  expandComponentPlan,
   generateMaterialList,
   generateLayerGuide,
   stringifyBlockState,
+  validateComponentPlan,
 } from "@i365dev/craftdag-core";
 import { exportToSchematic } from "@i365dev/craftdag-exporter-schem";
 
@@ -31,6 +36,55 @@ function readJsonFile(filePath: string): any {
     console.error(`Error parsing JSON file: ${err.message}`);
     process.exit(1);
   }
+}
+
+function writeJson(value: unknown, outPath?: string): void {
+  const outputJson = JSON.stringify(value, null, 2);
+  if (outPath) {
+    fs.writeFileSync(path.resolve(outPath), outputJson, "utf-8");
+  } else {
+    console.log(outputJson);
+  }
+}
+
+function writeJsonError(error: unknown): void {
+  console.error(JSON.stringify({
+    ok: false,
+    diagnostics: diagnosticsFromError(error),
+  }, null, 2));
+}
+
+function formatMaterials(plan: ReturnType<typeof compileDocument>): string {
+  const materials = generateMaterialList(plan);
+  const lines = [
+    `Material List for "${plan.name}":`,
+    "========================================",
+  ];
+  for (const item of materials) {
+    const blockStr = stringifyBlockState(item.block);
+    lines.push(`${blockStr.padEnd(40)} : ${item.count}`);
+  }
+  return lines.join("\n");
+}
+
+function formatLayers(plan: ReturnType<typeof compileDocument>): string {
+  const layers = generateLayerGuide(plan);
+  const lines = [
+    `Layer-by-Layer Guide for "${plan.name}":`,
+    "========================================",
+  ];
+  for (const layer of layers) {
+    lines.push(`Layer Y = ${layer.y} (${layer.blocks.length} blocks):`);
+    const layerBlockCounts = new Map<string, number>();
+    for (const blockObj of layer.blocks) {
+      const key = stringifyBlockState(blockObj.block);
+      layerBlockCounts.set(key, (layerBlockCounts.get(key) || 0) + 1);
+    }
+    for (const [blockStr, count] of layerBlockCounts) {
+      lines.push(`  - ${count}x ${blockStr}`);
+    }
+  }
+  return lines.join("\n");
 }
 
 program
@@ -78,13 +132,7 @@ program
     const doc = readJsonFile(file);
     try {
       const plan = compileDocument(doc);
-      const materials = generateMaterialList(plan);
-      console.log(`Material List for "${plan.name}":`);
-      console.log("========================================");
-      for (const item of materials) {
-        const blockStr = stringifyBlockState(item.block);
-        console.log(`${blockStr.padEnd(40)} : ${item.count}`);
-      }
+      console.log(formatMaterials(plan));
     } catch (err: any) {
       console.error(`✗ Error: ${err.message}`);
       process.exit(1);
@@ -99,23 +147,176 @@ program
     const doc = readJsonFile(file);
     try {
       const plan = compileDocument(doc);
-      const layers = generateLayerGuide(plan);
-      console.log(`Layer-by-Layer Guide for "${plan.name}":`);
-      console.log("========================================");
-      for (const layer of layers) {
-        console.log(`Layer Y = ${layer.y} (${layer.blocks.length} blocks):`);
-        // Group by block type within the layer
-        const layerBlockCounts = new Map<string, number>();
-        for (const blockObj of layer.blocks) {
-          const key = stringifyBlockState(blockObj.block);
-          layerBlockCounts.set(key, (layerBlockCounts.get(key) || 0) + 1);
-        }
-        for (const [blockStr, count] of layerBlockCounts) {
-          console.log(`  - ${count}x ${blockStr}`);
-        }
-      }
+      console.log(formatLayers(plan));
     } catch (err: any) {
       console.error(`✗ Error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+const component = program
+  .command("component")
+  .description("Validate, expand, compile, and inspect ComponentPlan JSON files");
+
+component
+  .command("validate")
+  .description("Validate a ComponentPlan JSON file")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("--json", "emit machine-readable JSON")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      validateComponentPlan(doc);
+      if (options.json) {
+        writeJson({ ok: true, diagnostics: [] });
+      } else {
+        console.log("✓ ComponentPlan is valid!");
+      }
+    } catch (err: any) {
+      if (options.json) {
+        writeJsonError(err);
+      } else {
+        console.error(`✗ ComponentPlan validation error: ${err.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+component
+  .command("expand")
+  .description("Expand a ComponentPlan into low-level CraftDAG JSON")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("-o, --out <outputFile>", "write output to file instead of stdout")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      writeJson(expandComponentPlan(doc), options.out);
+    } catch (err: any) {
+      writeJsonError(err);
+      process.exit(1);
+    }
+  });
+
+component
+  .command("compile")
+  .description("Compile a ComponentPlan into a VoxelPlan JSON")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("-o, --out <outputFile>", "write output to file instead of stdout")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      writeJson(compileComponentPlan(doc), options.out);
+    } catch (err: any) {
+      writeJsonError(err);
+      process.exit(1);
+    }
+  });
+
+component
+  .command("materials")
+  .description("List materials and counts for a ComponentPlan")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("--json", "emit machine-readable JSON")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      const plan = compileComponentPlan(doc);
+      if (options.json) {
+        writeJson({
+          ok: true,
+          name: plan.name,
+          materials: generateMaterialList(plan),
+        });
+      } else {
+        console.log(formatMaterials(plan));
+      }
+    } catch (err: any) {
+      if (options.json) {
+        writeJsonError(err);
+      } else {
+        console.error(`✗ ComponentPlan materials error: ${err.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+component
+  .command("layers")
+  .description("Print the layer-by-layer building guide for a ComponentPlan")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("--json", "emit machine-readable JSON")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      const plan = compileComponentPlan(doc);
+      if (options.json) {
+        writeJson({
+          ok: true,
+          name: plan.name,
+          layers: generateLayerGuide(plan),
+        });
+      } else {
+        console.log(formatLayers(plan));
+      }
+    } catch (err: any) {
+      if (options.json) {
+        writeJsonError(err);
+      } else {
+        console.error(`✗ ComponentPlan layers error: ${err.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+component
+  .command("support")
+  .description("Analyze ComponentPlan support diagnostics")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("--json", "emit machine-readable JSON")
+  .option("--include-allowed", "include diagnostics allowed by structural intent")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      const result = analyzeComponentPlanSupport(doc, { includeAllowed: options.includeAllowed });
+      if (options.json) {
+        writeJson({ ok: true, ...result });
+      } else {
+        console.log(`Support diagnostics: ${result.diagnostics.length}`);
+        console.log(`Total blocks: ${result.totalBlocks}`);
+        console.log(`Vertical unsupported blocks: ${result.verticalUnsupportedBlocks}`);
+        console.log(`Disconnected blocks: ${result.disconnectedBlocks}`);
+        console.log(`Large cantilever blocks: ${result.largeCantileverBlocks}`);
+      }
+    } catch (err: any) {
+      if (options.json) {
+        writeJsonError(err);
+      } else {
+        console.error(`✗ ComponentPlan support error: ${err.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+component
+  .command("export")
+  .description("Export a ComponentPlan to Sponge schematic (.schem) format")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("-f, --format <format>", "export format (default: schem)", "schem")
+  .requiredOption("-o, --out <outputFile>", "path to save the exported file")
+  .option("--data-version <number>", "Minecraft DataVersion", "3463")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      if (options.format !== "schem") {
+        throw new Error(`Unsupported export format: ${options.format}`);
+      }
+      const plan = compileComponentPlan(doc);
+      const dataVersion = options.dataVersion ? Number(options.dataVersion) : undefined;
+      const buffer = exportToSchematic(plan, { dataVersion });
+      fs.writeFileSync(path.resolve(options.out), buffer);
+      console.log(`✓ Sponge schematic exported successfully to ${options.out}`);
+    } catch (err: any) {
+      writeJsonError(err);
       process.exit(1);
     }
   });

@@ -48,21 +48,34 @@ node packages/cli/dist/index.js layers examples/starter-house.craftdag.json
 node packages/cli/dist/index.js export examples/starter-house.craftdag.json --format schem --out /tmp/starter-house.schem
 ```
 
-Note: the current low-level `compile` command uses `--output`; the current `export` command uses `--out`. The future ComponentPlan CLI should standardize file-writing options around `--out`.
+Note: the low-level `compile` command uses `--output`; file-writing ComponentPlan commands use `--out`.
 
-For ComponentPlan work today, use the core package APIs and regression tests:
+For ComponentPlan work, use the component command group:
 
 ```bash
+node packages/cli/dist/index.js component validate examples/component-plans/taj-dome-study.componentplan.json --json
+node packages/cli/dist/index.js component expand examples/component-plans/taj-dome-study.componentplan.json --out /tmp/taj-dome.craftdag.json
+node packages/cli/dist/index.js component compile examples/component-plans/taj-dome-study.componentplan.json --out /tmp/taj-dome.voxel.json
+node packages/cli/dist/index.js component materials examples/component-plans/taj-dome-study.componentplan.json --json
+node packages/cli/dist/index.js component layers examples/component-plans/taj-dome-study.componentplan.json --json
+node packages/cli/dist/index.js component support examples/component-plans/taj-dome-study.componentplan.json --json
+node packages/cli/dist/index.js component export examples/component-plans/taj-dome-study.componentplan.json --format schem --out /tmp/taj-dome.schem
+```
+
+`packages/core/test/componentPlanExamples.test.ts` validates, expands, compiles, and produces metadata for the reference ComponentPlan examples.
+
+Use the regression suite before committing changes:
+
+```bash
+pnpm --filter @i365dev/craftdag-cli test
 pnpm --filter @i365dev/craftdag-core test
 pnpm --filter @i365dev/craftdag-core typecheck
 pnpm lint
 ```
 
-`packages/core/test/componentPlanExamples.test.ts` validates, expands, compiles, and produces metadata for the reference ComponentPlan examples.
+## ComponentPlan CLI Contract
 
-## Desired ComponentPlan CLI Contract
-
-These commands are the intended stable harness-agent interface. They are not all implemented yet.
+These commands are the stable harness-agent interface:
 
 ```bash
 craftdag component validate path/to/plan.componentplan.json --json
@@ -71,9 +84,10 @@ craftdag component compile path/to/plan.componentplan.json --out voxel.json
 craftdag component materials path/to/plan.componentplan.json --json
 craftdag component layers path/to/plan.componentplan.json --json
 craftdag component support path/to/plan.componentplan.json --json
-craftdag export voxel.json --format schem --out build.schem
-craftdag verify-schem build.schem --against voxel.json --json
+craftdag component export path/to/plan.componentplan.json --format schem --out build.schem
 ```
+
+`craftdag verify-schem build.schem --against voxel.json --json` is future work.
 
 Prefer JSON output for agent loops. Human-formatted output is useful for local debugging, but agents need stable fields such as `stage`, `code`, `componentId`, `path`, and `repairHint`.
 
