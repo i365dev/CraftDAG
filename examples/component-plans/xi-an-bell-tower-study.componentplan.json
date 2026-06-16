@@ -238,6 +238,50 @@
       }
     },
     {
+      "id": "lower_hall_front_entry",
+      "type": "Opening",
+      "role": "public_entry_into_lower_bell_tower_hall",
+      "placement": {
+        "target": "timber_hall_lower",
+        "wall": "front",
+        "offset": 16,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "interior_stair_to_upper_hall",
+      "type": "StairRun",
+      "role": "visitor_stair_between_bell_tower_levels",
+      "inputs": [
+        {
+          "ref": "timber_hall_lower"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 42,
+          "y": 14,
+          "z": 34
+        },
+        "size": {
+          "width": 4,
+          "height": 10,
+          "length": 12
+        }
+      },
+      "materials": {
+        "main": "floor",
+        "rail": "trim"
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
       "id": "lower_front_arcade",
       "type": "ArcadeRun",
       "role": "painted_lower_floor_window_bays",
@@ -368,6 +412,19 @@
       "options": {
         "includeFloor": false,
         "includeCeiling": false
+      }
+    },
+    {
+      "id": "upper_hall_front_entry",
+      "type": "Opening",
+      "role": "public_entry_into_upper_bell_tower_hall",
+      "placement": {
+        "target": "timber_hall_upper",
+        "wall": "front",
+        "offset": 11,
+        "y": 1,
+        "width": 6,
+        "height": 4
       }
     },
     {

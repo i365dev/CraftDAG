@@ -36,7 +36,7 @@ These samples are regression probes, not polished templates.
 | `taj-dome-study` | Monumental dome over a square hall with corner kiosks | `SteppedTier`, `RoomShell`, `ArcadeRun`, `SteppedDome`, `SupportPost` | Validates and compiles; support warnings remain | Main dome and finial can produce disconnected warnings because dome tiers are analyzed as generated source nodes |
 | `temple-palace-dome-study` | Palace/temple podium with reusable pavilion modules | `SteppedTier`, `RoomShell`, `Instance`, `SteppedDome`, `ArcadeRun` | Validates and compiles; support warnings remain | Good assembly authoring probe; dome support diagnostics are still noisy |
 | `xi-an-bell-tower-study` | Xi'an Bell Tower-inspired square pedestal, cross passages, timber halls, wide green eaves, roof finial | `RoomShell`, `Opening`, `SteppedTier`, `StairRun`, `ArcadeRun`, `Platform`, `RailingRun`, `SteppedDome`, `Instance` | Validates and compiles; warnings are mostly connected eaves/rails | Good stress test for Chinese pavilion roof/eave semantics without adding a landmark-specific component |
-| `giant-wild-goose-pagoda-study` | Tall Tang-style pagoda massing with repeated eave levels | `SteppedTier`, `VerticalSetbackVolume`, `Platform`, `StairRun`, `SteppedDome` | Validates and compiles; high disconnected diagnostic count | Exposes a diagnostic gap for tall setback volumes: visual massing may be acceptable while support analysis reports disconnected source nodes |
+| `giant-wild-goose-pagoda-study` | Tall Tang-style pagoda with walkable shrinking levels, front entries, interior stair runs, and repeated eave levels | `SteppedTier`, `RoomShell`, `Opening`, `Platform`, `StairRun`, `SteppedDome` | Validates and compiles; disconnected count is clean | Exposes authoring cost for walkable multi-level setback towers: today agents must hand-author each level |
 | `large-ship-interior` | Large compartmental interior with corridors and stairs | `Compartment`, `Corridor`, `StairRun`, assemblies | Validates and compiles; vertical unsupported warnings remain | Useful pre-redstone host for future machinery/automation rooms |
 | `path-rock-garden` | Natural garden features with paths and rocks | `OrganicPatch`, `PathRun`, `RockCluster` | Validates, compiles, and has clean support diagnostics | Current landscape primitives work well for small garden-scale scenes |
 
@@ -67,7 +67,7 @@ Observed support diagnostics on the current samples:
 | `taj-dome-study` | pass | pass | 30 | 1724 | 0 | Dome tier support diagnostics need refinement or explicit intent |
 | `temple-palace-dome-study` | pass | pass | 58 | 828 | 0 | Assembly authoring works; dome diagnostics remain noisy |
 | `xi-an-bell-tower-study` | pass | pass | 20 | 108 | 728 | Good visual landmark probe; broad eaves create intentional span/cantilever review points |
-| `giant-wild-goose-pagoda-study` | pass | pass | 18 | 27972 | 0 | Strong probe for `VerticalSetbackVolume` support analysis limits |
+| `giant-wild-goose-pagoda-study` | pass | pass | 20 | 0 | 24 | Walkable pagoda is structurally connected; repeated levels are verbose and need authoring support |
 | `ship-bow-shape` | pass | pass | 38 | 1996 | 0 | Ship bow taper is useful visually but support diagnostics need clearer intent |
 | `arcade-bracket-study` | pass | pass | 60 | 1328 | 0 | Arch/bracket sample exposes span semantics and diagnostic noise |
 
@@ -77,8 +77,10 @@ Before #59 redstone module work, the architectural layer is usable but should no
 
 Important next hardening items:
 
-- Support JSON should separate blocking diagnostics from review warnings more clearly for agents.
+- Support JSON should separate blocking diagnostics from review warnings more clearly for agents and SEO quality gates; track this in #93.
 - Landmark samples should include intentional structural metadata for decorative eaves, roofs, finials, and similar details.
-- `VerticalSetbackVolume` and `SteppedDome` need better support semantics or docs explaining expected warning patterns.
+- Walkable multi-level builds such as pagodas, bell towers, stair towers, castles, hotels, and server hubs need a more compact authoring pattern than hand-authored `RoomShell` + `StairRun` stacks; track this in #94.
+- `SteppedDome` still needs better support semantics or docs explaining expected warning patterns.
 - Large samples should be previewed visually in MinePilot, not only compiled in CI.
+- SEO build pages need a stable artifact manifest: dimensions, block count, material list, layer guide, schematic availability, diagnostics summary, verification status, tags, and provenance; track this in #95.
 - New components should not be added just to make one landmark prettier; first try role metadata, assemblies, repeats, sections, and structural intent.

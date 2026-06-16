@@ -93,7 +93,7 @@ Large-build probes live in `examples/component-plans`.
 - `long-fortified-bridge.componentplan.json` exercises repeated bridge deck, pier, and tower modules across a long span.
 - `sectioned-wall.componentplan.json` exercises section-local components, root assemblies reused inside sections, and global coordinate composition.
 - `xi-an-bell-tower-study.componentplan.json` exercises a large landmark with a square masonry base, cross passages, stacked timber halls, broad eaves, stairs, railings, and a roof finial.
-- `giant-wild-goose-pagoda-study.componentplan.json` exercises tall setback massing, repeated eave levels, a high vertical silhouette, and support diagnostics on monumental tower forms.
+- `giant-wild-goose-pagoda-study.componentplan.json` exercises a walkable multi-level landmark tower with shrinking floor plates, repeated eaves, interior stair runs, front entries, a high vertical silhouette, and support diagnostics on monumental tower forms.
 
 These are not polished product templates. They are regression fixtures and authoring probes for checking whether the current ComponentPlan surface is large enough for agent-generated structures.
 

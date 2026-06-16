@@ -63,51 +63,8 @@
       "options": {
         "axis": "both",
         "levels": 3,
-        "stepHeight": 1,
+        "stepHeight": 2,
         "insetPerLevel": 2
-      }
-    },
-    {
-      "id": "pagoda_tower_mass",
-      "type": "VerticalSetbackVolume",
-      "role": "tall_tang_pagoda_body",
-      "inputs": [
-        {
-          "ref": "pagoda_base"
-        }
-      ],
-      "placement": {
-        "anchor": {
-          "x": 22,
-          "y": 6,
-          "z": 22
-        },
-        "size": {
-          "width": 28,
-          "height": 54,
-          "length": 28
-        }
-      },
-      "materials": {
-        "main": "wall"
-      },
-      "options": {
-        "levels": 7,
-        "setbackPerLevel": 1,
-        "levelHeight": 7
-      }
-    },
-    {
-      "id": "north_entry",
-      "type": "Opening",
-      "role": "ground_level_pagoda_entrance",
-      "placement": {
-        "target": "pagoda_tower_mass",
-        "wall": "front",
-        "offset": 11,
-        "y": 7,
-        "width": 6,
-        "height": 7
       }
     },
     {
@@ -138,12 +95,78 @@
       }
     },
     {
-      "id": "first_eave",
+      "id": "pagoda_level_1",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_1",
+      "inputs": [
+        {
+          "ref": "pagoda_base"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 22,
+          "y": 6,
+          "z": 22
+        },
+        "size": {
+          "width": 28,
+          "height": 7,
+          "length": 28
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_1",
+      "type": "Opening",
+      "role": "ground_level_pagoda_entrance",
+      "placement": {
+        "target": "pagoda_level_1",
+        "wall": "front",
+        "offset": 11,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_1",
+      "type": "StairRun",
+      "role": "interior_stair_level_1_to_2",
+      "inputs": [
+        {
+          "ref": "pagoda_level_1"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 6,
+          "z": 25
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 9
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_1",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_1",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_1"
         }
       ],
       "placement": {
@@ -167,12 +190,78 @@
       }
     },
     {
-      "id": "eave_two",
+      "id": "pagoda_level_2",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_2",
+      "inputs": [
+        {
+          "ref": "pagoda_level_1"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 23,
+          "y": 13,
+          "z": 23
+        },
+        "size": {
+          "width": 26,
+          "height": 7,
+          "length": 26
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_2",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_2",
+        "wall": "front",
+        "offset": 10,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_2",
+      "type": "StairRun",
+      "role": "interior_stair_level_2_to_3",
+      "inputs": [
+        {
+          "ref": "pagoda_level_2"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 13,
+          "z": 31
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 9
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "negative",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_2",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_2",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_2"
         }
       ],
       "placement": {
@@ -196,12 +285,78 @@
       }
     },
     {
-      "id": "eave_three",
+      "id": "pagoda_level_3",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_3",
+      "inputs": [
+        {
+          "ref": "pagoda_level_2"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 24,
+          "y": 20,
+          "z": 24
+        },
+        "size": {
+          "width": 24,
+          "height": 7,
+          "length": 24
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_3",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_3",
+        "wall": "front",
+        "offset": 9,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_3",
+      "type": "StairRun",
+      "role": "interior_stair_level_3_to_4",
+      "inputs": [
+        {
+          "ref": "pagoda_level_3"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 20,
+          "z": 27
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 8
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_3",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_3",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_3"
         }
       ],
       "placement": {
@@ -225,12 +380,78 @@
       }
     },
     {
-      "id": "eave_four",
+      "id": "pagoda_level_4",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_4",
+      "inputs": [
+        {
+          "ref": "pagoda_level_3"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 25,
+          "y": 27,
+          "z": 25
+        },
+        "size": {
+          "width": 22,
+          "height": 7,
+          "length": 22
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_4",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_4",
+        "wall": "front",
+        "offset": 8,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_4",
+      "type": "StairRun",
+      "role": "interior_stair_level_4_to_5",
+      "inputs": [
+        {
+          "ref": "pagoda_level_4"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 27,
+          "z": 29
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 8
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "negative",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_4",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_4",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_4"
         }
       ],
       "placement": {
@@ -254,12 +475,78 @@
       }
     },
     {
-      "id": "eave_five",
+      "id": "pagoda_level_5",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_5",
+      "inputs": [
+        {
+          "ref": "pagoda_level_4"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 26,
+          "y": 34,
+          "z": 26
+        },
+        "size": {
+          "width": 20,
+          "height": 7,
+          "length": 20
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_5",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_5",
+        "wall": "front",
+        "offset": 7,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_5",
+      "type": "StairRun",
+      "role": "interior_stair_level_5_to_6",
+      "inputs": [
+        {
+          "ref": "pagoda_level_5"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 34,
+          "z": 29
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 8
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "positive",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_5",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_5",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_5"
         }
       ],
       "placement": {
@@ -283,12 +570,78 @@
       }
     },
     {
-      "id": "eave_six",
+      "id": "pagoda_level_6",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_6",
+      "inputs": [
+        {
+          "ref": "pagoda_level_5"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 27,
+          "y": 41,
+          "z": 27
+        },
+        "size": {
+          "width": 18,
+          "height": 7,
+          "length": 18
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_6",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_6",
+        "wall": "front",
+        "offset": 6,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
+      "id": "pagoda_stair_6",
+      "type": "StairRun",
+      "role": "interior_stair_level_6_to_7",
+      "inputs": [
+        {
+          "ref": "pagoda_level_6"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 34,
+          "y": 41,
+          "z": 29
+        },
+        "size": {
+          "width": 3,
+          "height": 7,
+          "length": 7
+        }
+      },
+      "options": {
+        "axis": "z",
+        "direction": "negative",
+        "includeSideRails": true
+      }
+    },
+    {
+      "id": "eave_6",
       "type": "Platform",
       "role": "projecting_pagoda_eave_level_6",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_6"
         }
       ],
       "placement": {
@@ -312,18 +665,57 @@
       }
     },
     {
+      "id": "pagoda_level_7",
+      "type": "RoomShell",
+      "role": "walkable_pagoda_level_7",
+      "inputs": [
+        {
+          "ref": "pagoda_level_6"
+        }
+      ],
+      "placement": {
+        "anchor": {
+          "x": 28,
+          "y": 48,
+          "z": 28
+        },
+        "size": {
+          "width": 16,
+          "height": 7,
+          "length": 16
+        }
+      },
+      "options": {
+        "includeFloor": false,
+        "includeCeiling": true
+      }
+    },
+    {
+      "id": "entry_level_7",
+      "type": "Opening",
+      "role": "upper_pagoda_level_door",
+      "placement": {
+        "target": "pagoda_level_7",
+        "wall": "front",
+        "offset": 5,
+        "y": 1,
+        "width": 6,
+        "height": 5
+      }
+    },
+    {
       "id": "top_roof",
       "type": "SteppedDome",
       "role": "small_square_pagoda_roof_cap",
       "inputs": [
         {
-          "ref": "pagoda_tower_mass"
+          "ref": "pagoda_level_7"
         }
       ],
       "placement": {
         "anchor": {
           "x": 26,
-          "y": 60,
+          "y": 55,
           "z": 26
         },
         "size": {
@@ -356,7 +748,7 @@
       "placement": {
         "anchor": {
           "x": 35,
-          "y": 68,
+          "y": 63,
           "z": 35
         },
         "size": {
