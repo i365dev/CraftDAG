@@ -1,0 +1,1978 @@
+{
+  "version": "0.1",
+  "name": "Stormveil Dark Fortress – Elden Ring Inspired",
+  "grid": {
+    "unitBlocks": 1
+  },
+  "policy": {
+    "sizeTier": "monumental"
+  },
+  "bounds": {
+    "width": 128,
+    "height": 80,
+    "length": 128
+  },
+  "palette": {
+    "foundation": "minecraft:deepslate_bricks",
+    "wall": "minecraft:deepslate_bricks",
+    "floor": "minecraft:deepslate_tile_slab",
+    "roof": "minecraft:polished_deepslate",
+    "pillar": "minecraft:deepslate_brick_wall",
+    "step": "minecraft:deepslate_tile_slab",
+    "trim": "minecraft:polished_blackstone_bricks",
+    "glass": "minecraft:purple_stained_glass_pane",
+    "door": "minecraft:iron_door",
+    "iron_bars": "minecraft:iron_bars",
+    "water": "minecraft:water",
+    "grass": "minecraft:deepslate",
+    "path": "minecraft:chiseled_deepslate",
+    "leaves": "minecraft:wither_rose",
+    "wood": "minecraft:dark_oak_log",
+    "accent": "minecraft:crying_obsidian",
+    "battlement": "minecraft:deepslate_brick_wall",
+    "dark_stone": "minecraft:polished_blackstone",
+    "obsidian": "minecraft:obsidian"
+  },
+  "assemblies": [
+    {
+      "id": "spiral_stair_module",
+      "bounds": { "width": 8, "height": 10, "length": 8 },
+      "components": [
+        {
+          "id": "stair_core",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 3, "y": 0, "z": 3 },
+            "size": { "width": 2, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "step_n",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 3, "y": 0, "z": 0 },
+            "size": { "width": 2, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_nw",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_n" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 1, "z": 0 },
+            "size": { "width": 3, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_w",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_nw" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 2, "z": 3 },
+            "size": { "width": 3, "height": 1, "length": 2 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_sw",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_w" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 3, "z": 5 },
+            "size": { "width": 3, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_s",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_sw" }],
+          "placement": {
+            "anchor": { "x": 3, "y": 4, "z": 5 },
+            "size": { "width": 2, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_se",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_s" }],
+          "placement": {
+            "anchor": { "x": 5, "y": 5, "z": 5 },
+            "size": { "width": 3, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_e",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_se" }],
+          "placement": {
+            "anchor": { "x": 5, "y": 6, "z": 3 },
+            "size": { "width": 3, "height": 1, "length": 2 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_ne",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_e" }],
+          "placement": {
+            "anchor": { "x": 5, "y": 7, "z": 0 },
+            "size": { "width": 3, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "step_n2",
+          "type": "Platform",
+          "inputs": [{ "ref": "step_ne" }],
+          "placement": {
+            "anchor": { "x": 3, "y": 8, "z": 0 },
+            "size": { "width": 2, "height": 1, "length": 3 }
+          },
+          "materials": { "main": "step" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    },
+    {
+      "id": "corner_tower_module",
+      "bounds": { "width": 14, "height": 62, "length": 14 },
+      "components": [
+        {
+          "id": "tower_base_shell",
+          "type": "RoomShell",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 14, "height": 50, "length": 14 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": true, "includeCeiling": false }
+        },
+        {
+          "id": "tower_door",
+          "type": "Opening",
+          "placement": {
+            "target": "tower_base_shell",
+            "wall": "front",
+            "offset": 5,
+            "y": 0,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "id": "tower_window_l1",
+          "type": "Window",
+          "placement": {
+            "target": "tower_base_shell",
+            "wall": "front",
+            "offset": 1,
+            "y": 8,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "tower_window_r1",
+          "type": "Window",
+          "placement": {
+            "target": "tower_base_shell",
+            "wall": "front",
+            "offset": 11,
+            "y": 8,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "tower_window_l2",
+          "type": "Window",
+          "placement": {
+            "target": "tower_base_shell",
+            "wall": "left",
+            "offset": 1,
+            "y": 18,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "tower_window_r2",
+          "type": "Window",
+          "placement": {
+            "target": "tower_base_shell",
+            "wall": "right",
+            "offset": 1,
+            "y": 28,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "id": "tower_floor_mid",
+          "type": "Platform",
+          "inputs": [{ "ref": "tower_base_shell" }],
+          "placement": {
+            "anchor": { "x": 1, "y": 24, "z": 1 },
+            "size": { "width": 12, "height": 1, "length": 12 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "tower_stair_core_1",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_base_shell" }],
+          "placement": {
+            "anchor": { "x": 5, "y": 1, "z": 5 },
+            "size": { "width": 2, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "ts1_n",
+          "type": "Platform",
+          "inputs": [{ "ref": "tower_stair_core_1" }],
+          "placement": { "anchor": { "x": 5, "y": 1, "z": 2 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_nw",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_n" }],
+          "placement": { "anchor": { "x": 2, "y": 2, "z": 2 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_w",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_nw" }],
+          "placement": { "anchor": { "x": 2, "y": 3, "z": 5 }, "size": { "width": 3, "height": 1, "length": 2 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_sw",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_w" }],
+          "placement": { "anchor": { "x": 2, "y": 4, "z": 7 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_s",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_sw" }],
+          "placement": { "anchor": { "x": 5, "y": 5, "z": 7 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_se",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_s" }],
+          "placement": { "anchor": { "x": 7, "y": 6, "z": 7 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_e",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_se" }],
+          "placement": { "anchor": { "x": 7, "y": 7, "z": 5 }, "size": { "width": 3, "height": 1, "length": 2 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_ne",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_e" }],
+          "placement": { "anchor": { "x": 7, "y": 8, "z": 2 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts1_n2",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts1_ne" }],
+          "placement": { "anchor": { "x": 5, "y": 9, "z": 2 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "tower_stair_core_2",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_floor_mid" }],
+          "placement": {
+            "anchor": { "x": 5, "y": 25, "z": 5 },
+            "size": { "width": 2, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "ts2_n",
+          "type": "Platform",
+          "inputs": [{ "ref": "tower_stair_core_2" }],
+          "placement": { "anchor": { "x": 5, "y": 25, "z": 2 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_nw",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_n" }],
+          "placement": { "anchor": { "x": 2, "y": 26, "z": 2 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_w",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_nw" }],
+          "placement": { "anchor": { "x": 2, "y": 27, "z": 5 }, "size": { "width": 3, "height": 1, "length": 2 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_sw",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_w" }],
+          "placement": { "anchor": { "x": 2, "y": 28, "z": 7 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_s",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_sw" }],
+          "placement": { "anchor": { "x": 5, "y": 29, "z": 7 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_se",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_s" }],
+          "placement": { "anchor": { "x": 7, "y": 30, "z": 7 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_e",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_se" }],
+          "placement": { "anchor": { "x": 7, "y": 31, "z": 5 }, "size": { "width": 3, "height": 1, "length": 2 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_ne",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_e" }],
+          "placement": { "anchor": { "x": 7, "y": 32, "z": 2 }, "size": { "width": 3, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "ts2_n2",
+          "type": "Platform",
+          "inputs": [{ "ref": "ts2_ne" }],
+          "placement": { "anchor": { "x": 5, "y": 33, "z": 2 }, "size": { "width": 2, "height": 1, "length": 3 } },
+          "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "tower_battlement_ring",
+          "type": "Platform",
+          "inputs": [{ "ref": "tower_base_shell" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 50, "z": 0 },
+            "size": { "width": 14, "height": 2, "length": 14 }
+          },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_merlon_n1",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": { "anchor": { "x": 1, "y": 52, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_merlon_n2",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": { "anchor": { "x": 5, "y": 52, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_merlon_n3",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": { "anchor": { "x": 9, "y": 52, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_merlon_s1",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": { "anchor": { "x": 1, "y": 52, "z": 13 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_merlon_s2",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": { "anchor": { "x": 5, "y": 52, "z": 13 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "tower_spire",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "tower_battlement_ring" }],
+          "placement": {
+            "anchor": { "x": 6, "y": 52, "z": 6 },
+            "size": { "width": 2, "height": 8, "length": 2 }
+          },
+          "materials": { "main": "dark_stone" }
+        }
+      ]
+    },
+    {
+      "id": "dragon_wing_module",
+      "bounds": { "width": 20, "height": 12, "length": 6 },
+      "components": [
+        {
+          "id": "wing_root",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 0, "y": 4, "z": 0 },
+            "size": { "width": 4, "height": 1, "length": 6 }
+          },
+          "materials": { "main": "dark_stone" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "wing_mid",
+          "type": "Platform",
+          "inputs": [{ "ref": "wing_root" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 5, "z": 1 },
+            "size": { "width": 6, "height": 1, "length": 4 }
+          },
+          "materials": { "main": "dark_stone" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "wing_outer",
+          "type": "Platform",
+          "inputs": [{ "ref": "wing_mid" }],
+          "placement": {
+            "anchor": { "x": 10, "y": 6, "z": 2 },
+            "size": { "width": 6, "height": 1, "length": 2 }
+          },
+          "materials": { "main": "dark_stone" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "wing_tip",
+          "type": "Platform",
+          "inputs": [{ "ref": "wing_outer" }],
+          "placement": {
+            "anchor": { "x": 16, "y": 7, "z": 2 },
+            "size": { "width": 4, "height": 1, "length": 2 }
+          },
+          "materials": { "main": "accent" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "wing_claw1",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wing_tip" }],
+          "placement": {
+            "anchor": { "x": 16, "y": 8, "z": 2 },
+            "size": { "width": 1, "height": 3, "length": 1 }
+          },
+          "materials": { "main": "obsidian" }
+        },
+        {
+          "id": "wing_claw2",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wing_tip" }],
+          "placement": {
+            "anchor": { "x": 18, "y": 8, "z": 2 },
+            "size": { "width": 1, "height": 2, "length": 1 }
+          },
+          "materials": { "main": "obsidian" }
+        }
+      ]
+    },
+    {
+      "id": "wall_battlement_module",
+      "bounds": { "width": 22, "height": 20, "length": 6 },
+      "components": [
+        {
+          "id": "wall_body",
+          "type": "RoomShell",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 22, "height": 14, "length": 6 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "wall_top_walk",
+          "type": "Platform",
+          "inputs": [{ "ref": "wall_body" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 14, "z": 0 },
+            "size": { "width": 22, "height": 1, "length": 6 }
+          },
+          "materials": { "main": "trim" }
+        },
+        {
+          "id": "merlon_1",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 0, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "merlon_2",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 4, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "merlon_3",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 8, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "merlon_4",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 12, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "merlon_5",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 16, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        },
+        {
+          "id": "merlon_6",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "wall_top_walk" }],
+          "placement": { "anchor": { "x": 20, "y": 15, "z": 0 }, "size": { "width": 2, "height": 3, "length": 1 } },
+          "materials": { "main": "battlement" }
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "bedrock_foundation",
+      "type": "Foundation",
+      "placement": {
+        "anchor": { "x": 0, "y": 0, "z": 0 },
+        "size": { "width": 128, "height": 2, "length": 128 }
+      },
+      "materials": { "main": "obsidian" }
+    },
+    {
+      "id": "courtyard_floor",
+      "type": "Foundation",
+      "inputs": [{ "ref": "bedrock_foundation" }],
+      "placement": {
+        "anchor": { "x": 4, "y": 2, "z": 4 },
+        "size": { "width": 120, "height": 1, "length": 120 }
+      },
+      "materials": { "main": "foundation" }
+    },
+    {
+      "id": "outer_wall_north",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 18, "y": 3, "z": 4 },
+        "size": { "width": 92, "height": 18, "length": 6 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "outer_wall_north_gate",
+      "type": "Opening",
+      "placement": {
+        "target": "outer_wall_north",
+        "wall": "front",
+        "offset": 42,
+        "y": 0,
+        "width": 8,
+        "height": 10
+      }
+    },
+    {
+      "id": "outer_wall_north_window_l",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_north",
+        "wall": "front",
+        "offset": 8,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_north_window_r",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_north",
+        "wall": "front",
+        "offset": 81,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_north_window_cl",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_north",
+        "wall": "front",
+        "offset": 26,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_north_window_cr",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_north",
+        "wall": "front",
+        "offset": 63,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_south",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 18, "y": 3, "z": 118 },
+        "size": { "width": 92, "height": 18, "length": 6 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "outer_wall_south_gate",
+      "type": "Opening",
+      "placement": {
+        "target": "outer_wall_south",
+        "wall": "front",
+        "offset": 42,
+        "y": 0,
+        "width": 8,
+        "height": 10
+      }
+    },
+    {
+      "id": "outer_wall_west",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 4, "y": 3, "z": 18 },
+        "size": { "width": 6, "height": 18, "length": 92 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "outer_wall_west_window_1",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_west",
+        "wall": "left",
+        "offset": 8,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_west_window_2",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_west",
+        "wall": "left",
+        "offset": 36,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_west_window_3",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_west",
+        "wall": "left",
+        "offset": 64,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_east",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 118, "y": 3, "z": 18 },
+        "size": { "width": 6, "height": 18, "length": 92 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "outer_wall_east_window_1",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_east",
+        "wall": "left",
+        "offset": 8,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_east_window_2",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_east",
+        "wall": "left",
+        "offset": 36,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_east_window_3",
+      "type": "Window",
+      "placement": {
+        "target": "outer_wall_east",
+        "wall": "left",
+        "offset": 64,
+        "y": 5,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "outer_wall_top_north",
+      "type": "Platform",
+      "inputs": [{ "ref": "outer_wall_north" }],
+      "placement": {
+        "anchor": { "x": 18, "y": 21, "z": 4 },
+        "size": { "width": 92, "height": 1, "length": 6 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "outer_wall_top_south",
+      "type": "Platform",
+      "inputs": [{ "ref": "outer_wall_south" }],
+      "placement": {
+        "anchor": { "x": 18, "y": 21, "z": 118 },
+        "size": { "width": 92, "height": 1, "length": 6 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "outer_wall_top_west",
+      "type": "Platform",
+      "inputs": [{ "ref": "outer_wall_west" }],
+      "placement": {
+        "anchor": { "x": 4, "y": 21, "z": 18 },
+        "size": { "width": 6, "height": 1, "length": 92 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "outer_wall_top_east",
+      "type": "Platform",
+      "inputs": [{ "ref": "outer_wall_east" }],
+      "placement": {
+        "anchor": { "x": 118, "y": 21, "z": 18 },
+        "size": { "width": 6, "height": 1, "length": 92 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "corner_tower_nw",
+      "type": "Instance",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 4, "y": 3, "z": 4 }
+      }
+    },
+    {
+      "id": "corner_tower_ne",
+      "type": "Instance",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 110, "y": 3, "z": 4 }
+      }
+    },
+    {
+      "id": "corner_tower_sw",
+      "type": "Instance",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 4, "y": 3, "z": 110 }
+      }
+    },
+    {
+      "id": "corner_tower_se",
+      "type": "Instance",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "assembly": "corner_tower_module",
+        "anchor": { "x": 110, "y": 3, "z": 110 }
+      }
+    },
+    {
+      "id": "gatehouse_left_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "outer_wall_north" }],
+      "placement": {
+        "anchor": { "x": 44, "y": 3, "z": 4 },
+        "size": { "width": 10, "height": 24, "length": 10 }
+      },
+      "materials": { "main": "trim" },
+      "options": { "includeFloor": true, "includeCeiling": false }
+    },
+    {
+      "id": "gatehouse_left_door",
+      "type": "Opening",
+      "placement": {
+        "target": "gatehouse_left_body",
+        "wall": "right",
+        "offset": 3,
+        "y": 0,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "gatehouse_left_window_1",
+      "type": "Window",
+      "placement": {
+        "target": "gatehouse_left_body",
+        "wall": "front",
+        "offset": 2,
+        "y": 6,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "gatehouse_left_window_2",
+      "type": "Window",
+      "placement": {
+        "target": "gatehouse_left_body",
+        "wall": "left",
+        "offset": 2,
+        "y": 12,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "gatehouse_left_stair_core",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "gatehouse_left_body" }],
+      "placement": {
+        "anchor": { "x": 47, "y": 4, "z": 7 },
+        "size": { "width": 2, "height": 10, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "gl_step_n",
+      "type": "Platform",
+      "inputs": [{ "ref": "gatehouse_left_stair_core" }],
+      "placement": { "anchor": { "x": 47, "y": 4, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_nw",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_n" }],
+      "placement": { "anchor": { "x": 45, "y": 5, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_w",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_nw" }],
+      "placement": { "anchor": { "x": 45, "y": 6, "z": 7 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_sw",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_w" }],
+      "placement": { "anchor": { "x": 45, "y": 7, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_s",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_sw" }],
+      "placement": { "anchor": { "x": 47, "y": 8, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_se",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_s" }],
+      "placement": { "anchor": { "x": 49, "y": 9, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_e",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_se" }],
+      "placement": { "anchor": { "x": 49, "y": 10, "z": 7 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gl_step_ne",
+      "type": "Platform",
+      "inputs": [{ "ref": "gl_step_e" }],
+      "placement": { "anchor": { "x": 49, "y": 11, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gatehouse_left_top",
+      "type": "Platform",
+      "inputs": [{ "ref": "gatehouse_left_body" }],
+      "placement": {
+        "anchor": { "x": 44, "y": 27, "z": 4 },
+        "size": { "width": 10, "height": 1, "length": 10 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "gatehouse_right_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "outer_wall_north" }],
+      "placement": {
+        "anchor": { "x": 74, "y": 3, "z": 4 },
+        "size": { "width": 10, "height": 24, "length": 10 }
+      },
+      "materials": { "main": "trim" },
+      "options": { "includeFloor": true, "includeCeiling": false }
+    },
+    {
+      "id": "gatehouse_right_door",
+      "type": "Opening",
+      "placement": {
+        "target": "gatehouse_right_body",
+        "wall": "left",
+        "offset": 3,
+        "y": 0,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "gatehouse_right_window_1",
+      "type": "Window",
+      "placement": {
+        "target": "gatehouse_right_body",
+        "wall": "front",
+        "offset": 5,
+        "y": 6,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "gatehouse_right_window_2",
+      "type": "Window",
+      "placement": {
+        "target": "gatehouse_right_body",
+        "wall": "right",
+        "offset": 2,
+        "y": 12,
+        "width": 3,
+        "height": 4
+      }
+    },
+    {
+      "id": "gatehouse_right_stair_core",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "gatehouse_right_body" }],
+      "placement": {
+        "anchor": { "x": 77, "y": 4, "z": 7 },
+        "size": { "width": 2, "height": 10, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "gr_step_n",
+      "type": "Platform",
+      "inputs": [{ "ref": "gatehouse_right_stair_core" }],
+      "placement": { "anchor": { "x": 77, "y": 4, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_nw",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_n" }],
+      "placement": { "anchor": { "x": 75, "y": 5, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_w",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_nw" }],
+      "placement": { "anchor": { "x": 75, "y": 6, "z": 7 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_sw",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_w" }],
+      "placement": { "anchor": { "x": 75, "y": 7, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_s",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_sw" }],
+      "placement": { "anchor": { "x": 77, "y": 8, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_se",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_s" }],
+      "placement": { "anchor": { "x": 79, "y": 9, "z": 9 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_e",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_se" }],
+      "placement": { "anchor": { "x": 79, "y": 10, "z": 7 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gr_step_ne",
+      "type": "Platform",
+      "inputs": [{ "ref": "gr_step_e" }],
+      "placement": { "anchor": { "x": 79, "y": 11, "z": 5 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "gatehouse_right_top",
+      "type": "Platform",
+      "inputs": [{ "ref": "gatehouse_right_body" }],
+      "placement": {
+        "anchor": { "x": 74, "y": 27, "z": 4 },
+        "size": { "width": 10, "height": 1, "length": 10 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "keep_terrace",
+      "type": "Platform",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 26, "y": 3, "z": 34 },
+        "size": { "width": 76, "height": 2, "length": 60 }
+      },
+      "materials": { "main": "foundation" }
+    },
+    {
+      "id": "keep_terrace_steps",
+      "type": "Platform",
+      "inputs": [{ "ref": "keep_terrace" }],
+      "placement": {
+        "anchor": { "x": 52, "y": 3, "z": 30 },
+        "size": { "width": 24, "height": 2, "length": 4 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "keep_main",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "keep_terrace" }],
+      "placement": {
+        "anchor": { "x": 32, "y": 5, "z": 40 },
+        "size": { "width": 64, "height": 30, "length": 48 }
+      },
+      "materials": { "main": "trim" },
+      "options": { "includeFloor": true, "includeCeiling": true }
+    },
+    {
+      "id": "keep_main_door_front",
+      "type": "Opening",
+      "placement": {
+        "target": "keep_main",
+        "wall": "front",
+        "offset": 28,
+        "y": 0,
+        "width": 8,
+        "height": 10
+      }
+    },
+    {
+      "id": "keep_main_door_back",
+      "type": "Opening",
+      "placement": {
+        "target": "keep_main",
+        "wall": "back",
+        "offset": 28,
+        "y": 0,
+        "width": 6,
+        "height": 7
+      }
+    },
+    {
+      "id": "keep_window_front_l1",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "front",
+        "offset": 4,
+        "y": 10,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "keep_window_front_l2",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "front",
+        "offset": 14,
+        "y": 10,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "keep_window_front_r1",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "front",
+        "offset": 46,
+        "y": 10,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "keep_window_front_r2",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "front",
+        "offset": 56,
+        "y": 10,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "keep_window_left_1",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "left",
+        "offset": 4,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_window_left_2",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "left",
+        "offset": 20,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_window_left_3",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "left",
+        "offset": 36,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_window_right_1",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "right",
+        "offset": 4,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_window_right_2",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "right",
+        "offset": 20,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_window_right_3",
+      "type": "Window",
+      "placement": {
+        "target": "keep_main",
+        "wall": "right",
+        "offset": 36,
+        "y": 8,
+        "width": 4,
+        "height": 5
+      }
+    },
+    {
+      "id": "keep_interior_floor_2",
+      "type": "Platform",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 33, "y": 20, "z": 41 },
+        "size": { "width": 62, "height": 1, "length": 46 }
+      },
+      "materials": { "main": "floor" }
+    },
+    {
+      "id": "keep_stair_nw_core",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 35, "y": 6, "z": 43 },
+        "size": { "width": 2, "height": 10, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "ksnw_1",
+      "type": "Platform",
+      "inputs": [{ "ref": "keep_stair_nw_core" }],
+      "placement": { "anchor": { "x": 35, "y": 6, "z": 41 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_2",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_1" }],
+      "placement": { "anchor": { "x": 33, "y": 7, "z": 41 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_3",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_2" }],
+      "placement": { "anchor": { "x": 33, "y": 8, "z": 43 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_4",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_3" }],
+      "placement": { "anchor": { "x": 33, "y": 9, "z": 45 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_5",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_4" }],
+      "placement": { "anchor": { "x": 35, "y": 10, "z": 45 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_6",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_5" }],
+      "placement": { "anchor": { "x": 37, "y": 11, "z": 45 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_7",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_6" }],
+      "placement": { "anchor": { "x": 37, "y": 12, "z": 43 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "ksnw_8",
+      "type": "Platform",
+      "inputs": [{ "ref": "ksnw_7" }],
+      "placement": { "anchor": { "x": 37, "y": 13, "z": 41 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "keep_pillar_l1",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 38, "y": 6, "z": 58 },
+        "size": { "width": 2, "height": 28, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "keep_pillar_r1",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 88, "y": 6, "z": 58 },
+        "size": { "width": 2, "height": 28, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "keep_pillar_l2",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 50, "y": 6, "z": 58 },
+        "size": { "width": 2, "height": 28, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "keep_pillar_r2",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 76, "y": 6, "z": 58 },
+        "size": { "width": 2, "height": 28, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "throne_dais",
+      "type": "Platform",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 54, "y": 6, "z": 76 },
+        "size": { "width": 20, "height": 2, "length": 8 }
+      },
+      "materials": { "main": "dark_stone" }
+    },
+    {
+      "id": "throne_back",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "throne_dais" }],
+      "placement": {
+        "anchor": { "x": 54, "y": 8, "z": 82 },
+        "size": { "width": 20, "height": 10, "length": 2 }
+      },
+      "materials": { "main": "obsidian" }
+    },
+    {
+      "id": "throne_seat",
+      "type": "Platform",
+      "inputs": [{ "ref": "throne_dais" }],
+      "placement": {
+        "anchor": { "x": 62, "y": 8, "z": 80 },
+        "size": { "width": 4, "height": 1, "length": 2 }
+      },
+      "materials": { "main": "accent" }
+    },
+    {
+      "id": "keep_roof_walk",
+      "type": "Platform",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 32, "y": 35, "z": 40 },
+        "size": { "width": 64, "height": 1, "length": 48 }
+      },
+      "materials": { "main": "trim" }
+    },
+    {
+      "id": "keep_merlon_n1",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 32, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_n2",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 42, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_n3",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 52, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_n4",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 62, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_n5",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 72, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_n6",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 82, "y": 36, "z": 40 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_s1",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 32, "y": 36, "z": 86 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_s2",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 52, "y": 36, "z": 86 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "keep_merlon_s3",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "keep_roof_walk" }],
+      "placement": { "anchor": { "x": 72, "y": 36, "z": 86 }, "size": { "width": 4, "height": 3, "length": 2 } },
+      "materials": { "main": "battlement" }
+    },
+    {
+      "id": "upper_tower_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "keep_main" }],
+      "placement": {
+        "anchor": { "x": 46, "y": 35, "z": 52 },
+        "size": { "width": 36, "height": 20, "length": 24 }
+      },
+      "materials": { "main": "dark_stone" },
+      "options": { "includeFloor": true, "includeCeiling": false }
+    },
+    {
+      "id": "upper_tower_door_front",
+      "type": "Opening",
+      "placement": {
+        "target": "upper_tower_body",
+        "wall": "front",
+        "offset": 14,
+        "y": 0,
+        "width": 8,
+        "height": 6
+      }
+    },
+    {
+      "id": "upper_tower_window_fl",
+      "type": "Window",
+      "placement": {
+        "target": "upper_tower_body",
+        "wall": "front",
+        "offset": 2,
+        "y": 6,
+        "width": 4,
+        "height": 8
+      }
+    },
+    {
+      "id": "upper_tower_window_fr",
+      "type": "Window",
+      "placement": {
+        "target": "upper_tower_body",
+        "wall": "front",
+        "offset": 30,
+        "y": 6,
+        "width": 4,
+        "height": 8
+      }
+    },
+    {
+      "id": "upper_tower_window_l",
+      "type": "Window",
+      "placement": {
+        "target": "upper_tower_body",
+        "wall": "left",
+        "offset": 8,
+        "y": 6,
+        "width": 4,
+        "height": 8
+      }
+    },
+    {
+      "id": "upper_tower_window_r",
+      "type": "Window",
+      "placement": {
+        "target": "upper_tower_body",
+        "wall": "right",
+        "offset": 8,
+        "y": 6,
+        "width": 4,
+        "height": 8
+      }
+    },
+    {
+      "id": "upper_tower_stair_core",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "upper_tower_body" }],
+      "placement": {
+        "anchor": { "x": 49, "y": 36, "z": 55 },
+        "size": { "width": 2, "height": 10, "length": 2 }
+      },
+      "materials": { "main": "pillar" }
+    },
+    {
+      "id": "uts_1",
+      "type": "Platform",
+      "inputs": [{ "ref": "upper_tower_stair_core" }],
+      "placement": { "anchor": { "x": 49, "y": 36, "z": 53 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_2",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_1" }],
+      "placement": { "anchor": { "x": 47, "y": 37, "z": 53 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_3",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_2" }],
+      "placement": { "anchor": { "x": 47, "y": 38, "z": 55 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_4",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_3" }],
+      "placement": { "anchor": { "x": 47, "y": 39, "z": 57 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_5",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_4" }],
+      "placement": { "anchor": { "x": 49, "y": 40, "z": 57 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_6",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_5" }],
+      "placement": { "anchor": { "x": 51, "y": 41, "z": 57 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_7",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_6" }],
+      "placement": { "anchor": { "x": 51, "y": 42, "z": 55 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "uts_8",
+      "type": "Platform",
+      "inputs": [{ "ref": "uts_7" }],
+      "placement": { "anchor": { "x": 51, "y": 43, "z": 53 }, "size": { "width": 2, "height": 1, "length": 2 } },
+      "materials": { "main": "step" }, "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "dragon_perch",
+      "type": "Platform",
+      "inputs": [{ "ref": "upper_tower_body" }],
+      "placement": {
+        "anchor": { "x": 44, "y": 55, "z": 50 },
+        "size": { "width": 40, "height": 2, "length": 28 }
+      },
+      "materials": { "main": "dark_stone" }
+    },
+    {
+      "id": "dragon_body",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "dragon_perch" }],
+      "placement": {
+        "anchor": { "x": 60, "y": 57, "z": 60 },
+        "size": { "width": 8, "height": 4, "length": 5 }
+      },
+      "materials": { "main": "obsidian" }
+    },
+    {
+      "id": "dragon_head",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_body" }],
+      "placement": {
+        "anchor": { "x": 58, "y": 61, "z": 56 },
+        "size": { "width": 12, "height": 3, "length": 8 }
+      },
+      "materials": { "main": "dark_stone" }
+    },
+    {
+      "id": "dragon_snout",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_head" }],
+      "placement": {
+        "anchor": { "x": 60, "y": 61, "z": 50 },
+        "size": { "width": 8, "height": 2, "length": 6 }
+      },
+      "materials": { "main": "dark_stone" }
+    },
+    {
+      "id": "dragon_jaw",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_snout" }],
+      "placement": {
+        "anchor": { "x": 61, "y": 60, "z": 48 },
+        "size": { "width": 6, "height": 1, "length": 3 }
+      },
+      "materials": { "main": "obsidian" }
+    },
+    {
+      "id": "dragon_horn_l",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "dragon_head" }],
+      "placement": {
+        "anchor": { "x": 59, "y": 64, "z": 61 },
+        "size": { "width": 1, "height": 6, "length": 1 }
+      },
+      "materials": { "main": "accent" }
+    },
+    {
+      "id": "dragon_horn_r",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "dragon_head" }],
+      "placement": {
+        "anchor": { "x": 68, "y": 64, "z": 61 },
+        "size": { "width": 1, "height": 6, "length": 1 }
+      },
+      "materials": { "main": "accent" }
+    },
+    {
+      "id": "dragon_tail_1",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_body" }],
+      "placement": {
+        "anchor": { "x": 62, "y": 57, "z": 65 },
+        "size": { "width": 4, "height": 2, "length": 8 }
+      },
+      "materials": { "main": "dark_stone" },
+      "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "dragon_tail_2",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_tail_1" }],
+      "placement": {
+        "anchor": { "x": 63, "y": 56, "z": 73 },
+        "size": { "width": 2, "height": 2, "length": 6 }
+      },
+      "materials": { "main": "dark_stone" },
+      "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "dragon_tail_3",
+      "type": "Platform",
+      "inputs": [{ "ref": "dragon_tail_2" }],
+      "placement": {
+        "anchor": { "x": 64, "y": 55, "z": 79 },
+        "size": { "width": 1, "height": 1, "length": 4 }
+      },
+      "materials": { "main": "accent" },
+      "structural": { "supportPolicy": "decorative" }
+    },
+    {
+      "id": "dragon_wing_left",
+      "type": "Instance",
+      "inputs": [{ "ref": "dragon_perch" }],
+      "placement": {
+        "assembly": "dragon_wing_module",
+        "anchor": { "x": 44, "y": 57, "z": 58 }
+      }
+    },
+    {
+      "id": "dragon_wing_right",
+      "type": "Instance",
+      "inputs": [{ "ref": "dragon_perch" }],
+      "placement": {
+        "assembly": "dragon_wing_module",
+        "anchor": { "x": 84, "y": 57, "z": 58 }
+      }
+    },
+    {
+      "id": "courtyard_path_ns",
+      "type": "Platform",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 60, "y": 3, "z": 10 },
+        "size": { "width": 8, "height": 1, "length": 108 }
+      },
+      "materials": { "main": "path" }
+    },
+    {
+      "id": "courtyard_path_ew",
+      "type": "Platform",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 10, "y": 3, "z": 60 },
+        "size": { "width": 108, "height": 1, "length": 8 }
+      },
+      "materials": { "main": "path" }
+    },
+    {
+      "id": "courtyard_monolith",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 62, "y": 3, "z": 62 },
+        "size": { "width": 4, "height": 18, "length": 4 }
+      },
+      "materials": { "main": "accent" }
+    },
+    {
+      "id": "monolith_top",
+      "type": "Platform",
+      "inputs": [{ "ref": "courtyard_monolith" }],
+      "placement": {
+        "anchor": { "x": 60, "y": 21, "z": 60 },
+        "size": { "width": 8, "height": 1, "length": 8 }
+      },
+      "materials": { "main": "dark_stone" }
+    },
+    {
+      "id": "well_outer",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 20, "y": 3, "z": 20 },
+        "size": { "width": 6, "height": 4, "length": 6 }
+      },
+      "materials": { "main": "pillar" },
+      "options": { "includeFloor": false, "includeCeiling": false }
+    },
+    {
+      "id": "well_water",
+      "type": "Foundation",
+      "inputs": [{ "ref": "well_outer" }],
+      "placement": {
+        "anchor": { "x": 21, "y": 3, "z": 21 },
+        "size": { "width": 4, "height": 1, "length": 4 }
+      },
+      "materials": { "main": "water" }
+    },
+    {
+      "id": "forge_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 98, "y": 3, "z": 20 },
+        "size": { "width": 16, "height": 10, "length": 12 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": true, "includeCeiling": true }
+    },
+    {
+      "id": "forge_door",
+      "type": "Opening",
+      "placement": {
+        "target": "forge_body",
+        "wall": "left",
+        "offset": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      }
+    },
+    {
+      "id": "forge_window",
+      "type": "Window",
+      "placement": {
+        "target": "forge_body",
+        "wall": "front",
+        "offset": 3,
+        "y": 4,
+        "width": 3,
+        "height": 3
+      }
+    },
+    {
+      "id": "forge_chimney",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "forge_body" }],
+      "placement": {
+        "anchor": { "x": 104, "y": 13, "z": 26 },
+        "size": { "width": 3, "height": 8, "length": 3 }
+      },
+      "materials": { "main": "obsidian" }
+    },
+    {
+      "id": "barracks_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 10, "y": 3, "z": 98 },
+        "size": { "width": 20, "height": 10, "length": 14 }
+      },
+      "materials": { "main": "wall" },
+      "options": { "includeFloor": true, "includeCeiling": true }
+    },
+    {
+      "id": "barracks_door",
+      "type": "Opening",
+      "placement": {
+        "target": "barracks_body",
+        "wall": "right",
+        "offset": 7,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      }
+    },
+    {
+      "id": "barracks_window_1",
+      "type": "Window",
+      "placement": {
+        "target": "barracks_body",
+        "wall": "front",
+        "offset": 3,
+        "y": 3,
+        "width": 3,
+        "height": 3
+      }
+    },
+    {
+      "id": "barracks_window_2",
+      "type": "Window",
+      "placement": {
+        "target": "barracks_body",
+        "wall": "front",
+        "offset": 14,
+        "y": 3,
+        "width": 3,
+        "height": 3
+      }
+    },
+    {
+      "id": "chapel_body",
+      "type": "RoomShell",
+      "inputs": [{ "ref": "courtyard_floor" }],
+      "placement": {
+        "anchor": { "x": 98, "y": 3, "z": 98 },
+        "size": { "width": 16, "height": 14, "length": 16 }
+      },
+      "materials": { "main": "trim" },
+      "options": { "includeFloor": true, "includeCeiling": true }
+    },
+    {
+      "id": "chapel_door",
+      "type": "Opening",
+      "placement": {
+        "target": "chapel_body",
+        "wall": "left",
+        "offset": 5,
+        "y": 0,
+        "width": 4,
+        "height": 6
+      }
+    },
+    {
+      "id": "chapel_window_l",
+      "type": "Window",
+      "placement": {
+        "target": "chapel_body",
+        "wall": "front",
+        "offset": 3,
+        "y": 4,
+        "width": 4,
+        "height": 7
+      }
+    },
+    {
+      "id": "chapel_window_r",
+      "type": "Window",
+      "placement": {
+        "target": "chapel_body",
+        "wall": "front",
+        "offset": 9,
+        "y": 4,
+        "width": 4,
+        "height": 7
+      }
+    },
+    {
+      "id": "chapel_spire",
+      "type": "SupportPost",
+      "inputs": [{ "ref": "chapel_body" }],
+      "placement": {
+        "anchor": { "x": 105, "y": 17, "z": 105 },
+        "size": { "width": 2, "height": 12, "length": 2 }
+      },
+      "materials": { "main": "accent" }
+    },
+    {
+      "id": "chapel_roof",
+      "type": "GableRoof",
+      "inputs": [{ "ref": "chapel_body" }],
+      "placement": {
+        "over": "chapel_body",
+        "overhang": 1,
+        "direction": "x"
+      }
+    }
+  ]
+}

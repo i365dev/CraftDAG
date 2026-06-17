@@ -1,0 +1,856 @@
+{
+  "version": "0.1",
+  "name": "Imperator-class Star Dreadnought",
+  "grid": { "unitBlocks": 1 },
+  "policy": { "sizeTier": "monumental" },
+  "bounds": { "width": 256, "height": 96, "length": 256 },
+  "palette": {
+    "foundation": "minecraft:black_concrete",
+    "wall": "minecraft:gray_concrete",
+    "floor": "minecraft:iron_block",
+    "roof": "minecraft:black_concrete",
+    "trim": "minecraft:red_concrete",
+    "glass": "minecraft:light_blue_stained_glass",
+    "door": "minecraft:iron_door",
+    "pillar": "minecraft:white_concrete",
+    "dark": "minecraft:obsidian",
+    "accent": "minecraft:glowstone",
+    "rubble": "minecraft:cobblestone",
+    "path": "minecraft:smooth_stone",
+    "water": "minecraft:water",
+    "leaves": "minecraft:lime_concrete",
+    "iron": "minecraft:iron_bars",
+    "red": "minecraft:red_concrete",
+    "engine": "minecraft:orange_concrete",
+    "light": "minecraft:sea_lantern"
+  },
+  "assemblies": [
+    {
+      "id": "turbolaser_battery",
+      "bounds": { "width": 6, "height": 8, "length": 8 },
+      "components": [
+        {
+          "id": "base",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 6, "height": 2, "length": 8 }
+          },
+          "materials": { "main": "wall" }
+        },
+        {
+          "id": "left_barrel",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "base" }],
+          "placement": {
+            "anchor": { "x": 1, "y": 2, "z": 1 },
+            "size": { "width": 1, "height": 6, "length": 6 }
+          },
+          "materials": { "main": "dark" }
+        },
+        {
+          "id": "right_barrel",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "base" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 2, "z": 1 },
+            "size": { "width": 1, "height": 6, "length": 6 }
+          },
+          "materials": { "main": "dark" }
+        }
+      ]
+    },
+    {
+      "id": "shield_generator",
+      "bounds": { "width": 12, "height": 16, "length": 12 },
+      "components": [
+        {
+          "id": "generator_base",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 1, "y": 0, "z": 1 },
+            "size": { "width": 10, "height": 4, "length": 10 }
+          },
+          "materials": { "main": "wall" }
+        },
+        {
+          "id": "generator_dome",
+          "type": "SteppedDome",
+          "inputs": [{ "ref": "generator_base" }],
+          "placement": {
+            "anchor": { "x": 1, "y": 4, "z": 1 },
+            "size": { "width": 10, "height": 12, "length": 10 }
+          },
+          "materials": { "main": "accent" },
+          "options": { "levels": 4, "insetPerLevel": 1, "hollow": false }
+        }
+      ]
+    },
+    {
+      "id": "engine_thruster_large",
+      "bounds": { "width": 20, "height": 32, "length": 16 },
+      "components": [
+        {
+          "id": "nozzle_housing",
+          "type": "TaperedVolume",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 20, "height": 28, "length": 16 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 4 }
+        },
+        {
+          "id": "nozzle_glow",
+          "type": "Platform",
+          "inputs": [{ "ref": "nozzle_housing" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 2, "z": 14 },
+            "size": { "width": 12, "height": 22, "length": 2 }
+          },
+          "materials": { "main": "engine" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "nozzle_core",
+          "type": "Platform",
+          "inputs": [{ "ref": "nozzle_housing" }],
+          "placement": {
+            "anchor": { "x": 7, "y": 6, "z": 12 },
+            "size": { "width": 6, "height": 14, "length": 2 }
+          },
+          "materials": { "main": "light" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    },
+    {
+      "id": "engine_thruster_small",
+      "bounds": { "width": 10, "height": 16, "length": 10 },
+      "components": [
+        {
+          "id": "small_nozzle",
+          "type": "TaperedVolume",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 10, "height": 14, "length": 10 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 2 }
+        },
+        {
+          "id": "small_glow",
+          "type": "Platform",
+          "inputs": [{ "ref": "small_nozzle" }],
+          "placement": {
+            "anchor": { "x": 3, "y": 2, "z": 8 },
+            "size": { "width": 4, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "engine" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    },
+    {
+      "id": "interior_deck_slice",
+      "bounds": { "width": 120, "height": 7, "length": 40 },
+      "components": [
+        {
+          "id": "deck_floor",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 120, "height": 1, "length": 40 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "deck_corridor_center",
+          "type": "Corridor",
+          "inputs": [{ "ref": "deck_floor" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 1, "z": 4 },
+            "size": { "width": 112, "height": 4, "length": 4 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "includeFloor": false, "includeCeiling": true }
+        },
+        {
+          "id": "room_left_1",
+          "type": "Compartment",
+          "role": "crew_quarters",
+          "inputs": [{ "ref": "deck_floor" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 1, "z": 12 },
+            "size": { "width": 26, "height": 4, "length": 12 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": true }
+        },
+        {
+          "id": "room_left_2",
+          "type": "Compartment",
+          "role": "crew_quarters",
+          "inputs": [{ "ref": "deck_floor" }],
+          "placement": {
+            "anchor": { "x": 34, "y": 1, "z": 12 },
+            "size": { "width": 26, "height": 4, "length": 12 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": true }
+        },
+        {
+          "id": "room_right_1",
+          "type": "Compartment",
+          "role": "storage_bay",
+          "inputs": [{ "ref": "deck_floor" }],
+          "placement": {
+            "anchor": { "x": 64, "y": 1, "z": 12 },
+            "size": { "width": 26, "height": 4, "length": 12 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": true }
+        },
+        {
+          "id": "room_right_2",
+          "type": "Compartment",
+          "role": "storage_bay",
+          "inputs": [{ "ref": "deck_floor" }],
+          "placement": {
+            "anchor": { "x": 94, "y": 1, "z": 12 },
+            "size": { "width": 22, "height": 4, "length": 12 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": true }
+        }
+      ]
+    },
+    {
+      "id": "reactor_chamber",
+      "bounds": { "width": 24, "height": 28, "length": 28 },
+      "components": [
+        {
+          "id": "reactor_housing",
+          "type": "Compartment",
+          "role": "main_reactor",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 24, "height": 28, "length": 28 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "includeFloor": true, "includeCeiling": true }
+        },
+        {
+          "id": "reactor_core_pillar",
+          "type": "VerticalSetbackVolume",
+          "inputs": [{ "ref": "reactor_housing" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 2, "z": 4 },
+            "size": { "width": 16, "height": 24, "length": 16 }
+          },
+          "materials": { "main": "accent" },
+          "options": { "axis": "both", "levels": 4, "levelHeight": 6, "setbackPerLevel": 2 }
+        },
+        {
+          "id": "reactor_glow_ring",
+          "type": "Platform",
+          "inputs": [{ "ref": "reactor_core_pillar" }],
+          "placement": {
+            "anchor": { "x": 6, "y": 10, "z": 6 },
+            "size": { "width": 12, "height": 1, "length": 12 }
+          },
+          "materials": { "main": "light" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "stern_engineering",
+      "origin": { "x": 0, "y": 0, "z": 148 },
+      "bounds": { "width": 256, "height": 72, "length": 108 },
+      "components": [
+        {
+          "id": "stern_hull_floor",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 4, "y": 0, "z": 0 },
+            "size": { "width": 248, "height": 2, "length": 108 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "stern_hull_wedge",
+          "type": "TaperedVolume",
+          "role": "aft_hull_wedge",
+          "inputs": [{ "ref": "stern_hull_floor" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 2, "z": 4 },
+            "size": { "width": 248, "height": 44, "length": 104 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 32 }
+        },
+        {
+          "id": "engine_bay_floor",
+          "type": "Platform",
+          "inputs": [{ "ref": "stern_hull_wedge" }],
+          "placement": {
+            "anchor": { "x": 8, "y": 46, "z": 8 },
+            "size": { "width": 240, "height": 1, "length": 72 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "main_engine_center",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_large",
+            "anchor": { "x": 118, "y": 1, "z": 16 }
+          }
+        },
+        {
+          "id": "engine_left_1",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 80, "y": 1, "z": 32 }
+          }
+        },
+        {
+          "id": "engine_left_2",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 48, "y": 1, "z": 40 }
+          }
+        },
+        {
+          "id": "engine_left_3",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 16, "y": 1, "z": 44 }
+          }
+        },
+        {
+          "id": "engine_right_1",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 166, "y": 1, "z": 32 }
+          }
+        },
+        {
+          "id": "engine_right_2",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 198, "y": 1, "z": 40 }
+          }
+        },
+        {
+          "id": "engine_right_3",
+          "type": "Instance",
+          "inputs": [{ "ref": "engine_bay_floor" }],
+          "placement": {
+            "assembly": "engine_thruster_small",
+            "anchor": { "x": 230, "y": 1, "z": 44 }
+          }
+        },
+        {
+          "id": "reactor_primary",
+          "type": "Instance",
+          "inputs": [{ "ref": "stern_hull_floor" }],
+          "placement": {
+            "assembly": "reactor_chamber",
+            "anchor": { "x": 80, "y": 4, "z": 30 }
+          }
+        },
+        {
+          "id": "reactor_secondary",
+          "type": "Instance",
+          "inputs": [{ "ref": "stern_hull_floor" }],
+          "placement": {
+            "assembly": "reactor_chamber",
+            "anchor": { "x": 152, "y": 4, "z": 30 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "midship_carrier",
+      "origin": { "x": 0, "y": 0, "z": 52 },
+      "bounds": { "width": 256, "height": 64, "length": 96 },
+      "components": [
+        {
+          "id": "midship_hull_floor",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 4, "y": 0, "z": 0 },
+            "size": { "width": 248, "height": 2, "length": 96 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "midship_hull_body",
+          "type": "TaperedVolume",
+          "role": "main_hull_wedge",
+          "inputs": [{ "ref": "midship_hull_floor" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 2, "z": 4 },
+            "size": { "width": 248, "height": 38, "length": 92 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 12, "endInset": 24 }
+        },
+        {
+          "id": "hangar_bay_floor",
+          "type": "Platform",
+          "inputs": [{ "ref": "midship_hull_floor" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 2, "z": 50 },
+            "size": { "width": 216, "height": 1, "length": 42 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "hangar_bay_entrance",
+          "type": "Opening",
+          "role": "main_hangar_door",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": {
+            "target": "midship_hull_body",
+            "wall": "front",
+            "offset": 60,
+            "y": 4,
+            "width": 48,
+            "height": 20
+          }
+        },
+        {
+          "id": "hangar_bay_ceiling",
+          "type": "Platform",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 26, "z": 50 },
+            "size": { "width": 216, "height": 1, "length": 42 }
+          },
+          "materials": { "main": "wall" }
+        },
+        {
+          "id": "hangar_left_wall",
+          "type": "ArcadeRun",
+          "role": "hangar_structural_ribs",
+          "inputs": [{ "ref": "hangar_bay_floor" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 3, "z": 52 },
+            "size": { "width": 216, "height": 20, "length": 4 }
+          },
+          "materials": { "main": "pillar" },
+          "options": { "axis": "x", "bayCount": 16, "pierWidth": 1, "archHeight": 12 }
+        },
+        {
+          "id": "hangar_right_wall",
+          "type": "ArcadeRun",
+          "role": "hangar_structural_ribs",
+          "inputs": [{ "ref": "hangar_bay_floor" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 3, "z": 86 },
+            "size": { "width": 216, "height": 20, "length": 4 }
+          },
+          "materials": { "main": "pillar" },
+          "options": { "axis": "x", "bayCount": 16, "pierWidth": 1, "archHeight": 12 }
+        },
+        {
+          "id": "turbolaser_l1",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 12, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l2",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 36, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l3",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 60, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l4",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 84, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l5",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 108, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l6",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 132, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l7",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 156, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l8",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 180, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l9",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 204, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_l10",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 228, "y": 4, "z": 14 } }
+        },
+        {
+          "id": "turbolaser_r1",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 12, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r2",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 36, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r3",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 60, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r4",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 84, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r5",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 108, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r6",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 132, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r7",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 156, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r8",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 180, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r9",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 204, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "turbolaser_r10",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_body" }],
+          "placement": { "assembly": "turbolaser_battery", "anchor": { "x": 228, "y": 4, "z": 74 } }
+        },
+        {
+          "id": "midship_interior_deck_a",
+          "type": "Instance",
+          "inputs": [{ "ref": "midship_hull_floor" }],
+          "placement": {
+            "assembly": "interior_deck_slice",
+            "anchor": { "x": 30, "y": 6, "z": 20 }
+          }
+        },
+        {
+          "id": "midship_stair_to_upper",
+          "type": "StairRun",
+          "role": "crew_access_stairs",
+          "inputs": [{ "ref": "midship_hull_floor" }],
+          "placement": {
+            "anchor": { "x": 40, "y": 6, "z": 36 },
+            "size": { "width": 6, "height": 12, "length": 14 }
+          },
+          "materials": { "main": "floor" },
+          "options": { "axis": "z", "direction": "positive", "style": "solid" }
+        },
+        {
+          "id": "upper_deck_platform",
+          "type": "Platform",
+          "inputs": [{ "ref": "midship_stair_to_upper" }],
+          "placement": {
+            "anchor": { "x": 30, "y": 20, "z": 44 },
+            "size": { "width": 120, "height": 1, "length": 30 }
+          },
+          "materials": { "main": "floor" }
+        }
+      ]
+    },
+    {
+      "id": "bow_assault",
+      "origin": { "x": 4, "y": 0, "z": 12 },
+      "bounds": { "width": 200, "height": 52, "length": 44 },
+      "components": [
+        {
+          "id": "bow_hull_floor",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 200, "height": 2, "length": 44 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "bow_hull_nose",
+          "type": "TaperedVolume",
+          "role": "forward_wedge_nose",
+          "inputs": [{ "ref": "bow_hull_floor" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 2, "z": 4 },
+            "size": { "width": 200, "height": 30, "length": 40 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 14, "endInset": 0 }
+        },
+        {
+          "id": "bow_upper_ridge",
+          "type": "TaperedVolume",
+          "role": "dorsal_ridge",
+          "inputs": [{ "ref": "bow_hull_nose" }],
+          "placement": {
+            "anchor": { "x": 60, "y": 28, "z": 8 },
+            "size": { "width": 80, "height": 14, "length": 28 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "z", "startInset": 2, "endInset": 6 }
+        },
+        {
+          "id": "torpedo_tube_1",
+          "type": "SupportPost",
+          "role": "proton_torpedo_launcher",
+          "inputs": [{ "ref": "bow_hull_nose" }],
+          "placement": {
+            "anchor": { "x": 50, "y": 4, "z": 6 },
+            "size": { "width": 2, "height": 4, "length": 6 }
+          },
+          "materials": { "main": "dark" }
+        },
+        {
+          "id": "torpedo_tube_2",
+          "type": "SupportPost",
+          "role": "proton_torpedo_launcher",
+          "inputs": [{ "ref": "bow_hull_nose" }],
+          "placement": {
+            "anchor": { "x": 100, "y": 4, "z": 6 },
+            "size": { "width": 2, "height": 4, "length": 6 }
+          },
+          "materials": { "main": "dark" }
+        },
+        {
+          "id": "torpedo_tube_3",
+          "type": "SupportPost",
+          "role": "proton_torpedo_launcher",
+          "inputs": [{ "ref": "bow_hull_nose" }],
+          "placement": {
+            "anchor": { "x": 148, "y": 4, "z": 6 },
+            "size": { "width": 2, "height": 4, "length": 6 }
+          },
+          "materials": { "main": "dark" }
+        },
+        {
+          "id": "sensor_array_pillar",
+          "type": "Repeat",
+          "inputs": [{ "ref": "bow_upper_ridge" }],
+          "placement": {
+            "source": "sensor_node",
+            "axis": "x",
+            "count": 8,
+            "step": 10
+          }
+        },
+        {
+          "id": "sensor_node",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 62, "y": 42, "z": 14 },
+            "size": { "width": 2, "height": 8, "length": 2 }
+          },
+          "materials": { "main": "accent" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    },
+    {
+      "id": "bridge_tower",
+      "origin": { "x": 76, "y": 30, "z": 62 },
+      "bounds": { "width": 104, "height": 62, "length": 56 },
+      "components": [
+        {
+          "id": "tower_foundation_platform",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 8, "y": 0, "z": 4 },
+            "size": { "width": 88, "height": 2, "length": 48 }
+          },
+          "materials": { "main": "wall" }
+        },
+        {
+          "id": "tower_neck",
+          "type": "VerticalSetbackVolume",
+          "role": "bridge_tower_neck",
+          "inputs": [{ "ref": "tower_foundation_platform" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 2, "z": 10 },
+            "size": { "width": 64, "height": 24, "length": 36 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "both", "levels": 4, "levelHeight": 6, "setbackPerLevel": 4 }
+        },
+        {
+          "id": "bridge_deck",
+          "type": "Platform",
+          "inputs": [{ "ref": "tower_neck" }],
+          "placement": {
+            "anchor": { "x": 24, "y": 26, "z": 12 },
+            "size": { "width": 56, "height": 2, "length": 32 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "bridge_command_center",
+          "type": "RoomShell",
+          "role": "main_bridge",
+          "inputs": [{ "ref": "bridge_deck" }],
+          "placement": {
+            "anchor": { "x": 28, "y": 28, "z": 16 },
+            "size": { "width": 48, "height": 10, "length": 24 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "bridge_viewport",
+          "type": "Window",
+          "inputs": [{ "ref": "bridge_command_center" }],
+          "placement": {
+            "target": "bridge_command_center",
+            "wall": "front",
+            "offset": 12,
+            "y": 2,
+            "width": 24,
+            "height": 6
+          }
+        },
+        {
+          "id": "bridge_roof",
+          "type": "FlatRoof",
+          "inputs": [{ "ref": "bridge_command_center" }],
+          "placement": {
+            "over": "bridge_command_center"
+          },
+          "materials": { "main": "roof" }
+        },
+        {
+          "id": "shield_gen_left",
+          "type": "Instance",
+          "inputs": [{ "ref": "bridge_deck" }],
+          "placement": {
+            "assembly": "shield_generator",
+            "anchor": { "x": 8, "y": 28, "z": 24 }
+          }
+        },
+        {
+          "id": "shield_gen_right",
+          "type": "Instance",
+          "inputs": [{ "ref": "bridge_deck" }],
+          "placement": {
+            "assembly": "shield_generator",
+            "anchor": { "x": 84, "y": 28, "z": 24 }
+          }
+        },
+        {
+          "id": "comm_tower_left",
+          "type": "VerticalSetbackVolume",
+          "role": "communication_array",
+          "inputs": [{ "ref": "bridge_deck" }],
+          "placement": {
+            "anchor": { "x": 8, "y": 30, "z": 4 },
+            "size": { "width": 8, "height": 16, "length": 8 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "both", "levels": 3, "levelHeight": 5, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "comm_tower_right",
+          "type": "VerticalSetbackVolume",
+          "role": "communication_array",
+          "inputs": [{ "ref": "bridge_deck" }],
+          "placement": {
+            "anchor": { "x": 88, "y": 30, "z": 4 },
+            "size": { "width": 8, "height": 16, "length": 8 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "both", "levels": 3, "levelHeight": 5, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "comm_antenna_left",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "comm_tower_left" }],
+          "placement": {
+            "anchor": { "x": 11, "y": 46, "z": 7 },
+            "size": { "width": 2, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "accent" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "comm_antenna_right",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "comm_tower_right" }],
+          "placement": {
+            "anchor": { "x": 91, "y": 46, "z": 7 },
+            "size": { "width": 2, "height": 10, "length": 2 }
+          },
+          "materials": { "main": "accent" },
+          "structural": { "supportPolicy": "decorative" }
+        }
+      ]
+    }
+  ]
+}

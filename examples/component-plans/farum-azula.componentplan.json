@@ -1,0 +1,1118 @@
+{
+  "version": "0.1",
+  "name": "Farum Azula — Crumbling Dragon Temple",
+  "grid": { "unitBlocks": 1 },
+  "policy": { "sizeTier": "monumental" },
+  "bounds": { "width": 256, "height": 96, "length": 256 },
+  "palette": {
+    "foundation": "minecraft:deepslate_bricks",
+    "wall": "minecraft:cracked_deepslate_bricks",
+    "floor": "minecraft:polished_deepslate",
+    "roof": "minecraft:deepslate_tiles",
+    "trim": "minecraft:gold_block",
+    "glass": "minecraft:purple_stained_glass",
+    "door": "minecraft:dark_oak_door",
+    "pillar": "minecraft:chiseled_deepslate",
+    "dark": "minecraft:obsidian",
+    "accent": "minecraft:crying_obsidian",
+    "rubble": "minecraft:cobbled_deepslate",
+    "path": "minecraft:polished_basalt",
+    "water": "minecraft:water",
+    "leaves": "minecraft:warped_wart_block",
+    "iron": "minecraft:iron_bars"
+  },
+  "assemblies": [
+    {
+      "id": "broken_pillar_cluster",
+      "bounds": { "width": 8, "height": 32, "length": 8 },
+      "components": [
+        {
+          "id": "tall_pillar",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 1, "y": 0, "z": 1 },
+            "size": { "width": 2, "height": 32, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "mid_pillar",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 5, "y": 0, "z": 3 },
+            "size": { "width": 2, "height": 20, "length": 2 }
+          },
+          "materials": { "main": "wall" }
+        },
+        {
+          "id": "fallen_pillar",
+          "type": "Beam",
+          "placement": {
+            "anchor": { "x": 0, "y": 1, "z": 5 },
+            "size": { "width": 6, "height": 2, "length": 2 }
+          },
+          "materials": { "main": "rubble" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "rubble_pile",
+          "type": "RockCluster",
+          "placement": {
+            "anchor": { "x": 2, "y": 0, "z": 5 },
+            "size": { "width": 4, "height": 4, "length": 3 }
+          },
+          "materials": { "main": "rubble" },
+          "options": { "count": 3, "heightVariation": 2, "roughness": 1 }
+        }
+      ]
+    },
+    {
+      "id": "archway_bay",
+      "bounds": { "width": 12, "height": 24, "length": 6 },
+      "components": [
+        {
+          "id": "left_pier",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 2, "height": 24, "length": 6 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "right_pier",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 10, "y": 0, "z": 0 },
+            "size": { "width": 2, "height": 24, "length": 6 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "arch_lintel",
+          "type": "Beam",
+          "inputs": [{ "ref": "left_pier" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 22, "z": 0 },
+            "size": { "width": 12, "height": 2, "length": 6 }
+          },
+          "materials": { "main": "trim" }
+        },
+        {
+          "id": "arch_beam_mid",
+          "type": "Beam",
+          "inputs": [{ "ref": "left_pier" }, { "ref": "right_pier" }],
+          "placement": {
+            "anchor": { "x": 2, "y": 16, "z": 0 },
+            "size": { "width": 8, "height": 2, "length": 6 }
+          },
+          "materials": { "main": "trim" }
+        }
+      ]
+    },
+    {
+      "id": "temple_tower_module",
+      "bounds": { "width": 16, "height": 64, "length": 16 },
+      "components": [
+        {
+          "id": "tower_core",
+          "type": "VerticalSetbackVolume",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 16, "height": 48, "length": 16 }
+          },
+          "materials": { "main": "wall" },
+          "options": {
+            "axis": "both",
+            "levels": 6,
+            "levelHeight": 8,
+            "setbackPerLevel": 1
+          }
+        },
+        {
+          "id": "tower_cap",
+          "type": "SteppedDome",
+          "inputs": [{ "ref": "tower_core" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 40, "z": 0 },
+            "size": { "width": 14, "height": 16, "length": 14 }
+          },
+          "materials": { "main": "roof" },
+          "options": { "levels": 5, "insetPerLevel": 1, "hollow": false }
+        },
+        {
+          "id": "tower_window_low",
+          "type": "Window",
+          "placement": {
+            "target": "tower_core",
+            "wall": "front",
+            "offset": 5,
+            "y": 12,
+            "width": 2,
+            "height": 4
+          }
+        },
+        {
+          "id": "tower_window_high",
+          "type": "Window",
+          "placement": {
+            "target": "tower_core",
+            "wall": "front",
+            "offset": 7,
+            "y": 26,
+            "width": 2,
+            "height": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "dragon_beast_remnant",
+      "bounds": { "width": 40, "height": 32, "length": 40 },
+      "components": [
+        {
+          "id": "beast_body",
+          "type": "TaperedVolume",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 10 },
+            "size": { "width": 40, "height": 12, "length": 20 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "x", "startInset": 4, "endInset": 8 }
+        },
+        {
+          "id": "beast_neck",
+          "type": "TaperedVolume",
+          "inputs": [{ "ref": "beast_body" }],
+          "placement": {
+            "anchor": { "x": 30, "y": 8, "z": 14 },
+            "size": { "width": 10, "height": 16, "length": 12 }
+          },
+          "materials": { "main": "accent" },
+          "options": { "axis": "x", "startInset": 2, "endInset": 1 }
+        },
+        {
+          "id": "beast_head",
+          "type": "SteppedDome",
+          "inputs": [{ "ref": "beast_neck" }],
+          "placement": {
+            "anchor": { "x": 26, "y": 22, "z": 10 },
+            "size": { "width": 14, "height": 10, "length": 20 }
+          },
+          "materials": { "main": "accent" },
+          "options": { "levels": 4, "insetPerLevel": 1, "hollow": false }
+        },
+        {
+          "id": "beast_wing_left",
+          "type": "TaperedVolume",
+          "inputs": [{ "ref": "beast_body" }],
+          "placement": {
+            "anchor": { "x": 10, "y": 10, "z": 0 },
+            "size": { "width": 20, "height": 4, "length": 10 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 4 },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "beast_wing_right",
+          "type": "TaperedVolume",
+          "inputs": [{ "ref": "beast_body" }],
+          "placement": {
+            "anchor": { "x": 10, "y": 10, "z": 30 },
+            "size": { "width": 20, "height": 4, "length": 10 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 4 },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "beast_rubble",
+          "type": "RockCluster",
+          "inputs": [{ "ref": "beast_body" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 5 },
+            "size": { "width": 12, "height": 5, "length": 30 }
+          },
+          "materials": { "main": "rubble" },
+          "options": { "count": 8, "heightVariation": 3, "roughness": 2 }
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "central_sanctum",
+      "origin": { "x": 48, "y": 0, "z": 56 },
+      "bounds": { "width": 160, "height": 96, "length": 144 },
+      "components": [
+        {
+          "id": "sanctum_ground",
+          "type": "Foundation",
+          "role": "temple_plaza_foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 160, "height": 2, "length": 144 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "main_podium",
+          "type": "SteppedTier",
+          "role": "central_temple_podium",
+          "inputs": [{ "ref": "sanctum_ground" }],
+          "placement": {
+            "anchor": { "x": 24, "y": 2, "z": 20 },
+            "size": { "width": 112, "height": 12, "length": 104 }
+          },
+          "materials": { "main": "foundation" },
+          "options": { "axis": "both", "levels": 4, "stepHeight": 3, "insetPerLevel": 4 }
+        },
+        {
+          "id": "temple_nave",
+          "type": "RoomShell",
+          "role": "main_temple_hall",
+          "inputs": [{ "ref": "main_podium" }],
+          "placement": {
+            "anchor": { "x": 40, "y": 14, "z": 36 },
+            "size": { "width": 80, "height": 32, "length": 72 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "nave_entrance",
+          "type": "Opening",
+          "role": "temple_grand_entrance",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "target": "temple_nave",
+            "wall": "front",
+            "offset": 32,
+            "y": 0,
+            "width": 16,
+            "height": 20
+          }
+        },
+        {
+          "id": "nave_window_left_1",
+          "type": "Window",
+          "placement": {
+            "target": "temple_nave",
+            "wall": "left",
+            "offset": 4,
+            "y": 8,
+            "width": 4,
+            "height": 10
+          }
+        },
+        {
+          "id": "nave_window_left_2",
+          "type": "Window",
+          "placement": {
+            "target": "temple_nave",
+            "wall": "left",
+            "offset": 36,
+            "y": 8,
+            "width": 4,
+            "height": 10
+          }
+        },
+        {
+          "id": "nave_window_right_1",
+          "type": "Window",
+          "placement": {
+            "target": "temple_nave",
+            "wall": "right",
+            "offset": 4,
+            "y": 8,
+            "width": 4,
+            "height": 10
+          }
+        },
+        {
+          "id": "nave_window_right_2",
+          "type": "Window",
+          "placement": {
+            "target": "temple_nave",
+            "wall": "right",
+            "offset": 36,
+            "y": 8,
+            "width": 4,
+            "height": 10
+          }
+        },
+        {
+          "id": "nave_floor",
+          "type": "Platform",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 41, "y": 15, "z": 37 },
+            "size": { "width": 78, "height": 1, "length": 70 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "inner_sanctum",
+          "type": "Compartment",
+          "role": "dragon_lord_throne_room",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 44, "y": 15, "z": 88 },
+            "size": { "width": 72, "height": 20, "length": 18 }
+          },
+          "materials": { "main": "trim" },
+          "options": { "includeFloor": false, "includeCeiling": false }
+        },
+        {
+          "id": "sanctum_door",
+          "type": "Opening",
+          "inputs": [{ "ref": "inner_sanctum" }],
+          "placement": {
+            "target": "inner_sanctum",
+            "wall": "front",
+            "offset": 30,
+            "y": 0,
+            "width": 12,
+            "height": 14
+          }
+        },
+        {
+          "id": "sanctum_floor",
+          "type": "Platform",
+          "inputs": [{ "ref": "inner_sanctum" }],
+          "placement": {
+            "anchor": { "x": 45, "y": 16, "z": 89 },
+            "size": { "width": 70, "height": 1, "length": 16 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "throne_dais",
+          "type": "Platform",
+          "inputs": [{ "ref": "sanctum_floor" }],
+          "placement": {
+            "anchor": { "x": 64, "y": 17, "z": 98 },
+            "size": { "width": 32, "height": 2, "length": 8 }
+          },
+          "materials": { "main": "accent" }
+        },
+        {
+          "id": "throne_pillar_left",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "throne_dais" }],
+          "placement": {
+            "anchor": { "x": 65, "y": 19, "z": 104 },
+            "size": { "width": 2, "height": 12, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "throne_pillar_right",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "throne_dais" }],
+          "placement": {
+            "anchor": { "x": 93, "y": 19, "z": 104 },
+            "size": { "width": 2, "height": 12, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "sanctum_balcony_left",
+          "type": "Platform",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 42, "y": 30, "z": 56 },
+            "size": { "width": 10, "height": 1, "length": 32 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "sanctum_balcony_right",
+          "type": "Platform",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 108, "y": 30, "z": 56 },
+            "size": { "width": 10, "height": 1, "length": 32 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "balcony_brackets_left",
+          "type": "SupportBracket",
+          "inputs": [{ "ref": "sanctum_balcony_left" }],
+          "placement": {
+            "anchor": { "x": 42, "y": 28, "z": 56 },
+            "size": { "width": 32, "height": 2, "length": 4 }
+          },
+          "materials": { "main": "trim" },
+          "options": { "axis": "z", "direction": "negative", "spacing": 4 }
+        },
+        {
+          "id": "balcony_brackets_right",
+          "type": "SupportBracket",
+          "inputs": [{ "ref": "sanctum_balcony_right" }],
+          "placement": {
+            "anchor": { "x": 116, "y": 28, "z": 56 },
+            "size": { "width": 32, "height": 2, "length": 4 }
+          },
+          "materials": { "main": "trim" },
+          "options": { "axis": "z", "direction": "positive", "spacing": 4 }
+        },
+        {
+          "id": "balcony_rail_left",
+          "type": "RailingRun",
+          "inputs": [{ "ref": "sanctum_balcony_left" }],
+          "placement": {
+            "anchor": { "x": 42, "y": 31, "z": 56 },
+            "size": { "width": 1, "height": 2, "length": 32 }
+          },
+          "materials": { "main": "iron", "rail": "trim" },
+          "options": { "axis": "z", "postSpacing": 4, "includePosts": true, "includeTopRail": true, "includeMidRail": false }
+        },
+        {
+          "id": "balcony_rail_right",
+          "type": "RailingRun",
+          "inputs": [{ "ref": "sanctum_balcony_right" }],
+          "placement": {
+            "anchor": { "x": 117, "y": 31, "z": 56 },
+            "size": { "width": 1, "height": 2, "length": 32 }
+          },
+          "materials": { "main": "iron", "rail": "trim" },
+          "options": { "axis": "z", "postSpacing": 4, "includePosts": true, "includeTopRail": true, "includeMidRail": false }
+        },
+        {
+          "id": "temple_dome",
+          "type": "SteppedDome",
+          "role": "dragon_lord_dome",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 44, "y": 46, "z": 40 },
+            "size": { "width": 72, "height": 24, "length": 64 }
+          },
+          "materials": { "main": "roof" },
+          "options": { "levels": 10, "insetPerLevel": 2, "hollow": true }
+        },
+        {
+          "id": "temple_facade_arcade",
+          "type": "ArcadeRun",
+          "role": "grand_entrance_arch_facade",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 44, "y": 14, "z": 36 },
+            "size": { "width": 72, "height": 18, "length": 4 }
+          },
+          "materials": { "main": "pillar" },
+          "options": { "axis": "x", "bayCount": 8, "pierWidth": 2, "archHeight": 10 }
+        },
+        {
+          "id": "temple_stair_front",
+          "type": "StairRun",
+          "role": "grand_temple_stairs",
+          "inputs": [{ "ref": "main_podium" }],
+          "placement": {
+            "anchor": { "x": 64, "y": 14, "z": 20 },
+            "size": { "width": 32, "height": 12, "length": 16 }
+          },
+          "materials": { "main": "foundation" },
+          "options": { "axis": "z", "direction": "negative", "style": "solid", "includeSideRails": true }
+        },
+        {
+          "id": "sanctum_pillar_row_left",
+          "type": "Repeat",
+          "inputs": [{ "ref": "nave_floor" }],
+          "placement": {
+            "source": "nave_pillar_left",
+            "axis": "z",
+            "count": 6,
+            "step": 12
+          }
+        },
+        {
+          "id": "nave_pillar_left",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 48, "y": 16, "z": 42 },
+            "size": { "width": 2, "height": 24, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "sanctum_pillar_row_right",
+          "type": "Repeat",
+          "inputs": [{ "ref": "nave_floor" }],
+          "placement": {
+            "source": "nave_pillar_right",
+            "axis": "z",
+            "count": 6,
+            "step": 12
+          }
+        },
+        {
+          "id": "nave_pillar_right",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 110, "y": 16, "z": 42 },
+            "size": { "width": 2, "height": 24, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "sanctum_corridor_left",
+          "type": "Corridor",
+          "inputs": [{ "ref": "temple_nave" }],
+          "placement": {
+            "anchor": { "x": 40, "y": 15, "z": 60 },
+            "size": { "width": 6, "height": 5, "length": 24 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "includeFloor": true, "includeCeiling": true }
+        }
+      ]
+    },
+    {
+      "id": "crumbled_colonnade",
+      "origin": { "x": 0, "y": 0, "z": 52 },
+      "bounds": { "width": 60, "height": 72, "length": 152 },
+      "components": [
+        {
+          "id": "colonnade_ground",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 60, "height": 2, "length": 152 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "colonnade_plaza",
+          "type": "Platform",
+          "inputs": [{ "ref": "colonnade_ground" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 2, "z": 8 },
+            "size": { "width": 60, "height": 1, "length": 136 }
+          },
+          "materials": { "main": "floor" }
+        },
+        {
+          "id": "colonnade_arch_facade",
+          "type": "ArcadeRun",
+          "role": "ruined_temple_colonnade",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "anchor": { "x": 0, "y": 3, "z": 8 },
+            "size": { "width": 60, "height": 30, "length": 8 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "bayCount": 12, "pierWidth": 1, "archHeight": 16 }
+        },
+        {
+          "id": "colonnade_path",
+          "type": "PathRun",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "anchor": { "x": 10, "y": 3, "z": 16 },
+            "size": { "width": 40, "height": 1, "length": 128 }
+          },
+          "materials": { "main": "path" },
+          "options": {
+            "style": "continuous",
+            "width": 4,
+            "waypoints": [
+              { "x": 20, "z": 0 },
+              { "x": 10, "z": 40 },
+              { "x": 30, "z": 70 },
+              { "x": 20, "z": 100 },
+              { "x": 20, "z": 127 }
+            ]
+          }
+        },
+        {
+          "id": "colonnade_pillar_left",
+          "type": "Repeat",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "source": "colonnade_single_pillar",
+            "axis": "z",
+            "count": 10,
+            "step": 14
+          }
+        },
+        {
+          "id": "colonnade_single_pillar",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 4, "y": 3, "z": 20 },
+            "size": { "width": 2, "height": 28, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "colonnade_pillar_right",
+          "type": "Repeat",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "source": "colonnade_pillar_r",
+            "axis": "z",
+            "count": 10,
+            "step": 14
+          }
+        },
+        {
+          "id": "colonnade_pillar_r",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 54, "y": 3, "z": 20 },
+            "size": { "width": 2, "height": 28, "length": 2 }
+          },
+          "materials": { "main": "pillar" }
+        },
+        {
+          "id": "colonnade_broken_tower",
+          "type": "VerticalSetbackVolume",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "anchor": { "x": 8, "y": 3, "z": 90 },
+            "size": { "width": 20, "height": 48, "length": 20 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "both", "levels": 6, "levelHeight": 8, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "broken_tower_rubble",
+          "type": "RockCluster",
+          "inputs": [{ "ref": "colonnade_broken_tower" }],
+          "placement": {
+            "anchor": { "x": 28, "y": 3, "z": 90 },
+            "size": { "width": 14, "height": 8, "length": 20 }
+          },
+          "materials": { "main": "rubble" },
+          "options": { "count": 6, "heightVariation": 4, "roughness": 2 }
+        },
+        {
+          "id": "colonnade_broken_pillar_group",
+          "type": "Repeat",
+          "inputs": [{ "ref": "colonnade_ground" }],
+          "placement": {
+            "source": "colonnade_fallen_pillar",
+            "axis": "z",
+            "count": 4,
+            "step": 28
+          }
+        },
+        {
+          "id": "colonnade_fallen_pillar",
+          "type": "Beam",
+          "placement": {
+            "anchor": { "x": 36, "y": 2, "z": 30 },
+            "size": { "width": 2, "height": 2, "length": 16 }
+          },
+          "materials": { "main": "rubble" },
+          "structural": { "supportPolicy": "decorative" }
+        },
+        {
+          "id": "floating_debris_1",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 10, "y": 36, "z": 40 },
+            "size": { "width": 8, "height": 1, "length": 10 }
+          },
+          "materials": { "main": "wall" },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "floating_debris_2",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 40, "y": 30, "z": 80 },
+            "size": { "width": 6, "height": 1, "length": 8 }
+          },
+          "materials": { "main": "wall" },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "floating_debris_3",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 18, "y": 44, "z": 120 },
+            "size": { "width": 12, "height": 1, "length": 14 }
+          },
+          "materials": { "main": "trim" },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "floating_pillar_fragment",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 50, "y": 42, "z": 110 },
+            "size": { "width": 2, "height": 14, "length": 2 }
+          },
+          "materials": { "main": "pillar" },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "colonnade_gate_arch",
+          "type": "Instance",
+          "inputs": [{ "ref": "colonnade_plaza" }],
+          "placement": {
+            "assembly": "archway_bay",
+            "anchor": { "x": 24, "y": 3, "z": 130 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "dragon_mausoleum",
+      "origin": { "x": 128, "y": 0, "z": 128 },
+      "bounds": { "width": 128, "height": 96, "length": 128 },
+      "components": [
+        {
+          "id": "mausoleum_ground",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 0, "y": 0, "z": 0 },
+            "size": { "width": 128, "height": 2, "length": 128 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "mausoleum_terrace",
+          "type": "SteppedTier",
+          "role": "dragon_arena_terrace",
+          "inputs": [{ "ref": "mausoleum_ground" }],
+          "placement": {
+            "anchor": { "x": 8, "y": 2, "z": 8 },
+            "size": { "width": 112, "height": 10, "length": 112 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "both", "levels": 3, "stepHeight": 3, "insetPerLevel": 6 }
+        },
+        {
+          "id": "dragon_beast_instance",
+          "type": "Instance",
+          "inputs": [{ "ref": "mausoleum_terrace" }],
+          "placement": {
+            "assembly": "dragon_beast_remnant",
+            "anchor": { "x": 12, "y": 12, "z": 36 }
+          }
+        },
+        {
+          "id": "mausoleum_spire_1",
+          "type": "VerticalSetbackVolume",
+          "role": "wind_carved_spire",
+          "inputs": [{ "ref": "mausoleum_ground" }],
+          "placement": {
+            "anchor": { "x": 2, "y": 2, "z": 2 },
+            "size": { "width": 16, "height": 64, "length": 16 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "both", "levels": 8, "levelHeight": 8, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "mausoleum_spire_2",
+          "type": "VerticalSetbackVolume",
+          "role": "wind_carved_spire",
+          "inputs": [{ "ref": "mausoleum_ground" }],
+          "placement": {
+            "anchor": { "x": 110, "y": 2, "z": 2 },
+            "size": { "width": 16, "height": 56, "length": 16 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "both", "levels": 7, "levelHeight": 8, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "mausoleum_spire_3",
+          "type": "VerticalSetbackVolume",
+          "role": "wind_carved_spire",
+          "inputs": [{ "ref": "mausoleum_ground" }],
+          "placement": {
+            "anchor": { "x": 2, "y": 2, "z": 110 },
+            "size": { "width": 16, "height": 48, "length": 16 }
+          },
+          "materials": { "main": "dark" },
+          "options": { "axis": "both", "levels": 6, "levelHeight": 8, "setbackPerLevel": 1 }
+        },
+        {
+          "id": "mausoleum_broken_bridge_1",
+          "type": "TaperedVolume",
+          "role": "shattered_sky_bridge_segment",
+          "inputs": [{ "ref": "mausoleum_spire_1" }],
+          "placement": {
+            "anchor": { "x": 18, "y": 36, "z": 4 },
+            "size": { "width": 40, "height": 4, "length": 12 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "startInset": 0, "endInset": 4 },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "mausoleum_broken_bridge_2",
+          "type": "TaperedVolume",
+          "role": "shattered_sky_bridge_segment",
+          "inputs": [{ "ref": "mausoleum_spire_1" }],
+          "placement": {
+            "anchor": { "x": 4, "y": 28, "z": 18 },
+            "size": { "width": 14, "height": 4, "length": 44 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "z", "startInset": 0, "endInset": 3 },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "mausoleum_bridge_rail_1",
+          "type": "RailingRun",
+          "inputs": [{ "ref": "mausoleum_broken_bridge_1" }],
+          "placement": {
+            "anchor": { "x": 18, "y": 40, "z": 4 },
+            "size": { "width": 40, "height": 2, "length": 1 }
+          },
+          "materials": { "main": "iron", "rail": "trim" },
+          "options": { "axis": "x", "postSpacing": 5, "includePosts": true, "includeTopRail": true }
+        },
+        {
+          "id": "mausoleum_rubble_field",
+          "type": "RockCluster",
+          "inputs": [{ "ref": "mausoleum_ground" }],
+          "placement": {
+            "anchor": { "x": 60, "y": 2, "z": 60 },
+            "size": { "width": 40, "height": 10, "length": 40 }
+          },
+          "materials": { "main": "rubble" },
+          "options": { "count": 12, "heightVariation": 5, "roughness": 3 }
+        },
+        {
+          "id": "mausoleum_pillar_ring",
+          "type": "Repeat",
+          "inputs": [{ "ref": "mausoleum_rubble_field" }],
+          "placement": {
+            "source": "mausoleum_standing_stone",
+            "axis": "x",
+            "count": 6,
+            "step": 8
+          }
+        },
+        {
+          "id": "mausoleum_standing_stone",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 62, "y": 4, "z": 64 },
+            "size": { "width": 2, "height": 22, "length": 2 }
+          },
+          "materials": { "main": "accent" }
+        },
+        {
+          "id": "mausoleum_organic_bed",
+          "type": "OrganicPatch",
+          "role": "ancient_dried_water_basin",
+          "placement": {
+            "anchor": { "x": 40, "y": 4, "z": 40 },
+            "size": { "width": 20, "height": 1, "length": 16 }
+          },
+          "materials": { "fill": "water", "border": "rubble" },
+          "options": { "roughness": 2, "includeBorder": true }
+        },
+        {
+          "id": "mausoleum_temple_ruin",
+          "type": "SteppedTier",
+          "role": "collapsed_shrine_platform",
+          "inputs": [{ "ref": "mausoleum_rubble_field" }],
+          "placement": {
+            "anchor": { "x": 70, "y": 4, "z": 20 },
+            "size": { "width": 32, "height": 6, "length": 24 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "both", "levels": 3, "stepHeight": 2, "insetPerLevel": 3 }
+        },
+        {
+          "id": "shrine_arch_ruin",
+          "type": "ArcadeRun",
+          "inputs": [{ "ref": "mausoleum_temple_ruin" }],
+          "placement": {
+            "anchor": { "x": 74, "y": 10, "z": 20 },
+            "size": { "width": 24, "height": 14, "length": 6 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "bayCount": 4, "pierWidth": 2, "archHeight": 8 }
+        }
+      ]
+    },
+    {
+      "id": "wind_scarred_approach",
+      "origin": { "x": 0, "y": 0, "z": 0 },
+      "bounds": { "width": 256, "height": 48, "length": 56 },
+      "components": [
+        {
+          "id": "approach_foundation",
+          "type": "Foundation",
+          "placement": {
+            "anchor": { "x": 4, "y": 0, "z": 4 },
+            "size": { "width": 248, "height": 1, "length": 48 }
+          },
+          "materials": { "main": "foundation" }
+        },
+        {
+          "id": "approach_broken_path",
+          "type": "PathRun",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 8, "y": 1, "z": 12 },
+            "size": { "width": 240, "height": 1, "length": 32 }
+          },
+          "materials": { "main": "path" },
+          "options": {
+            "style": "stepping_stones",
+            "width": 3,
+            "stepSpacing": 3,
+            "waypoints": [
+              { "x": 0, "z": 16 },
+              { "x": 48, "z": 8 },
+              { "x": 96, "z": 20 },
+              { "x": 140, "z": 12 },
+              { "x": 180, "z": 18 },
+              { "x": 220, "z": 8 },
+              { "x": 239, "z": 16 }
+            ]
+          }
+        },
+        {
+          "id": "approach_bridge_1",
+          "type": "TaperedVolume",
+          "role": "collapsed_bridge_approach",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 20, "y": 1, "z": 22 },
+            "size": { "width": 36, "height": 4, "length": 14 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "startInset": 0, "endInset": 6 },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "approach_bridge_2",
+          "type": "TaperedVolume",
+          "role": "collapsed_bridge_approach",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 100, "y": 1, "z": 22 },
+            "size": { "width": 44, "height": 4, "length": 16 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "startInset": 4, "endInset": 4 },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "approach_bridge_3",
+          "type": "TaperedVolume",
+          "role": "collapsed_bridge_approach",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 190, "y": 1, "z": 22 },
+            "size": { "width": 48, "height": 4, "length": 14 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "startInset": 2, "endInset": 6 },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "bridge_rail_1",
+          "type": "RailingRun",
+          "inputs": [{ "ref": "approach_bridge_2" }],
+          "placement": {
+            "anchor": { "x": 100, "y": 5, "z": 20 },
+            "size": { "width": 44, "height": 2, "length": 1 }
+          },
+          "materials": { "main": "iron" },
+          "options": { "axis": "x", "postSpacing": 4, "includePosts": true, "includeTopRail": true }
+        },
+        {
+          "id": "bridge_rail_2",
+          "type": "RailingRun",
+          "inputs": [{ "ref": "approach_bridge_2" }],
+          "placement": {
+            "anchor": { "x": 100, "y": 5, "z": 37 },
+            "size": { "width": 44, "height": 2, "length": 1 }
+          },
+          "materials": { "main": "iron" },
+          "options": { "axis": "x", "postSpacing": 4, "includePosts": true, "includeTopRail": true }
+        },
+        {
+          "id": "approach_broken_bracket_row",
+          "type": "SupportBracket",
+          "inputs": [{ "ref": "approach_bridge_2" }],
+          "placement": {
+            "anchor": { "x": 100, "y": 3, "z": 22 },
+            "size": { "width": 44, "height": 2, "length": 4 }
+          },
+          "materials": { "main": "wall" },
+          "options": { "axis": "x", "direction": "positive", "spacing": 6 }
+        },
+        {
+          "id": "approach_pillar_sentry",
+          "type": "Repeat",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "source": "sentry_post",
+            "axis": "x",
+            "count": 14,
+            "step": 18
+          }
+        },
+        {
+          "id": "sentry_post",
+          "type": "SupportPost",
+          "placement": {
+            "anchor": { "x": 12, "y": 1, "z": 44 },
+            "size": { "width": 2, "height": 16, "length": 2 }
+          },
+          "materials": { "main": "accent" }
+        },
+        {
+          "id": "approach_rubble_scatter",
+          "type": "RockCluster",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 70, "y": 1, "z": 30 },
+            "size": { "width": 50, "height": 5, "length": 14 }
+          },
+          "materials": { "main": "rubble" },
+          "options": { "count": 8, "heightVariation": 3, "roughness": 2 }
+        },
+        {
+          "id": "approach_gateway",
+          "type": "ArcadeRun",
+          "role": "wind_scarred_gateway_arch",
+          "inputs": [{ "ref": "approach_foundation" }],
+          "placement": {
+            "anchor": { "x": 154, "y": 1, "z": 12 },
+            "size": { "width": 32, "height": 28, "length": 8 }
+          },
+          "materials": { "main": "pillar" },
+          "options": { "axis": "x", "bayCount": 3, "pierWidth": 3, "archHeight": 18 }
+        },
+        {
+          "id": "approach_floating_island",
+          "type": "Platform",
+          "placement": {
+            "anchor": { "x": 40, "y": 20, "z": 6 },
+            "size": { "width": 24, "height": 2, "length": 18 }
+          },
+          "materials": { "main": "wall" },
+          "structural": { "supportPolicy": "may_float" }
+        },
+        {
+          "id": "floating_island_pillar",
+          "type": "SupportPost",
+          "inputs": [{ "ref": "approach_floating_island" }],
+          "placement": {
+            "anchor": { "x": 48, "y": 22, "z": 14 },
+            "size": { "width": 4, "height": 16, "length": 4 }
+          },
+          "materials": { "main": "pillar" },
+          "structural": { "supportPolicy": "may_float" }
+        }
+      ]
+    }
+  ]
+}

@@ -234,4 +234,49 @@ describe("FloorStack Component", () => {
     expect(analysisResult.summary.disconnectedBlocks).toBe(0);
     expect(analysisResult.summary.qualityGate.status).not.toBe("block");
   });
+
+  it("supports includeDoorways and includeWindows options, creating doorway and window primitive nodes", () => {
+    const docWithOptions: ComponentPlanDocument = {
+      ...basicFloorStackDoc,
+      components: [
+        {
+          id: "tower",
+          type: "FloorStack",
+          placement: {
+            anchor: { x: 1, y: 0, z: 1 },
+            size: { width: 8, height: 12, length: 8 },
+          },
+          options: {
+            levels: 3,
+            levelHeight: 4,
+            setbackPerLevel: 1,
+            stairStyle: "none",
+            includeDoorways: true,
+            includeWindows: true,
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(docWithOptions);
+    const nodeIds = craftDag.nodes.map((node) => node.id);
+
+    // Levels 0, 1, 2 should have doorways and windows generated
+    for (let level = 0; level < 3; level++) {
+      expect(nodeIds).toContain(`tower__doorway_${level}`);
+      expect(nodeIds).toContain(`tower__window_left_${level}`);
+      expect(nodeIds).toContain(`tower__window_right_${level}`);
+      expect(nodeIds).toContain(`tower__window_back_${level}`);
+    }
+
+    const doorway0 = craftDag.nodes.find((node) => node.id === "tower__doorway_0")!;
+    expect(doorway0.type).toBe("Doorway");
+    expect(doorway0.params.from).toEqual([4, 1, 1]);
+    expect(doorway0.params.to).toEqual([5, 3, 1]); // unit is 1
+
+    const windowLeft0 = craftDag.nodes.find((node) => node.id === "tower__window_left_0")!;
+    expect(windowLeft0.type).toBe("Window");
+    expect(windowLeft0.params.from).toEqual([1, 2, 4]);
+    expect(windowLeft0.params.to).toEqual([1, 2, 5]);
+  });
 });
