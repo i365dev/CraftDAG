@@ -61,6 +61,15 @@ importers:
         specifier: ^20.12.7
         version: 20.19.42
 
+  packages/importer-schem:
+    dependencies:
+      '@i365dev/craftdag-core':
+        specifier: 0.1.12
+        version: link:../core
+      prismarine-nbt:
+        specifier: ^2.6.0
+        version: 2.8.0
+
 packages:
 
   /@esbuild/aix-ppc64@0.21.5:
