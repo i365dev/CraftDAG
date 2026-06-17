@@ -1,6 +1,6 @@
 {
   "name": "@i365dev/craftdag-importer-schem",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "repository": {
     "type": "git",
     "url": "https://github.com/i365dev/CraftDAG.git",
@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@i365dev/craftdag-core": "0.1.14",
+    "@i365dev/craftdag-core": "0.1.15",
     "prismarine-nbt": "^2.6.0"
   }
 }
