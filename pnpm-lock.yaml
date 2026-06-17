@@ -64,7 +64,7 @@ importers:
   packages/importer-schem:
     dependencies:
       '@i365dev/craftdag-core':
-        specifier: 0.1.17
+        specifier: 0.1.18
         version: link:../core
       prismarine-nbt:
         specifier: ^2.6.0

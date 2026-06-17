@@ -13,6 +13,7 @@ import {
   generateLayerGuide,
   stringifyBlockState,
   validateComponentPlan,
+  generateBuildManifest,
 } from "@i365dev/craftdag-core";
 import { exportToSchematic } from "@i365dev/craftdag-exporter-schem";
 
@@ -373,6 +374,23 @@ component
       } else {
         console.error(`✗ ComponentPlan support error: ${err.message}`);
       }
+      process.exit(1);
+    }
+  });
+
+component
+  .command("manifest")
+  .description("Generate a build artifact manifest for SEO/content pages")
+  .argument("<file>", "path to the ComponentPlan JSON file")
+  .option("--tags <tags>", "comma-separated tags")
+  .action((file, options) => {
+    const doc = readJsonFile(file);
+    try {
+      const tags = options.tags ? options.tags.split(",").map((t: string) => t.trim()) : [];
+      const manifest = generateBuildManifest(doc, { tags });
+      writeJson(manifest);
+    } catch (err: any) {
+      writeJsonError(err);
       process.exit(1);
     }
   });
