@@ -3534,12 +3534,12 @@ function expandRepeat(
       }
       const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
       const step = component.placement.step * index;
-      const shift: Vec3 = [
-        component.placement.axis === "x" ? step * unit : source.placement.anchor.x * unit,
-        component.placement.axis === "y" ? step * unit : source.placement.anchor.y * unit,
-        component.placement.axis === "z" ? step * unit : source.placement.anchor.z * unit,
+      const instanceShift: Vec3 = [
+        source.placement.anchor.x * unit,
+        source.placement.anchor.y * unit,
+        source.placement.anchor.z * unit,
       ];
-      const anchorShift: Vec3 = [
+      const repeatStep: Vec3 = [
         component.placement.axis === "x" ? step * unit : 0,
         component.placement.axis === "y" ? step * unit : 0,
         component.placement.axis === "z" ? step * unit : 0,
@@ -3553,7 +3553,7 @@ function expandRepeat(
           throw withDiagnosticContext(error, { assemblyId: assembly.id, instanceId: repeatedId });
         }
         for (const localNode of localNodes) {
-          nodes.push(namespaceAndShiftNode(localNode, repeatedId, addVec3(shift, anchorShift), []));
+          nodes.push(namespaceAndShiftNode(localNode, repeatedId, addVec3(instanceShift, repeatStep), []));
         }
       }
     } else {
@@ -4080,6 +4080,7 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "PathRun" ||
     component.type === "RockCluster" ||
     component.type === "StairRun" ||
-    component.type === "SupportPost"
+    component.type === "SupportPost" ||
+    component.type === "Instance"
   );
 }
