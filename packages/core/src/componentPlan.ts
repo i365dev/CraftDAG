@@ -3618,12 +3618,12 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
     case "SupportPost":
       return [{ role: "main", value: "trim" }];
     case "Repeat":
+    case "Instance":
+      return [];
     case "CircleRing":
     case "DiagonalBeam":
     case "RadialRepeat":
       return [{ role: "main", value: "wall" }];
-    case "Instance":
-      return [];
     default: {
       const _exhaustiveCheck: never = component;
       throw new ValidationError(`Unhandled component type: ${(_exhaustiveCheck as any).type}`);
