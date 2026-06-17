@@ -638,11 +638,11 @@ function parentSourceId(sourceNodeId: string): string | null {
 function anyParentKnown(sourceNodeId: string, knownPrefixes: Set<string>): boolean {
   const sepCount = (sourceNodeId.match(/__/g) || []).length;
   if (sepCount < 2) return false;
-  let current = sourceNodeId;
-  while (true) {
+  for (let current = sourceNodeId; current.includes("__");) {
     const parent = parentSourceId(current);
     if (!parent) return false;
     if (knownPrefixes.has(parent)) return true;
     current = parent;
   }
+  return false;
 }
