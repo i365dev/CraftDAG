@@ -136,6 +136,64 @@ These tasks should be solvable from docs and examples alone:
 
 Functional/redstone tasks should wait for module support. Until then, describe desired behavior in issue docs, not arbitrary redstone wire layouts.
 
+## Large Build Authoring Patterns
+
+These patterns emerge from real landmark-scale builds. They are not component-specific but describe how to combine primitives for complex structures.
+
+### Curved and diagonal structures
+
+Use multi-segment `DiagonalBeam` chains to approximate curves and sloped lines. Each segment changes angle slightly:
+
+```json
+{ "id": "leg_a", "from": { "x": 16, "y": 1,  "z": 16 }, "to": { "x": 22, "y": 14, "z": 22 }, "thickness": 4 },
+{ "id": "leg_b", "from": { "x": 22, "y": 14, "z": 22 }, "to": { "x": 28, "y": 30, "z": 28 }, "thickness": 3 },
+{ "id": "leg_c", "from": { "x": 28, "y": 30, "z": 28 }, "to": { "x": 35, "y": 48, "z": 35 }, "thickness": 2 }
+```
+
+Key rules:
+- Decreasing `thickness` as the structure rises (4→3→2) looks more natural
+- Connect segments with `inputs: [{ "ref": "previous_segment" }]`
+- Plan segment endpoints so the chain passes near (not through) intermediate platforms
+- Three segments is usually enough; four for very tall structures
+
+### Converging towers and spires
+
+`SteppedDome` with `hollow: true` creates a lattice framework that shrinks toward the top. Calculate the final size: `final = width - (levels - 1) × 2 × insetPerLevel`. Do NOT exceed 1x1 or the dome collapses.
+
+After the dome reaches minimum size, use `CircleRing` with constant radius for an equal-width top section, then cap with `SteppedDome` (solid, not hollow).
+
+### Circular platforms and fences
+
+`CircleRing` with `fill: "solid"` and `thickness` creates a solid circular platform. Use a second `CircleRing` with slightly larger radius + `fill: "hollow"` + `thickness: 1` as a fence ring on top.
+
+For partial arcs (archways, semicircle balconies): use `startAngle`/`endAngle`. 0° = +X axis, counterclockwise.
+
+### Observation decks
+
+Pattern: `Platform` (floor) → `Beam` (thick edges, 2 blocks high, placed outside the floor perimeter) → `RailingRun` (thin fence on top of the beam).
+
+Make the Beam edges extend 2 blocks beyond the floor on each side so visitors have a balcony to stand on.
+
+### Deck supports
+
+If a platform sits on top of converging legs, add cross-support beams underneath. Use `DiagonalBeam` from each leg corner toward the deck center, placed at y = deck.y - 2. This prevents "floating platform" diagnostics.
+
+### Proportion iteration
+
+Large landmark builds typically need 5-10 iterations to get proportions right. Start with rough coordinates, validate, compile, preview in MinePilot, then adjust. The `--dry-run` flag helps catch shape primitive collapse before compiling.
+
+## Common Pitfalls
+
+| Pitfall | Why it happens | Fix |
+|---------|---------------|-----|
+| Shape primitive collapse | `insetPerLevel` × `levels` shrinks below 1×1 | Pre-calculate: `width - (levels-1)×2×inset` must be ≥ 2 |
+| Diagonal beam goes out of bounds | Thickness loop creates blocks at negative coords | Start `from` at least `thickness` away from edge |
+| CircleRing arc extends past bounds | Center ± radius exceeds plan dimensions | Ensure `center.z - radius ≥ 0` and `center.z + radius ≤ bounds.length` |
+| Floating deck diagnostics | Platform has no blocks underneath | Add `DiagonalBeam` cross-supports from legs to deck center |
+| Instance can't be an input target | v0.1 rule: only physical components can be referenced | Use the assembly's internal component ID directly, or add intermediate `Platform` |
+| Repeat can't repeat Instance | v0.1 limitation (fixed in 0.1.8) | Use `Repeat(source=Instance, ...)` — supported since 0.1.8 |
+| Wall attachments don't work on all components | Only `RoomShell`, `Compartment`, `Corridor` support wall attachment | Use a RoomShell wrapper, or place the attachment component separately |
+
 ## Reference Examples
 
 - `examples/component-plans/stair-run-multilevel.componentplan.json`
