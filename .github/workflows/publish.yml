@@ -49,9 +49,14 @@ jobs:
           pnpm pack --pack-destination ../../artifacts
           cd ../exporter-schem
           pnpm pack --pack-destination ../../artifacts
+          cd ../importer-schem
+          pnpm pack --pack-destination ../../artifacts
 
       - name: Publish @i365dev/craftdag-core
         run: npm publish ./artifacts/i365dev-craftdag-core-*.tgz --access public
 
       - name: Publish @i365dev/craftdag-exporter-schem
         run: npm publish ./artifacts/i365dev-craftdag-exporter-schem-*.tgz --access public
+
+      - name: Publish @i365dev/craftdag-importer-schem
+        run: npm publish ./artifacts/i365dev-craftdag-importer-schem-*.tgz --access public
