@@ -22,7 +22,7 @@ const program = new Command();
 program
   .name("craftdag")
   .description("CraftDAG CLI for Minecraft build-plan compilation and validation")
-  .version("0.1.0");
+  .version("0.2.0");
 
 function readJsonFile(filePath: string): any {
   const absolutePath = path.resolve(filePath);

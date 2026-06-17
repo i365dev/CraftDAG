@@ -2944,4 +2944,160 @@ describe("ComponentPlan", () => {
       ]);
     }
   });
+
+  it("does not double-scale anchored RadialRepeat positions with unitBlocks 2", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Scaled radial repeat",
+      grid: { unitBlocks: 2 },
+      bounds: { width: 6, height: 2, length: 6 },
+      palette: { trim: "minecraft:oak_log", wall: "minecraft:stone" },
+      components: [
+        {
+          id: "post",
+          type: "SupportPost",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 1, height: 1, length: 1 },
+          },
+        },
+        {
+          id: "posts",
+          type: "RadialRepeat",
+          placement: { center: { x: 2, z: 2 }, radius: 1, source: "post", count: 1 },
+        },
+      ],
+    };
+
+    const document = expandComponentPlan(plan);
+    const repeated = document.nodes.find((node) => node.id === "posts__post_0__post");
+    expect(repeated?.params.from).toEqual([6, 0, 4]);
+    expect(repeated?.params.to).toEqual([7, 1, 5]);
+  });
+
+  it("voxelizes non-quarter-turn RadialRepeat rotations", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Rotated radial instances",
+      bounds: { width: 20, height: 4, length: 20 },
+      palette: { trim: "minecraft:oak_log", wall: "minecraft:stone" },
+      assemblies: [{
+        id: "beam_module",
+        bounds: { width: 3, height: 1, length: 3 },
+        components: [{
+          id: "beam",
+          type: "Beam",
+          placement: {
+            anchor: { x: 0, y: 0, z: 1 },
+            size: { width: 3, height: 1, length: 1 },
+          },
+        }],
+      }],
+      components: [
+        {
+          id: "beam_source",
+          type: "Instance",
+          placement: { assembly: "beam_module", anchor: { x: 0, y: 0, z: 0 } },
+        },
+        {
+          id: "beams",
+          type: "RadialRepeat",
+          placement: {
+            center: { x: 8, z: 8 },
+            radius: 4,
+            source: "beam_source",
+            count: 3,
+            rotate: true,
+          },
+        },
+      ],
+    };
+
+    const document = expandComponentPlan(plan);
+    expect(document.nodes.some((node) => node.id.includes("rotated_voxel"))).toBe(true);
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
+  it("rejects RadialRepeat source types that cannot be expanded", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Invalid radial source",
+      bounds: { width: 8, height: 4, length: 8 },
+      palette: { wall: "minecraft:stone", door: "minecraft:oak_door" },
+      components: [
+        {
+          id: "room",
+          type: "RoomShell",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 4, height: 3, length: 4 },
+          },
+        },
+        {
+          id: "door",
+          type: "Door",
+          placement: { target: "room", wall: "front", offset: 1, y: 0 },
+        },
+        {
+          id: "doors",
+          type: "RadialRepeat",
+          placement: { center: { x: 4, z: 4 }, radius: 2, source: "door", count: 4 },
+        },
+      ],
+    };
+
+    expect(() => expandComponentPlan(plan)).toThrow(/must reference a physical component or Instance/);
+  });
+
+  it("preserves AssetInstance block states and exposes a dependency output", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Stateful asset",
+      bounds: { width: 6, height: 3, length: 3 },
+      palette: { foundation: "minecraft:stone", trim: "minecraft:oak_log" },
+      components: [
+        {
+          id: "base",
+          type: "Foundation",
+          placement: {
+            anchor: { x: 0, y: 0, z: 0 },
+            size: { width: 6, height: 1, length: 3 },
+          },
+        },
+        {
+          id: "asset",
+          type: "AssetInstance",
+          inputs: [{ ref: "base" }],
+          placement: { assetId: "stairs", anchor: { x: 1, y: 1, z: 1 } },
+        },
+        {
+          id: "cap",
+          type: "Beam",
+          inputs: [{ ref: "asset" }],
+          placement: {
+            anchor: { x: 3, y: 1, z: 1 },
+            size: { width: 1, height: 1, length: 1 },
+          },
+        },
+      ],
+    };
+    const assets = {
+      stairs: {
+        version: "0.1" as const,
+        name: "Stairs",
+        size: [2, 1, 1] as [number, number, number],
+        origin: [0, 0, 0] as [number, number, number],
+        blocks: [
+          { pos: [0, 0, 0] as [number, number, number], block: { name: "minecraft:oak_stairs", properties: { facing: "east", half: "bottom" } } },
+          { pos: [1, 0, 0] as [number, number, number], block: { name: "minecraft:oak_planks" } },
+        ],
+      },
+    };
+
+    const document = expandComponentPlan(plan, assets);
+    expect(document.nodes.find((node) => node.id === "asset__asset_0")?.params.block)
+      .toBe("minecraft:oak_stairs[facing=east,half=bottom]");
+    expect(document.nodes.some((node) => node.id === "asset__instance")).toBe(true);
+    expect(() => compileComponentPlan(plan, assets)).not.toThrow();
+  });
 });

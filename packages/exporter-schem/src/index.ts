@@ -98,4 +98,4 @@ export function exportToSchematic(plan: VoxelPlan, options?: ExportOptions): Buf
   return zlib.gzipSync(uncompressedBuffer);
 }
 
-export const exporterVersion = "0.1.0";
+export const exporterVersion = "0.2.0";

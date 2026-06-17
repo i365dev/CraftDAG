@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CompileError, Diagnostic, GraphError, ValidationError } from "./errors.js";
 import { compileDocument } from "./compiler/compileDocument.js";
+import { stringifyBlockState } from "./metadata/materials.js";
 import {
   AssemblyComponentNode,
   ComponentAssemblyDefinition,
@@ -967,10 +968,24 @@ export function expandComponentPlan(doc: unknown, assets?: Record<string, VoxelP
     craftDagNodes.push(...expandSectionToNodes(section, assemblyMap, unit));
   }
 
+  const size: Vec3 = [plan.bounds.width * unit, plan.bounds.height * unit, plan.bounds.length * unit];
+  for (const node of craftDagNodes) {
+    for (const position of [node.params.from, node.params.to]) {
+      if (position.some((value, axis) => value < 0 || value >= size[axis])) {
+        throw componentValidationError({
+          code: "EXPANDED_NODE_OUT_OF_BOUNDS",
+          sourceNodeId: node.id,
+          message: `Expanded node "${node.id}" exceeds ComponentPlan bounds at [${position.join(", ")}].`,
+          repairHint: "Move or resize the source component, reduce the repeat radius, or enlarge the plan bounds.",
+        });
+      }
+    }
+  }
+
   return {
     version: "0.1",
     name: plan.name,
-    size: [plan.bounds.width * unit, plan.bounds.height * unit, plan.bounds.length * unit],
+    size,
     palette: plan.palette,
     nodes: craftDagNodes,
   };
@@ -1100,6 +1115,14 @@ function expandComponentToNodes(
     case "AssetInstance": {
       const voxel = assets?.[component.placement.assetId];
       if (!voxel) return [];
+      if (voxel.blocks.length === 0) {
+        throw componentValidationError({
+          code: "EMPTY_ASSET",
+          componentId: component.id,
+          message: `AssetInstance "${component.id}" references an empty VoxelPlan.`,
+          repairHint: "Use an asset containing at least one non-air block.",
+        });
+      }
       const ax = component.placement.anchor.x * unit;
       const ay = component.placement.anchor.y * unit;
       const az = component.placement.anchor.z * unit;
@@ -1107,14 +1130,16 @@ function expandComponentToNodes(
       const result: CraftDagNode[] = [];
       for (let i = 0; i < voxel.blocks.length; i++) {
         const b = voxel.blocks[i];
+        const isLast = i === voxel.blocks.length - 1;
+        const previousId = i === 0 ? undefined : `${component.id}__asset_${i - 1}`;
         result.push({
-          id: `${component.id}__asset_${i}`,
+          id: isLast ? `${component.id}__instance` : `${component.id}__asset_${i}`,
           type: "SolidBox",
-          inputs: inpts,
+          inputs: previousId ? [{ ref: previousId }] : inpts,
           params: {
             from: [b.pos[0] + ax, b.pos[1] + ay, b.pos[2] + az] as Vec3,
             to: [b.pos[0] + ax, b.pos[1] + ay, b.pos[2] + az] as Vec3,
-            block: b.block.name,
+            block: stringifyBlockState(b.block),
           },
         });
       }
@@ -2018,24 +2043,26 @@ function expandRadialRepeat(
 ): CraftDagNode[] {
   const { center, radius, source: sourceId, count, startAngle } = component.placement;
   const source = componentMap.get(sourceId);
-  if (!source || source.type === "Repeat" || source.type === "RadialRepeat") {
+  const isSupportedSource = source && isRepeatableComponent(source) &&
+    source.type !== "CircleRing" && source.type !== "DiagonalBeam";
+  if (!source || !isSupportedSource) {
     throw componentValidationError({
       code: "INVALID_RADIAL_REPEAT_SOURCE",
       componentId: component.id,
       message: `RadialRepeat "${component.id}" must reference a physical component or Instance.`,
-      repairHint: "Use a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, SupportPost, CircleRing, DiagonalBeam, or Instance as the source.",
+      repairHint: "Use an anchored repeatable component or Instance as the source.",
     });
   }
 
   const nodes: CraftDagNode[] = [];
   const start = (startAngle ?? 0) * (Math.PI / 180);
-  const cx = center.x * unit;
-  const cz = center.z * unit;
 
   for (let i = 0; i < count; i++) {
     const angle = start + (i * 2 * Math.PI) / count;
-    const bx = Math.round(cx + radius * unit * Math.cos(angle));
-    const bz = Math.round(cz + radius * unit * Math.sin(angle));
+    const logicalX = Math.round(center.x + radius * Math.cos(angle));
+    const logicalZ = Math.round(center.z + radius * Math.sin(angle));
+    const bx = logicalX * unit;
+    const bz = logicalZ * unit;
     const repeatedId = `${component.id}__${sourceId}_${i}`;
 
     if (source.type === "Instance") {
@@ -2047,10 +2074,12 @@ function expandRadialRepeat(
       for (const localComponent of assembly.components) {
         const localNodes = expandComponentToNodes(localComponent, localComponentMap, assembly.bounds, unit);
         for (const localNode of localNodes) {
-          const rotated = shouldRotate
+          const rotatedNodes = shouldRotate
             ? rotateNodeLocal(localNode, angle, assembly.bounds.width * unit, assembly.bounds.length * unit)
-            : localNode;
-          nodes.push(namespaceAndShiftNode(rotated, repeatedId, shift, []));
+            : [localNode];
+          for (const rotatedNode of rotatedNodes) {
+            nodes.push(namespaceAndShiftNode(rotatedNode, repeatedId, shift, []));
+          }
         }
       }
     } else if ("anchor" in source.placement && "size" in source.placement) {
@@ -2058,7 +2087,7 @@ function expandRadialRepeat(
       const shifted = {
         ...anchoredSource,
         id: repeatedId,
-        placement: { ...anchoredSource.placement, anchor: { ...anchoredSource.placement.anchor, x: bx, z: bz } },
+        placement: { ...anchoredSource.placement, anchor: { ...anchoredSource.placement.anchor, x: logicalX, z: logicalZ } },
       };
       nodes.push(...expandRepeatableComponent(shifted as any, anchoredSource as any, component as any, componentMap, unit));
     }
@@ -4155,10 +4184,10 @@ function rotateNodeLocal(
   angle: number,
   localW: number,
   localL: number
-): CraftDagNode {
+): CraftDagNode[] {
   const cos = Math.cos(angle), sin = Math.sin(angle);
-  const cx = localW / 2;
-  const cz = localL / 2;
+  const cx = (localW - 1) / 2;
+  const cz = (localL - 1) / 2;
   const rotatePt = (v: [number, number, number]): [number, number, number] => {
     const dx = v[0] - cx;
     const dz = v[2] - cz;
@@ -4168,19 +4197,99 @@ function rotateNodeLocal(
       Math.round(cz + dx * sin + dz * cos),
     ];
   };
-  switch (node.type) {
-    case "SolidBox":
-    case "HollowBox":
-    case "Wall":
-    case "Floor":
-    case "Column":
-    case "Doorway":
-    case "Window":
-      return { ...node, params: { ...node.params, from: rotatePt(node.params.from), to: rotatePt(node.params.to) } } as CraftDagNode;
-    case "GableRoof":
-      return { ...node, params: { ...node.params, from: rotatePt(node.params.from), to: rotatePt(node.params.to) } };
-    default: return node;
+
+  // Quarter turns preserve axis-aligned primitives, so keep the compact node.
+  const quarterTurns = Math.round(angle / (Math.PI / 2));
+  if (Math.abs(angle - quarterTurns * (Math.PI / 2)) < 1e-9) {
+    if (node.type === "GableRoof" && Math.abs(quarterTurns) % 2 === 1) {
+      return [{
+        ...node,
+        params: {
+          ...node.params,
+          from: rotatePt(node.params.from),
+          to: rotatePt(node.params.to),
+          direction: (node.params.direction ?? "x") === "x" ? "z" : "x",
+        },
+      }];
+    }
+    return [{
+      ...node,
+      params: {
+        ...node.params,
+        from: rotatePt(node.params.from),
+        to: rotatePt(node.params.to),
+      },
+    } as CraftDagNode];
   }
+
+  // Arbitrary rotations cannot be represented by axis-aligned CraftDAG boxes.
+  // Expand the primitive to chained single-voxel operations to preserve shape
+  // and overwrite order without filling its rotated bounding box.
+  const positions = primitiveVoxelPositions(node);
+  const rotated = new Map<string, Vec3>();
+  for (const position of positions) {
+    const next = rotatePt(position);
+    rotated.set(next.join(","), next);
+  }
+  const rotatedPositions = [...rotated.values()];
+
+  return rotatedPositions.map((position, index) => {
+    const isLast = index === rotatedPositions.length - 1;
+    const id = isLast ? node.id : `${node.id}__rotated_voxel_${index}`;
+    const inputs = index === 0
+      ? node.inputs
+      : [{ ref: `${node.id}__rotated_voxel_${index - 1}` }];
+
+    if (node.type === "Doorway") {
+      return {
+        id,
+        type: "Doorway",
+        inputs,
+        params: { from: position, to: position, block: node.params.block },
+      };
+    }
+
+    const block = node.type === "Window"
+      ? node.params.block ?? "minecraft:glass"
+      : node.params.block;
+    return {
+      id,
+      type: "SolidBox",
+      inputs,
+      params: { from: position, to: position, block },
+    };
+  });
+}
+
+function primitiveVoxelPositions(node: CraftDagNode): Vec3[] {
+  const minX = Math.min(node.params.from[0], node.params.to[0]);
+  const maxX = Math.max(node.params.from[0], node.params.to[0]);
+  const minY = Math.min(node.params.from[1], node.params.to[1]);
+  const maxY = Math.max(node.params.from[1], node.params.to[1]);
+  const minZ = Math.min(node.params.from[2], node.params.to[2]);
+  const maxZ = Math.max(node.params.from[2], node.params.to[2]);
+  const positions: Vec3[] = [];
+
+  for (let x = minX; x <= maxX; x += 1) {
+    for (let y = minY; y <= maxY; y += 1) {
+      for (let z = minZ; z <= maxZ; z += 1) {
+        let include = true;
+        if (node.type === "HollowBox") {
+          include = x === minX || x === maxX || z === minZ || z === maxZ ||
+            (y === minY && (node.params.includeFloor ?? true)) ||
+            (y === maxY && (node.params.includeCeiling ?? true));
+        } else if (node.type === "GableRoof") {
+          const direction = node.params.direction ?? "x";
+          const distance = direction === "x"
+            ? Math.min(z - minZ, maxZ - z)
+            : Math.min(x - minX, maxX - x);
+          include = y <= Math.min(minY + distance, maxY);
+        }
+        if (include) positions.push([x, y, z]);
+      }
+    }
+  }
+  return positions;
 }
 
 function material(component: ComponentNode, role: string, fallback: string): string {

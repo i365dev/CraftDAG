@@ -9,4 +9,4 @@ export * from "./compiler/compileDocument.js";
 export * from "./metadata/materials.js";
 export * from "./metadata/layers.js";
 export * from "./buildManifest.js";
-export const version = "0.1.18";
+export const version = "0.2.0";
