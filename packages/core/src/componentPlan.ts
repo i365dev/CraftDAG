@@ -210,6 +210,8 @@ const FloorStackComponentSchema = z.object({
     setbackPerLevel: NonNegativeIntSchema.optional(),
     stairStyle: z.enum(["ladder", "stair", "none"]).optional(),
     stairSide: z.enum(["front", "back", "left", "right"]).optional(),
+    includeDoorways: z.boolean().optional(),
+    includeWindows: z.boolean().optional(),
   }).strict().optional(),
 }).strict();
 
@@ -436,6 +438,7 @@ const RepeatComponentSchema = z.object({
 const InstancePlacementSchema = z.object({
   assembly: z.string().min(1),
   anchor: ComponentAnchorSchema,
+  mirror: z.enum(["x", "z"]).optional(),
 }).strict();
 
 const InstanceComponentSchema = z.object({
@@ -540,7 +543,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "FloorStack" | "SteppedDome" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "SupportPost";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "FloorStack" | "SteppedDome" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "SupportPost" | "Instance";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -859,7 +862,7 @@ function validateComponentSet(
   validateComponentGraph(components);
   validateAttachments(components, componentMap);
   validateCovers(components, bounds, plan.grid?.unitBlocks ?? 1, componentMap);
-  validateRepeats(components, bounds, componentMap);
+  validateRepeats(components, bounds, componentMap, assemblyMap);
 }
 
 /**
@@ -1075,7 +1078,7 @@ function expandComponentToNodes(
         },
       }];
     case "Repeat":
-      return expandRepeat(component, componentMap, unit);
+      return expandRepeat(component, componentMap, unit, assemblyMap);
     case "Instance":
       return expandInstance(component, componentMap, assemblyMap, unit);
     default: {
@@ -1271,6 +1274,102 @@ function expandFloorStack(
       },
     });
 
+    // 2a. Optional doorways
+    if (component.options?.includeDoorways) {
+      const doorWidth = levelBox.size.width >= 6 ? 2 : 1;
+      const doorHeight = Math.min(3, levelHeight - 1);
+      const doorOffset = Math.floor((levelBox.size.width - doorWidth) / 2);
+      nodes.push({
+        id: nodeId(component.id, `doorway_${level}`),
+        type: "Doorway",
+        inputs: [{ ref: nodeId(component.id, `wall_${level}`) }],
+        params: {
+          from: [
+            (levelBox.anchor.x + doorOffset) * unit,
+            (levelBox.anchor.y + 1) * unit,
+            levelBox.anchor.z * unit,
+          ],
+          to: [
+            (levelBox.anchor.x + doorOffset + doorWidth) * unit - 1,
+            (levelBox.anchor.y + 1 + doorHeight) * unit - 1,
+            (levelBox.anchor.z + 1) * unit - 1,
+          ],
+          block: component.materials?.door,
+        },
+      });
+    }
+
+    // 2b. Optional windows
+    if (component.options?.includeWindows) {
+      const winYOffset = levelHeight >= 4 ? 2 : 1;
+      const winHeight = levelHeight >= 4 ? Math.min(2, levelHeight - 3) : 1;
+      const winWidthZ = levelBox.size.length >= 6 ? 2 : 1;
+      const winOffsetZ = Math.floor((levelBox.size.length - winWidthZ) / 2);
+      const winWidthX = levelBox.size.width >= 6 ? 2 : 1;
+      const winOffsetX = Math.floor((levelBox.size.width - winWidthX) / 2);
+      const glassBlock = material(component, "glass", "glass");
+
+      // Left window
+      nodes.push({
+        id: nodeId(component.id, `window_left_${level}`),
+        type: "Window",
+        inputs: [{ ref: nodeId(component.id, `wall_${level}`) }],
+        params: {
+          from: [
+            levelBox.anchor.x * unit,
+            (levelBox.anchor.y + winYOffset) * unit,
+            (levelBox.anchor.z + winOffsetZ) * unit,
+          ],
+          to: [
+            (levelBox.anchor.x + 1) * unit - 1,
+            (levelBox.anchor.y + winYOffset + winHeight) * unit - 1,
+            (levelBox.anchor.z + winOffsetZ + winWidthZ) * unit - 1,
+          ],
+          block: glassBlock,
+        },
+      });
+
+      // Right window
+      nodes.push({
+        id: nodeId(component.id, `window_right_${level}`),
+        type: "Window",
+        inputs: [{ ref: nodeId(component.id, `wall_${level}`) }],
+        params: {
+          from: [
+            (levelBox.anchor.x + levelBox.size.width - 1) * unit,
+            (levelBox.anchor.y + winYOffset) * unit,
+            (levelBox.anchor.z + winOffsetZ) * unit,
+          ],
+          to: [
+            (levelBox.anchor.x + levelBox.size.width) * unit - 1,
+            (levelBox.anchor.y + winYOffset + winHeight) * unit - 1,
+            (levelBox.anchor.z + winOffsetZ + winWidthZ) * unit - 1,
+          ],
+          block: glassBlock,
+        },
+      });
+
+      // Back window
+      nodes.push({
+        id: nodeId(component.id, `window_back_${level}`),
+        type: "Window",
+        inputs: [{ ref: nodeId(component.id, `wall_${level}`) }],
+        params: {
+          from: [
+            (levelBox.anchor.x + winOffsetX) * unit,
+            (levelBox.anchor.y + winYOffset) * unit,
+            (levelBox.anchor.z + levelBox.size.length - 1) * unit,
+          ],
+          to: [
+            (levelBox.anchor.x + winOffsetX + winWidthX) * unit - 1,
+            (levelBox.anchor.y + winYOffset + winHeight) * unit - 1,
+            (levelBox.anchor.z + levelBox.size.length) * unit - 1,
+          ],
+          block: glassBlock,
+        },
+      });
+    }
+
     // 3. Roof slab on top level
     if (level === placements.length - 1) {
       nodes.push({
@@ -1340,7 +1439,7 @@ function expandFloorStack(
               type: "SolidBox",
               inputs,
               params: {
-                from: [xCoord * unit, yCoord * unit, zCoord * unit],
+                from: [xCoord * unit, (uy - levelHeight + 1) * unit, zCoord * unit],
                 to: [
                   (xCoord + 1) * unit - 1,
                   (yCoord + 1) * unit - 1,
@@ -1358,31 +1457,31 @@ function expandFloorStack(
           let zTo = uz;
 
           if (stairSide === "back") {
-            xFrom = ux + levelHeight - 1;
+            xFrom = ux + 1;
             xTo = ux + levelHeight;
             zFrom = uz + ul - 2;
             zTo = uz + ul - 2;
           } else if (stairSide === "front") {
-            xFrom = ux + levelHeight - 1;
+            xFrom = ux + 1;
             xTo = ux + levelHeight;
             zFrom = uz + 1;
             zTo = uz + 1;
           } else if (stairSide === "left") {
             xFrom = ux + 1;
             xTo = ux + 1;
-            zFrom = uz + levelHeight - 1;
+            zFrom = uz + 1;
             zTo = uz + levelHeight;
           } else if (stairSide === "right") {
             xFrom = ux + uw - 2;
             xTo = ux + uw - 2;
-            zFrom = uz + levelHeight - 1;
+            zFrom = uz + 1;
             zTo = uz + levelHeight;
           }
 
           nodes.push({
             id: nodeId(component.id, `stair_hole_${level}`),
             type: "Doorway",
-            inputs,
+            inputs: [{ ref: nodeId(component.id, `floor_${level + 1}`) }],
             params: {
               from: [xFrom * unit, uy * unit, zFrom * unit],
               to: [
@@ -1442,7 +1541,7 @@ function expandFloorStack(
     nodes.push({
       id: nodeId(component.id, `ladder_hole_${level}`),
       type: "Doorway",
-      inputs,
+      inputs: [{ ref: nodeId(component.id, `floor_${level + 1}`) }],
       params: {
         from: [xCoord * unit, uy * unit, zCoord * unit],
         to: [(xCoord + 1) * unit - 1, (uy + 1) * unit - 1, (zCoord + 1) * unit - 1],
@@ -3091,7 +3190,8 @@ function estimateCorridorBlocks(component: Extract<ComponentNode, { type: "Corri
 function validateRepeats(
   components: readonly ComponentNode[],
   bounds: ComponentSize,
-  componentMap: Map<string, ComponentNode>
+  componentMap: Map<string, ComponentNode>,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>
 ): void {
   for (const component of components) {
     if (component.type !== "Repeat") {
@@ -3103,28 +3203,49 @@ function validateRepeats(
       throw componentValidationError({
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
-        message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
+        message: `Repeat "${component.id}" must reference an anchored or Instance source component.`,
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, SupportPost, or Instance component.",
       });
     }
 
     for (let index = 1; index < component.placement.count; index += 1) {
-      const shifted = shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index);
-      const clone = { ...source, id: `${component.id}__${source.id}_${index}`, placement: shifted };
+      const cloneId = `${component.id}__${source.id}_${index}`;
 
-      const { anchor, size } = clone.placement;
-      const isWithinBounds =
-        anchor.x + size.width <= bounds.width &&
-        anchor.y + size.height <= bounds.height &&
-        anchor.z + size.length <= bounds.length;
-
-      if (!isWithinBounds) {
-        throw componentValidationError({
-          code: "COMPONENT_OUT_OF_BOUNDS",
-          componentId: component.id,
-          message: `Repeat "${component.id}" clone ${index} (${clone.id}) placement exceeds ComponentPlan bounds.`,
-          repairHint: `Reduce Repeat count, reduce step size, or increase plan bounds to fit all ${component.placement.count} repetitions.`,
-        });
+      if (source.type === "Instance") {
+        const assembly = assemblyMap.get(source.placement.assembly);
+        if (!assembly) continue;
+        const step = component.placement.step * index;
+        const anchorX = source.placement.anchor.x + (component.placement.axis === "x" ? step : 0);
+        const anchorY = source.placement.anchor.y + (component.placement.axis === "y" ? step : 0);
+        const anchorZ = source.placement.anchor.z + (component.placement.axis === "z" ? step : 0);
+        const isWithinBounds =
+          anchorX + assembly.bounds.width <= bounds.width &&
+          anchorY + assembly.bounds.height <= bounds.height &&
+          anchorZ + assembly.bounds.length <= bounds.length;
+        if (!isWithinBounds) {
+          throw componentValidationError({
+            code: "COMPONENT_OUT_OF_BOUNDS",
+            componentId: component.id,
+            message: `Repeat "${component.id}" clone ${index} (${cloneId}) placement exceeds ComponentPlan bounds.`,
+            repairHint: `Reduce Repeat count, reduce step size, or increase plan bounds to fit all ${component.placement.count} repetitions.`,
+          });
+        }
+      } else {
+        const anchoredPlacement = source.placement as { anchor: { x: number; y: number; z: number }; size: ComponentSize };
+        const shifted = shiftAnchoredPlacement(anchoredPlacement, component.placement.axis, component.placement.step * index) as typeof anchoredPlacement;
+        const { anchor, size } = shifted;
+        const isWithinBounds =
+          anchor.x + size.width <= bounds.width &&
+          anchor.y + size.height <= bounds.height &&
+          anchor.z + size.length <= bounds.length;
+        if (!isWithinBounds) {
+          throw componentValidationError({
+            code: "COMPONENT_OUT_OF_BOUNDS",
+            componentId: component.id,
+            message: `Repeat "${component.id}" clone ${index} (${cloneId}) placement exceeds ComponentPlan bounds.`,
+            repairHint: `Reduce Repeat count, reduce step size, or increase plan bounds to fit all ${component.placement.count} repetitions.`,
+          });
+        }
       }
     }
   }
@@ -3384,28 +3505,66 @@ function pathRunOutputPart(component: Extract<ComponentNode, { type: "PathRun" }
 function expandRepeat(
   component: Extract<ComponentNode, { type: "Repeat" }>,
   componentMap: Map<string, ComponentNode>,
-  unit: 1 | 2
+  unit: 1 | 2,
+  assemblyMap: Map<string, ComponentAssemblyDefinition>
 ): CraftDagNode[] {
   const source = componentMap.get(component.placement.source);
   if (!source || !isRepeatableComponent(source)) {
     throw componentValidationError({
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
-      message: `Repeat "${component.id}" must reference an anchored repeatable source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, or SupportPost component.",
+      message: `Repeat "${component.id}" must reference an anchored or Instance source component.`,
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, SupportPost, or Instance component.",
     });
   }
 
   const nodes: CraftDagNode[] = [];
   for (let index = 1; index < component.placement.count; index += 1) {
     const repeatedId = `${component.id}__${source.id}_${index}`;
-    const shifted = {
-      ...source,
-      id: repeatedId,
-      placement: shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index),
-    } as RepeatableComponent;
 
-    nodes.push(...expandRepeatableComponent(shifted, source, component, componentMap, unit));
+    if (source.type === "Instance") {
+      const assembly = assemblyMap.get(source.placement.assembly);
+      if (!assembly) {
+        throw componentValidationError({
+          code: "UNKNOWN_ASSEMBLY_REF",
+          componentId: component.id,
+          message: `Repeat source Instance "${source.id}" references unknown assembly "${source.placement.assembly}".`,
+          repairHint: "Change placement.assembly to an existing assembly ID.",
+        });
+      }
+      const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
+      const step = component.placement.step * index;
+      const shift: Vec3 = [
+        component.placement.axis === "x" ? step * unit : source.placement.anchor.x * unit,
+        component.placement.axis === "y" ? step * unit : source.placement.anchor.y * unit,
+        component.placement.axis === "z" ? step * unit : source.placement.anchor.z * unit,
+      ];
+      const anchorShift: Vec3 = [
+        component.placement.axis === "x" ? step * unit : 0,
+        component.placement.axis === "y" ? step * unit : 0,
+        component.placement.axis === "z" ? step * unit : 0,
+      ];
+
+      for (const localComponent of assembly.components) {
+        let localNodes: CraftDagNode[];
+        try {
+          localNodes = expandComponentToNodes(localComponent, localComponentMap, assembly.bounds, unit);
+        } catch (error) {
+          throw withDiagnosticContext(error, { assemblyId: assembly.id, instanceId: repeatedId });
+        }
+        for (const localNode of localNodes) {
+          nodes.push(namespaceAndShiftNode(localNode, repeatedId, addVec3(shift, anchorShift), []));
+        }
+      }
+    } else {
+      const shifted = {
+        ...source,
+        id: repeatedId,
+        placement: shiftAnchoredPlacement(source.placement, component.placement.axis, component.placement.step * index),
+      } as Extract<RepeatableComponent, { placement: { anchor: unknown; size: unknown } }>;
+
+      nodes.push(...expandRepeatableComponent(shifted, source, component, componentMap, unit));
+    }
   }
 
   return nodes;
@@ -3520,6 +3679,8 @@ function expandRepeatableComponent(
           block: material(source, "main", "trim"),
         },
       }];
+    case "Instance":
+      throw new ValidationError("Instance should be expanded via expandRepeat, not expandRepeatableComponent");
     default: {
       const _exhaustiveCheck: never = repeated;
       throw new ValidationError(`Unhandled repeatable component type: ${(_exhaustiveCheck as any).type}`);
@@ -3547,6 +3708,7 @@ function expandInstance(
   const localComponentMap = buildComponentMap(assembly.components, `Assembly "${assembly.id}"`);
   const shiftedNodes: CraftDagNode[] = [];
   const externalInputs = expandInputs(component, componentMap);
+  const mirror = component.placement.mirror;
   const shift: Vec3 = [
     component.placement.anchor.x * unit,
     component.placement.anchor.y * unit,
@@ -3561,7 +3723,8 @@ function expandInstance(
       throw withDiagnosticContext(error, { assemblyId: assembly.id, instanceId: component.id });
     }
     for (const localNode of localNodes) {
-      shiftedNodes.push(namespaceAndShiftNode(localNode, component.id, shift, externalInputs));
+      const mirrored = mirror ? mirrorNode(localNode, mirror, assembly.bounds, unit) : localNode;
+      shiftedNodes.push(namespaceAndShiftNode(mirrored, component.id, shift, externalInputs));
     }
   }
 
@@ -3624,6 +3787,53 @@ function namespaceAndShiftNode(
 
 function addVec3(a: Vec3, b: Vec3): Vec3 {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+function mirrorNode(
+  node: CraftDagNode,
+  axis: "x" | "z",
+  assemblyBounds: ComponentSize,
+  unit: 1 | 2
+): CraftDagNode {
+  const scaledW = assemblyBounds.width * unit;
+  const scaledL = assemblyBounds.length * unit;
+  const mirrorCoord = (v: number, max: number) => max - 1 - v;
+
+  const mirrorVec3 = (v: Vec3): Vec3 => {
+    if (axis === "x") return [mirrorCoord(v[0], scaledW), v[1], v[2]];
+    return [v[0], v[1], mirrorCoord(v[2], scaledL)];
+  };
+
+  switch (node.type) {
+    case "SolidBox":
+    case "HollowBox":
+    case "Wall":
+    case "Floor":
+    case "Column":
+    case "Doorway":
+    case "Window":
+      return {
+        ...node,
+        params: {
+          ...node.params,
+          from: mirrorVec3(node.params.from),
+          to: mirrorVec3(node.params.to),
+        },
+      } as CraftDagNode;
+    case "GableRoof":
+      return {
+        ...node,
+        params: {
+          ...node.params,
+          from: mirrorVec3(node.params.from),
+          to: mirrorVec3(node.params.to),
+        },
+      };
+    default: {
+      const _exhaustiveCheck: never = node;
+      throw new ValidationError(`Unhandled CraftDAG node type for mirror: ${(_exhaustiveCheck as any).type}`);
+    }
+  }
 }
 
 function material(component: ComponentNode, role: string, fallback: string): string {

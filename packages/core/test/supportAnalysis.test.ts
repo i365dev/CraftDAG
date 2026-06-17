@@ -156,7 +156,7 @@ describe("support analysis", () => {
     expect(result.disconnectedBlocks).toBe(9);
     expect(result.diagnostics).toEqual([]);
     expect(withAllowed.diagnostics).toContainEqual(expect.objectContaining({
-      code: "ALLOWED_DISCONNECTED_COMPONENT",
+      code: "ALLOWED_NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED",
       sourceNodeId: "floating_lantern__body__platform",
       supportPolicy: "decorative",
     }));
@@ -204,7 +204,7 @@ describe("support analysis", () => {
     const result = analyzeComponentPlanSupport(plan, { includeAllowed: true });
 
     expect(result.diagnostics).toContainEqual(expect.objectContaining({
-      code: "ALLOWED_DISCONNECTED_COMPONENT",
+      code: "ALLOWED_NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED",
       sourceNodeId: "floating_instance__body__platform",
       supportPolicy: "may_float",
       supportRoots: ["base"],

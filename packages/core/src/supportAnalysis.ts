@@ -152,19 +152,38 @@ function analyzeVoxelSupportInternal(
     groundY,
     options
   );
+
+  // Reclassify: sub-parts of known components (e.g. upper SteppedDome tiers)
+  // should produce review-level diagnostics, not blocking ones.
+  const sourceStructural = options.sourceStructural ?? [];
+  const knownParentPrefixes = new Set(sourceStructural.map((e) => e.prefix));
+
+  const blockingDisconnected = disconnected.filter((block) => {
+    return !anyParentKnown(block.sourceNodeId ?? "unknown", knownParentPrefixes);
+  });
+  const reviewDisconnected = disconnected.filter((block) => {
+    return anyParentKnown(block.sourceNodeId ?? "unknown", knownParentPrefixes);
+  });
   const diagnostics = [
     ...groupsToDiagnostics(
-      groupBySource(disconnected, ignoredSourceNodeIdPrefixes),
+      groupBySource(blockingDisconnected, ignoredSourceNodeIdPrefixes),
       "DISCONNECTED_COMPONENT",
       "Blocks are not connected to the configured support roots.",
       "Connect this component to a foundation, input support, or mark it as may_float/decorative if intentional.",
       options
     ),
     ...groupsToDiagnostics(
-      groupBySource(disconnected, ignoredSourceNodeIdPrefixes),
+      groupBySource(blockingDisconnected, ignoredSourceNodeIdPrefixes),
       "FLOATING_SOURCE_NODE",
       "This source node contributes blocks that are disconnected from the configured support roots.",
       "Move the source node onto a supported component, add connectors, or mark it as may_float/decorative if intentional.",
+      options
+    ),
+    ...groupsToDiagnostics(
+      groupBySource(reviewDisconnected, ignoredSourceNodeIdPrefixes),
+      "NOT_VERTICALLY_SUPPORTED_BUT_CONNECTED",
+      "Blocks are disconnected but their parent component has connected sub-parts (e.g. upper dome or tier levels).",
+      "This is expected for multi-level shape primitives. Add structural intent if unintended.",
       options
     ),
     ...groupsToDiagnostics(
@@ -609,4 +628,21 @@ function neighbors(pos: Vec3): Vec3[] {
 
 function posKey(pos: Vec3): string {
   return `${pos[0]},${pos[1]},${pos[2]}`;
+}
+
+function parentSourceId(sourceNodeId: string): string | null {
+  const lastSep = sourceNodeId.lastIndexOf("__");
+  return lastSep > 0 ? sourceNodeId.slice(0, lastSep) : null;
+}
+
+function anyParentKnown(sourceNodeId: string, knownPrefixes: Set<string>): boolean {
+  const sepCount = (sourceNodeId.match(/__/g) || []).length;
+  if (sepCount < 2) return false;
+  let current = sourceNodeId;
+  while (true) {
+    const parent = parentSourceId(current);
+    if (!parent) return false;
+    if (knownPrefixes.has(parent)) return true;
+    current = parent;
+  }
 }

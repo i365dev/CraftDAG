@@ -147,6 +147,7 @@ export interface RepeatPlacement {
 export interface InstancePlacement {
   assembly: string;
   anchor: ComponentAnchor;
+  mirror?: "x" | "z";
 }
 
 export interface ComponentInput {
@@ -225,6 +226,8 @@ export interface FloorStackOptions {
   setbackPerLevel?: number;
   stairStyle?: "ladder" | "stair" | "none";
   stairSide?: "front" | "back" | "left" | "right";
+  includeDoorways?: boolean;
+  includeWindows?: boolean;
 }
 export type FloorStackComponent = BaseComponentNode<"FloorStack", AnchoredComponentPlacement, FloorStackOptions>;
 
