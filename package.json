@@ -5,16 +5,18 @@
     "build": "pnpm --filter @i365dev/craftdag-core build && pnpm -r --filter !@i365dev/craftdag-core build",
     "test": "pnpm build && pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "eslint \"packages/*/src/**/*.ts\""
+    "lint": "eslint \"packages/*/src/**/*.ts\"",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0",
-    "tsup": "^8.0.2",
     "@types/node": "^20.12.7",
-    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
-    "@typescript-eslint/eslint-plugin": "^7.7.0"
+    "eslint": "^8.57.0",
+    "husky": "^9.1.7",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
   },
   "packageManager": "pnpm@8.15.0+sha512.ea45517d5285d123eac02c3793505fa1fd6da90a2fc60d1e8d9e0c1e9292886ecfaff513f062b9d1cc8021bb8615033b1ac5bea3b2ee3fc165a6d7034bbe6b03"
 }
