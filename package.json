@@ -2,7 +2,7 @@
   "name": "craftdag-monorepo",
   "private": true,
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm --filter @i365dev/craftdag-core build && pnpm -r --filter !@i365dev/craftdag-core build",
     "test": "pnpm build && pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint \"packages/*/src/**/*.ts\""
