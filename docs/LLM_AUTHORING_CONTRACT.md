@@ -77,6 +77,7 @@ Allowed ComponentPlan v0.1 components:
 - `Compartment`
 - `Corridor`
 - `StairRun`
+- `FloorStack`
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
@@ -105,6 +106,8 @@ Use `Compartment` for generic interior rooms such as cabins, holds, boiler rooms
 Use `Corridor` for open-ended circulation runs inside large builds. It creates a floor, two side walls, and an optional ceiling. Set `options.axis` when the intended direction is ambiguous.
 
 Use `StairRun` for vertical circulation between levels: survival bases, castle towers, ship decks, underground bases, palaces, dungeons, and subway entrances. Size the horizontal run at least as long as the height. Use `includeSideRails` only when the perpendicular width is at least 3. Do not use it for spiral stairs, elevators, ramps, or decorative tiering.
+
+Use `FloorStack` for multi-level towers, pagodas, stair towers, and other vertically stacked room-like levels. It expands into stacked `RoomShell` tiers with circulation between levels. Set `options.stairStyle` to `"stair"` for stair runs or `"ladder"` for ladder columns. Use `materials.circulation` to set the ladder/stair block material (e.g. `"minecraft:ladder"`). Set `options.stairSide` to control which face the circulation opens onto. When `stairStyle: "stair"` is requested but the level is too narrow for stairs, the engine silently falls back to `"ladder"`. Use `options.includeDoorways` and `options.includeWindows` for per-level openings.
 
 Use `TaperedVolume` for recognizable non-box massing such as ship bows, tower leg taper, buttresses, and simplified stepped silhouettes. Set `options.axis`, then use integer `startInset` and `endInset` values. Keep the taper Minecraft-like and blocky; do not describe exact curves.
 

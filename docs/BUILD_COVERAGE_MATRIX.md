@@ -18,7 +18,7 @@ Do not treat `component support --json` returning `ok: true` as "no issue". Supp
 
 | Demand category | Stress samples | Current coverage | What works | Known gaps |
 | --- | --- | --- | --- | --- |
-| Survival houses and starter bases | `stair-run-multilevel` | High | Room shells, roofs, doors, windows, stairs, decks | No stair cores, ladders, elevators, or storage automation yet |
+| Survival houses and starter bases | `stair-run-multilevel` | High | Room shells, roofs, doors, windows, stairs, decks | No stair cores, elevators, or storage automation yet; ladders available via FloorStack.stairStyle="ladder" |
 | Castles, walls, medieval villages | `large-castle`, `sectioned-wall`, `long-fortified-bridge` | High | Assemblies, repeated wall bays, towers, bridges, battlements | Crenellation remains assembly/repeat based; circular/octagonal towers are approximate |
 | Large landmarks and monumental builds | `taj-dome-study`, `temple-palace-dome-study`, `xi-an-bell-tower-study`, `giant-wild-goose-pagoda-study` | Medium-high | Stepped podiums, domes, setback towers, arcades, large bounds, reusable modules | Support diagnostics still noisy for domes, eaves, and setback masses; radial/ring forms remain limited |
 | Modern buildings and city blocks | `large-form-massing` | Medium-high | Vertical setback massing, repeated volumes, simple facade rhythms | No dedicated facade grid or floor-stack authoring pattern yet |

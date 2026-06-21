@@ -92,6 +92,8 @@ type ComponentPalette = {
   trim?: string
   glass?: string
   door?: string
+  circulation?: string
+  light?: string
 }
 
 type ComponentStructuralIntent = {
@@ -187,6 +189,7 @@ Start with a small component vocabulary:
 - `Compartment`
 - `Corridor`
 - `StairRun`
+- `FloorStack`
 - `TaperedVolume`
 - `SteppedTier`
 - `VerticalSetbackVolume`
@@ -223,6 +226,8 @@ Use `Compartment` for bounded interior rooms, holds, machinery spaces, cabins, c
 Use `Corridor` for open-ended interior circulation runs. It expands to a floor, two side walls, and an optional ceiling. Corridors default to the longer horizontal axis, or agents can set `options.axis` to `"x"` or `"z"`.
 
 Use `StairRun` for blocky vertical circulation in multi-level builds, such as survival bases, castle towers, ship decks, palaces, dungeons, and subway entrances. It expands to stepped `SolidBox` treads and optional side rails. Use `Platform` for flat decks, `Corridor` for horizontal circulation, and `SupportPost` for vertical supports; use `StairRun` when the authoring intent is walkable vertical movement between levels.
+
+Use `FloorStack` for multi-level towers, pagodas, stair towers, bell towers, and other vertically stacked room-like volumes. It expands into stacked `RoomShell` tiers with circulation between each level. Set `options.levels` for the number of stacked floors and `options.levelHeight` for each floor's height. Use `materials.circulation` to set the ladder or stair block material (defaults to the palette `circulation` key). Set `options.stairStyle` to `"stair"` for stair runs or `"ladder"` for compact ladder columns that leave more floor space. When `stairStyle: "stair"` is set but the level is too narrow for stairs (`levelHeight > nextLevelWidth - 2`), the engine silently falls back to `"ladder"`. Use `options.stairSide` (`"front"` | `"back"` | `"left"` | `"right"`) to place the circulation element on a specific wall face. Set `options.includeDoorways` and `options.includeWindows` for automatic per-level openings.
 
 Use `TaperedVolume` for bounded Minecraft-style tapered massing, such as ship bows, tower legs, buttresses, stepped bridge supports, and simplified landmark silhouettes. It expands into one-block-thick logical slices along `options.axis`, with integer `startInset` and `endInset` values controlling the taper. It is not a freeform curve or mesh.
 
