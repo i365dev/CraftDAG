@@ -31,10 +31,7 @@ export function compileDoorway(
   const minZ = Math.min(from[2], to[2]);
   const maxZ = Math.max(from[2], to[2]);
 
-  const height = maxY - minY + 1;
   const isDoor = blockState && isDoorBlock(blockState.name);
-
-  const doorWidth = minZ === maxZ ? maxX - minX + 1 : maxZ - minZ + 1;
 
   for (let x = minX; x <= maxX; x++) {
     for (let y = minY; y <= maxY; y++) {
