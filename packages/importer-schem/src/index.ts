@@ -1,4 +1,4 @@
-import zlib from "zlib";
+import zlib from "node:zlib";
 import nbt from "prismarine-nbt";
 import { VoxelPlan, VoxelBlock, BlockState, Vec3 } from "@i365dev/craftdag-core";
 
