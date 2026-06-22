@@ -1153,6 +1153,7 @@ function expandComponentToNodes(
         params: {
           ...scaledAttachmentBox(component.placement, componentMap, unit, 1, 2),
           block: material(component, "door", "door"),
+          facing: {"front":"north","back":"south","left":"west","right":"east"}[component.placement.wall] ?? "north",
         },
       }];
     case "Window":

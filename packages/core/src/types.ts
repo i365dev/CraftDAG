@@ -57,6 +57,7 @@ export interface DoorwayParams {
   from: Vec3;
   to: Vec3;
   block?: string; // Optional block to place, or air by default
+  facing?: string; // Minecraft facing direction for door blocks (north/south/east/west)
 }
 export type DoorwayNode = BaseNode<"Doorway", DoorwayParams>;
 

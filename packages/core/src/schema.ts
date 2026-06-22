@@ -77,6 +77,7 @@ const DoorwayNodeSchema = z.object({
     from: Vec3Schema,
     to: Vec3Schema,
     block: z.string().min(1).optional(),
+    facing: z.enum(["north", "south", "east", "west"]).optional(),
   }).strict(),
 }).strict();
 
