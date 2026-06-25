@@ -427,6 +427,16 @@ const SupportPostComponentSchema = z.object({
   structural: StructuralIntentSchema.optional(),
 }).strict();
 
+const LightComponentSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal("Light"),
+  role: z.string().min(1).optional(),
+  inputs: z.array(ComponentInputSchema).optional(),
+  placement: AnchoredPlacementSchema,
+  materials: MaterialsSchema,
+  structural: StructuralIntentSchema.optional(),
+}).strict();
+
 const RepeatComponentSchema = z.object({
   id: z.string().min(1),
   type: z.literal("Repeat"),
@@ -548,6 +558,7 @@ const AssemblyComponentNodeSchema = z.discriminatedUnion("type", [
   PathRunComponentSchema,
   RockClusterComponentSchema,
   StairRunComponentSchema,
+  LightComponentSchema,
   CircleRingComponentSchema,
   DiagonalBeamComponentSchema,
   RadialRepeatComponentSchema,
@@ -581,6 +592,7 @@ const ComponentNodeSchema = z.discriminatedUnion("type", [
   PathRunComponentSchema,
   RockClusterComponentSchema,
   StairRunComponentSchema,
+  LightComponentSchema,
   CircleRingComponentSchema,
   DiagonalBeamComponentSchema,
   RadialRepeatComponentSchema,
@@ -628,7 +640,7 @@ const ComponentPlanSchema = z.object({
 
 type AnchoredComponent = Extract<ComponentNode, { placement: { anchor: unknown; size: unknown } }>;
 type RepeatableComponent = Extract<ComponentNode, {
-  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "FloorStack" | "SteppedDome" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "CircleRing" | "DiagonalBeam" | "SupportPost" | "Instance";
+  type: "Foundation" | "Platform" | "Beam" | "RoomShell" | "Compartment" | "Corridor" | "TaperedVolume" | "SteppedTier" | "VerticalSetbackVolume" | "FloorStack" | "SteppedDome" | "RailingRun" | "ArcadeRun" | "SupportBracket" | "TreeCanopy" | "OrganicPatch" | "PathRun" | "RockCluster" | "StairRun" | "Light" | "CircleRing" | "DiagonalBeam" | "SupportPost" | "Instance";
 }>;
 type ComponentScope = "ComponentPlan" | `Assembly "${string}"` | `Section "${string}"`;
 
@@ -1106,6 +1118,16 @@ function expandComponentToNodes(
       return expandRockCluster(component, componentMap, unit);
     case "StairRun":
       return expandStairRun(component, componentMap, unit);
+    case "Light":
+      return [{
+        id: nodeId(component.id, "light"),
+        type: "SolidBox",
+        inputs: expandInputs(component, componentMap),
+        params: {
+          ...scaledBox(component.placement, unit),
+          block: material(component, "light", "light", "minecraft:torch"),
+        },
+      }];
     case "CircleRing":
       return expandCircleRing(component, unit, expandInputs(component, componentMap));
     case "DiagonalBeam":
@@ -2762,6 +2784,8 @@ function estimateComponentBlocks(
       const height = component.placement.height ?? defaultAttachmentHeight(component.type);
       return width * height * unit * unit;
     }
+    case "Light":
+      return componentVolume(component.placement.size) * unit * unit * unit;
     case "GableRoof": {
       const target = componentMap.get(component.placement.over);
       if (!target || !isAnchoredComponent(target)) {
@@ -3533,7 +3557,7 @@ function validateRepeats(
         code: "INVALID_REPEAT_SOURCE",
         componentId: component.id,
         message: `Repeat "${component.id}" must reference an anchored or Instance source component.`,
-        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, SupportPost, or Instance component.",
+        repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, Light, SupportPost, or Instance component.",
       });
     }
 
@@ -3679,6 +3703,8 @@ function requiredFallbackMaterials(component: ComponentNode): { role: string; va
       }
       return fallbacks;
     }
+    case "Light":
+      return [];
     case "Door":
       return [{ role: "door", value: "door" }];
     case "Window":
@@ -3776,6 +3802,8 @@ function outputPart(component: ComponentNode): string {
       return "rock_0";
     case "StairRun":
       return "step_0";
+    case "Light":
+      return "light";
     case "Door":
     case "Window":
     case "Opening":
@@ -3855,7 +3883,7 @@ function expandRepeat(
       code: "INVALID_REPEAT_SOURCE",
       componentId: component.id,
       message: `Repeat "${component.id}" must reference an anchored or Instance source component.`,
-      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, SupportPost, or Instance component.",
+      repairHint: "Repeat a Foundation, Platform, Beam, RoomShell, Compartment, Corridor, TaperedVolume, SteppedTier, VerticalSetbackVolume, FloorStack, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, StairRun, Light, SupportPost, or Instance component.",
     });
   }
 
@@ -4010,6 +4038,16 @@ function expandRepeatableComponent(
       return expandRockCluster(repeated, componentMap, unit, inputs);
     case "StairRun":
       return expandStairRun(repeated, componentMap, unit, inputs);
+    case "Light":
+      return [{
+        id: nodeId(repeated.id, "light"),
+        type: "SolidBox",
+        inputs,
+        params: {
+          ...scaledBox(repeated.placement, unit),
+          block: material(source, "light", "light", "minecraft:torch"),
+        },
+      }];
     case "SupportPost":
       return [{
         id: nodeId(repeated.id, "post"),
@@ -4293,8 +4331,8 @@ function primitiveVoxelPositions(node: CraftDagNode): Vec3[] {
   return positions;
 }
 
-function material(component: ComponentNode, role: string, fallback: string): string {
-  return component.materials?.[role] ?? fallback;
+function material(component: ComponentNode, role: string, fallback: string, defaultBlock = fallback): string {
+  return component.materials?.[role] ?? defaultBlock;
 }
 
 function shiftAnchoredPlacement(
@@ -4537,6 +4575,7 @@ function isRepeatableComponent(component: ComponentNode): component is Repeatabl
     component.type === "PathRun" ||
     component.type === "RockCluster" ||
     component.type === "StairRun" ||
+    component.type === "Light" ||
     component.type === "CircleRing" ||
     component.type === "SupportPost" ||
     component.type === "Instance"

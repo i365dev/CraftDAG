@@ -23,13 +23,15 @@ Authoring rules
 10. If validation fails, repair the plan instead of loosening schema or validation.
 
 Allowed ComponentPlan components
-Foundation, Platform, Beam, RoomShell, Compartment, Corridor, StairRun, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, Door, Window, Opening, Portal, GableRoof, FlatRoof, SupportPost, Repeat, Instance.
+Foundation, Platform, Beam, RoomShell, Compartment, Corridor, StairRun, FloorStack, TaperedVolume, SteppedTier, VerticalSetbackVolume, SteppedDome, RailingRun, ArcadeRun, SupportBracket, TreeCanopy, OrganicPatch, PathRun, RockCluster, Light, Door, Window, Opening, Portal, GableRoof, FlatRoof, SupportPost, Repeat, Instance.
 
 When to use key components
 - RoomShell: one exterior or interior hollow volume.
 - Compartment: semantic room subdivision such as cabin, boiler room, storage, gallery, or cell. Put exact meaning in role.
 - Corridor: horizontal circulation.
 - StairRun: walkable vertical circulation between levels.
+- FloorStack: stacked tower levels with optional stairs or ladders.
+- Light: gameplay utility lighting such as torches, lanterns, glowstone, or signal lamps.
 - TaperedVolume: ship bows, buttresses, tower legs, blocky taper.
 - SteppedTier: pyramids, amphitheater seating, podiums, terraces.
 - VerticalSetbackVolume: tall towers, pagodas, skyscrapers, spires.

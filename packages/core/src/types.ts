@@ -342,6 +342,7 @@ export interface StairRunOptions {
   includeSideRails?: boolean;
 }
 export type StairRunComponent = BaseComponentNode<"StairRun", AnchoredComponentPlacement, StairRunOptions>;
+export type LightComponent = BaseComponentNode<"Light", AnchoredComponentPlacement>;
 export type CircleRingComponent = BaseComponentNode<"CircleRing", CircleRingPlacement, CircleRingOptions>;
 export type DiagonalBeamComponent = BaseComponentNode<"DiagonalBeam", DiagonalBeamPlacement, DiagonalBeamOptions>;
 export type RadialRepeatComponent = BaseComponentNode<"RadialRepeat", RadialRepeatPlacement>;
@@ -377,6 +378,7 @@ export type AssemblyComponentNode =
   | PathRunComponent
   | RockClusterComponent
   | StairRunComponent
+  | LightComponent
   | CircleRingComponent
   | DiagonalBeamComponent
   | RadialRepeatComponent

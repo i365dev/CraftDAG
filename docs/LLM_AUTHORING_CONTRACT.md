@@ -89,6 +89,7 @@ Allowed ComponentPlan v0.1 components:
 - `OrganicPatch`
 - `PathRun`
 - `RockCluster`
+- `Light`
 - `Door`
 - `Window`
 - `Opening`
@@ -130,6 +131,8 @@ Use `OrganicPatch` for ponds, gravel beds, moss patches, flower beds, and irregu
 Use `PathRun` for garden paths, gravel walks, and stepping stones. Use local `waypoints` for simple meanders instead of manually enumerating every stone.
 
 Use `RockCluster` for boulders, fake mountains, dry gardens, and small cliff accents. Use `role` for domain intent such as `dry_garden_rocks` or `pond_boulders`.
+
+Use `Light` for simple interior or exterior lighting fixtures such as torches, lanterns, glowstone blocks, and signal lamps. It expands to bounded light blocks, defaults to `minecraft:torch`, and can use `materials.light` for palette or block overrides. Prefer `Light` over pretending lanterns are support posts or beams.
 
 Use `GableRoof` for pitched triangular roofs. Use `FlatRoof` for low canopies, awnings, tower caps, flat roofs, well roofs, and other simple one-logical-unit-thick covers.
 

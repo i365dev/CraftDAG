@@ -201,6 +201,7 @@ Start with a small component vocabulary:
 - `OrganicPatch`
 - `PathRun`
 - `RockCluster`
+- `Light`
 - `Door`
 - `Window`
 - `Opening`
@@ -250,6 +251,8 @@ Use `OrganicPatch` for irregular ground features such as ponds, flower beds, mos
 Use `PathRun` for garden paths, stepping stones, gravel walks, and simple meandering walkways. It can use local `waypoints` inside the placement bounds. It is not a pathfinding system.
 
 Use `RockCluster` for boulders, dry gardens, fake mountains, small cliffs, and natural rock accents. It expands deterministic rough blocks inside one bounding box. It is not terrain erosion or mesh sculpting.
+
+Use `Light` for bounded Minecraft lighting fixtures such as torches, lanterns, glowstone blocks, or signal lamps. It expands to `SolidBox` nodes using `materials.light` when provided and otherwise defaults to `minecraft:torch`. Use it for gameplay utility lighting instead of misusing structural posts or trim.
 
 Use `GableRoof` for pitched roof volumes. Use `FlatRoof` for low canopies, awnings, tower caps, simple flat roofs, and other one-logical-unit-thick covers.
 
@@ -307,7 +310,7 @@ Default policies:
 
 - `Foundation`: `must_connect_to_ground`
 - `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SteppedDome`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `SupportPost`: `must_connect_to_input`
-- `RailingRun`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
+- `RailingRun`, `Light`, `Door`, `Window`, `Opening`, `Portal`: `decorative`
 - `Repeat`, `Instance`: `must_connect_to_input`
 
 Structural intent does not change geometry and does not make validation fail. It is used by support diagnostics to classify warnings and reduce noise for intentional hanging, decorative, or partially supported elements.
@@ -370,7 +373,7 @@ type RepeatPlacement = {
 }
 ```
 
-`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SteppedDome`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, and `SupportPost`.
+`Repeat` duplicates the source component `count - 1` times, because the source component itself remains the first instance. In v0.1, only anchored components can be repeated: `Foundation`, `Platform`, `Beam`, `RoomShell`, `Compartment`, `Corridor`, `StairRun`, `TaperedVolume`, `SteppedTier`, `VerticalSetbackVolume`, `SteppedDome`, `RailingRun`, `ArcadeRun`, `SupportBracket`, `TreeCanopy`, `OrganicPatch`, `PathRun`, `RockCluster`, `Light`, and `SupportPost`.
 
 Repeated clone IDs are stable:
 

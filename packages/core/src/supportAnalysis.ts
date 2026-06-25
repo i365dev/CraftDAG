@@ -302,6 +302,7 @@ export function defaultStructuralIntentForComponent(component: ComponentNode): R
     case "Opening":
     case "Portal":
     case "RailingRun":
+    case "Light":
       return { ...component.structural, supportPolicy: "decorative" };
     case "Instance":
     case "Repeat":

@@ -1590,6 +1590,63 @@ describe("ComponentPlan", () => {
     expect(() => compileComponentPlan(plan)).not.toThrow();
   });
 
+  it("expands Light components for interior utility lighting", () => {
+    const plan: ComponentPlanDocument = {
+      version: "0.1",
+      name: "Light Fixture Study",
+      bounds: { width: 8, height: 8, length: 8 },
+      palette: {
+        wall: "minecraft:stone_bricks",
+        light: "minecraft:lantern",
+      },
+      components: [
+        {
+          id: "default_torch",
+          type: "Light",
+          placement: {
+            anchor: { x: 2, y: 3, z: 2 },
+            size: { width: 1, height: 1, length: 1 },
+          },
+        },
+        {
+          id: "lantern",
+          type: "Light",
+          placement: {
+            anchor: { x: 5, y: 3, z: 2 },
+            size: { width: 1, height: 1, length: 1 },
+          },
+          materials: {
+            light: "light",
+          },
+        },
+      ],
+    };
+
+    const craftDag = expandComponentPlan(plan);
+
+    expect(craftDag.nodes).toEqual([
+      expect.objectContaining({
+        id: "default_torch__light",
+        type: "SolidBox",
+        params: expect.objectContaining({
+          from: [2, 3, 2],
+          to: [2, 3, 2],
+          block: "minecraft:torch",
+        }),
+      }),
+      expect.objectContaining({
+        id: "lantern__light",
+        type: "SolidBox",
+        params: expect.objectContaining({
+          from: [5, 3, 2],
+          to: [5, 3, 2],
+          block: "light",
+        }),
+      }),
+    ]);
+    expect(() => compileComponentPlan(plan)).not.toThrow();
+  });
+
   it("rejects StairRun components that are too short for the requested height", () => {
     const invalid: ComponentPlanDocument = {
       version: "0.1",
