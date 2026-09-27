@@ -1,0 +1,18 @@
+{
+  "name": "Elliptical arena shell",
+  "bounds": { "width": 72, "height": 12, "length": 40 },
+  "maxBlocks": 100000,
+  "output": "artifacts/ellipse-shell.svg",
+  "geometry": [
+    {
+      "type": "EllipseRing",
+      "center": { "x": 36, "z": 20 },
+      "radiusX": 28,
+      "radiusZ": 16,
+      "y": 0,
+      "height": 9,
+      "thickness": 2,
+      "block": "stone"
+    }
+  ]
+}

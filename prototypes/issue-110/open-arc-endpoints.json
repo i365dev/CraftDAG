@@ -1,0 +1,26 @@
+{
+  "name": "Open elliptical harbor wall probe",
+  "bounds": { "width": 24, "height": 3, "length": 20 },
+  "maxBlocks": 1000,
+  "output": "artifacts/open-arc-endpoints.svg",
+  "geometry": [
+    {
+      "type": "PathRepeat",
+      "center": { "x": 12, "z": 10 },
+      "radiusX": 10,
+      "radiusZ": 7,
+      "y": 1,
+      "count": 9,
+      "startAngle": 0,
+      "endAngle": 180,
+      "closed": false,
+      "module": {
+        "voxels": [
+          { "x": -1, "y": 0, "z": 0, "block": "trim" },
+          { "x": 0, "y": 0, "z": 0, "block": "trim" },
+          { "x": 1, "y": 0, "z": 0, "block": "trim" }
+        ]
+      }
+    }
+  ]
+}

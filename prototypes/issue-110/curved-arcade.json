@@ -1,0 +1,82 @@
+{
+  "name": "Two-level elliptical colonnade",
+  "bounds": { "width": 72, "height": 18, "length": 40 },
+  "maxBlocks": 100000,
+  "output": "artifacts/curved-arcade.svg",
+  "geometry": [
+    {
+      "type": "EllipseRing",
+      "center": { "x": 36, "z": 20 },
+      "radiusX": 28,
+      "radiusZ": 16,
+      "y": 0,
+      "height": 1,
+      "thickness": 1,
+      "block": "stone"
+    },
+    {
+      "type": "PathRepeat",
+      "center": { "x": 36, "z": 20 },
+      "radiusX": 25,
+      "radiusZ": 13,
+      "y": 1,
+      "count": 24,
+      "startAngle": 0,
+      "endAngle": 360,
+      "closed": true,
+      "module": {
+        "voxels": [
+          { "x": -3, "y": 0, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 1, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 2, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 3, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 4, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 0, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 1, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 2, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 3, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 4, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 5, "z": 0, "block": "trim" },
+          { "x": -2, "y": 5, "z": 0, "block": "trim" },
+          { "x": -1, "y": 5, "z": 0, "block": "trim" },
+          { "x": 0, "y": 5, "z": 0, "block": "trim" },
+          { "x": 1, "y": 5, "z": 0, "block": "trim" },
+          { "x": 2, "y": 5, "z": 0, "block": "trim" },
+          { "x": 3, "y": 5, "z": 0, "block": "trim" }
+        ]
+      }
+    },
+    {
+      "type": "PathRepeat",
+      "center": { "x": 36, "z": 20 },
+      "radiusX": 25,
+      "radiusZ": 13,
+      "y": 9,
+      "count": 24,
+      "startAngle": 0,
+      "endAngle": 360,
+      "closed": true,
+      "module": {
+        "voxels": [
+          { "x": -3, "y": 0, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 1, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 2, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 3, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 4, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 0, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 1, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 2, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 3, "z": 0, "block": "pillar" },
+          { "x": 3, "y": 4, "z": 0, "block": "pillar" },
+          { "x": -3, "y": 5, "z": 0, "block": "trim" },
+          { "x": -2, "y": 5, "z": 0, "block": "trim" },
+          { "x": -1, "y": 5, "z": 0, "block": "trim" },
+          { "x": 0, "y": 5, "z": 0, "block": "trim" },
+          { "x": 1, "y": 5, "z": 0, "block": "trim" },
+          { "x": 2, "y": 5, "z": 0, "block": "trim" },
+          { "x": 3, "y": 5, "z": 0, "block": "trim" }
+        ]
+      }
+    }
+  ]
+}
