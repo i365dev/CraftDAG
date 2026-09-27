@@ -71,7 +71,7 @@ The helper rejects out-of-bounds voxel positions, invalid radii/count/angles, an
 
 Artifacts: [`ellipse-shell.svg`](artifacts/ellipse-shell.svg), [`curved-arcade.svg`](artifacts/curved-arcade.svg), [`open-arc-endpoints.svg`](artifacts/open-arc-endpoints.svg).
 
-These SVGs are geometry artifacts, not MinePilot's six-view Three.js review captures. CraftDAG has no visual review renderer, and these images do not show block states or prove build quality in Minecraft. The two-level fixture is structurally legible at the isometric overview; an implementation needs MinePilot preview review for close-up faceting and overlap.
+These SVGs are geometry artifacts, not MinePilot's six-view Three.js review captures. CraftDAG has no visual review renderer, and these images do not show block states or prove build quality in Minecraft. Treat them as preview artifacts for reviewer inspection; no independent visual rating was recorded. An implementation needs MinePilot preview review for close-up faceting and overlap.
 
 ## Proposed API sketch
 
