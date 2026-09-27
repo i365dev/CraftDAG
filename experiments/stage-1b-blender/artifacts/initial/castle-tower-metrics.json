@@ -1,0 +1,26 @@
+{
+  "case": "castle-tower",
+  "source": {
+    "bytes": 21637,
+    "objectCount": 13,
+    "triangleCount": 114
+  },
+  "voxelization": {
+    "surface": {
+      "size": [
+        31,
+        64,
+        31
+      ],
+      "blockCount": 9927
+    },
+    "solid": {
+      "size": [
+        31,
+        64,
+        31
+      ],
+      "blockCount": 30721
+    }
+  }
+}

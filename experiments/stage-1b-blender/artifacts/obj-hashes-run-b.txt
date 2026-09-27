@@ -1,0 +1,5 @@
+ffe2bcbf894cf48a6d8428e60828d854c017bb0256d87f35a03537666dbe1418  experiments/stage-1b-blender/artifacts/simple-house.obj
+8f839d67e1920f665a93abdc813060b1b97832f5e48e427d08743ca055c8f415  experiments/stage-1b-blender/artifacts/castle-tower.obj
+00c699a681845f2bc3bb3bc75cc72968515a653af3def43f56ded92016307eab  experiments/stage-1b-blender/artifacts/ship.obj
+15cb72bf6b3f5d122c1511ff83e80af703ba041e08e1245ea73a84c2b73189c4  experiments/stage-1b-blender/artifacts/statue.obj
+4edc79e762b0fe364059e0a7948faf9cda4075397e4bd4ddb8663397f5861b60  experiments/stage-1b-blender/artifacts/dragon.obj

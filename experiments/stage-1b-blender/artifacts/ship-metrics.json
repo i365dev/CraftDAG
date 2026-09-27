@@ -1,0 +1,26 @@
+{
+  "case": "ship",
+  "source": {
+    "bytes": 3154,
+    "objectCount": 7,
+    "triangleCount": 116
+  },
+  "voxelization": {
+    "surface": {
+      "size": [
+        39,
+        64,
+        17
+      ],
+      "blockCount": 3815
+    },
+    "solid": {
+      "size": [
+        39,
+        64,
+        17
+      ],
+      "blockCount": 4337
+    }
+  }
+}

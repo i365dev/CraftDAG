@@ -1,0 +1,26 @@
+{
+  "case": "dragon",
+  "source": {
+    "bytes": 67888,
+    "objectCount": 20,
+    "triangleCount": 2658
+  },
+  "voxelization": {
+    "surface": {
+      "size": [
+        75,
+        64,
+        60
+      ],
+      "blockCount": 14832
+    },
+    "solid": {
+      "size": [
+        75,
+        64,
+        60
+      ],
+      "blockCount": 44203
+    }
+  }
+}

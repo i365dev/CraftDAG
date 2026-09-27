@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CraftDAG #114 Stage 1A case evidence",
+  "type": "object",
+  "required": ["case", "brief", "author_model", "source_loc", "generation_attempts", "repair_rounds", "wall_clock_minutes", "export_success", "obj_triangle_count", "voxel_dimensions", "surface_block_count", "solid_block_count", "voxelizer_failures", "recognizable_at_64", "minecraft_usefulness", "major_lost_details", "semantic_parts", "verdict", "visual_reason", "artifact_paths"],
+  "properties": {
+    "case": {"enum": ["simple-house", "castle-tower", "ship", "statue", "dragon"]},
+    "brief": {"type": "string"},
+    "author_model": {"type": "string"},
+    "source_loc": {"type": "integer", "minimum": 0},
+    "generation_attempts": {"type": "integer", "minimum": 0},
+    "repair_rounds": {"type": "array", "items": {"type": "object", "required": ["reason", "result"], "properties": {"reason": {"type": "string"}, "result": {"type": "string"}}}},
+    "wall_clock_minutes": {"type": ["number", "null"]},
+    "export_success": {"type": "boolean"},
+    "obj_triangle_count": {"type": ["integer", "null"]},
+    "voxel_dimensions": {"type": ["array", "null"], "items": {"type": "integer"}, "minItems": 3, "maxItems": 3},
+    "surface_block_count": {"type": ["integer", "null"]},
+    "solid_block_count": {"type": ["integer", "null"]},
+    "voxelizer_failures": {"type": "array", "items": {"type": "string"}},
+    "recognizable_at_64": {"enum": ["yes", "no", "borderline", "not-reviewed"]},
+    "minecraft_usefulness": {"type": "string"},
+    "major_lost_details": {"type": "array", "items": {"type": "string"}},
+    "semantic_parts": {"type": "array", "items": {"type": "string"}},
+    "verdict": {"enum": ["PASS", "BORDERLINE", "FAIL", "pending"]},
+    "visual_reason": {"type": "string"},
+    "artifact_paths": {"type": "object"}
+  }
+}

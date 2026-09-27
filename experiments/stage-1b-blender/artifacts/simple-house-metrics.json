@@ -1,0 +1,26 @@
+{
+  "case": "simple-house",
+  "source": {
+    "bytes": 3270,
+    "objectCount": 9,
+    "triangleCount": 108
+  },
+  "voxelization": {
+    "surface": {
+      "size": [
+        36,
+        64,
+        36
+      ],
+      "blockCount": 14350
+    },
+    "solid": {
+      "size": [
+        36,
+        64,
+        36
+      ],
+      "blockCount": 51468
+    }
+  }
+}

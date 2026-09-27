@@ -1,0 +1,26 @@
+{
+  "case": "statue",
+  "source": {
+    "bytes": 21037,
+    "objectCount": 10,
+    "triangleCount": 848
+  },
+  "voxelization": {
+    "surface": {
+      "size": [
+        27,
+        64,
+        21
+      ],
+      "blockCount": 5545
+    },
+    "solid": {
+      "size": [
+        27,
+        64,
+        21
+      ],
+      "blockCount": 10924
+    }
+  }
+}
