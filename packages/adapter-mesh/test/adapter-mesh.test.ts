@@ -54,4 +54,21 @@ describe("OBJ to VoxelPlan", () => {
     expect(solid.blocks.length).toBe(64);
     expect(() => objToVoxelPlan(source("gabled-cabin"), { targetHeight: 64, maxBlocks: 100 })).toThrow(/exceed maxBlocks/);
   });
+
+  it("computes bounds for large repeated face references without argument overflow", () => {
+    const repeatedFaceCount = 50_000;
+    const input = [
+      "v 0 0 0",
+      "v 1 0 0",
+      "v 0 1 1",
+      ...Array.from({ length: repeatedFaceCount }, () => "f 1 2 3"),
+    ].join("\n");
+
+    const plan = objToVoxelPlan(input, { targetHeight: 1, maxBlocks: 1, voxelMode: "surface" });
+
+    expect(plan.size).toEqual([1, 1, 1]);
+    expect(plan.blocks).toHaveLength(1);
+    expect(plan.blocks[0].pos).toEqual([0, 0, 0]);
+    expect(plan.blocks.every(({ pos }) => pos.every((value, axis) => value >= 0 && value < plan.size[axis]))).toBe(true);
+  });
 });

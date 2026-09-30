@@ -53,6 +53,20 @@ function parseObj(source: string): Triangle[] {
   return triangles;
 }
 
+function computeMeshBounds(triangles: Triangle[]): { min: Point3; max: Point3 } {
+  const min: Point3 = [Infinity, Infinity, Infinity];
+  const max: Point3 = [-Infinity, -Infinity, -Infinity];
+  for (const triangle of triangles) {
+    for (const vertex of triangle) {
+      for (let axis = 0; axis < 3; axis += 1) {
+        min[axis] = Math.min(min[axis], vertex[axis]);
+        max[axis] = Math.max(max[axis], vertex[axis]);
+      }
+    }
+  }
+  return { min, max };
+}
+
 function cross(a: Point3, b: Point3): Point3 {
   return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
@@ -114,9 +128,7 @@ export function objToVoxelPlan(source: string, options: ObjToVoxelPlanOptions = 
   if (mode !== "surface" && mode !== "solid") fail("voxelMode must be surface or solid");
   const block = validateBlock(options.defaultBlock ?? "minecraft:stone");
   const parsed = parseObj(source);
-  const rawVertices = parsed.flat();
-  const min: Point3 = [0, 1, 2].map((axis) => Math.min(...rawVertices.map((v) => v[axis]))) as Point3;
-  const max: Point3 = [0, 1, 2].map((axis) => Math.max(...rawVertices.map((v) => v[axis]))) as Point3;
+  const { min, max } = computeMeshBounds(parsed);
   const extents = subtract(max, min);
   if (extents.some((extent) => extent <= EPSILON)) fail("mesh bounds must have non-zero width, height and depth");
   const scale = targetHeight / extents[1];
