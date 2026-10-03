@@ -83,6 +83,12 @@ describe.each(cases)("static module kernel: %s", (_label, file) => {
     const unsupportedState = structuredClone(definition);
     unsupportedState.blocks[0].properties.axis = "x";
     const otherFacing = definition.canonicalFacing === "north" ? "east" : "north";
-    expect(() => compileStaticModule(unsupportedState, otherFacing)).toThrow(/unsupported directional block-state property: axis/);
+    expect(() => compileStaticModule(unsupportedState, otherFacing)).toThrow(/unsupported block-state property during rotation: axis/);
+
+    const unknownState = structuredClone(definition);
+    unknownState.blocks[0].properties.mystery_direction = "north-east-ish";
+    expect(() => compileStaticModule(unknownState, otherFacing)).toThrow(/unsupported block-state property during rotation: mystery_direction/);
+    const unchanged = compileStaticModule(unknownState, definition.canonicalFacing);
+    expect(unchanged.blocks[0].block.properties?.mystery_direction).toBe("north-east-ish");
   });
 });

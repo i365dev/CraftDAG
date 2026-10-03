@@ -19,7 +19,21 @@ export interface StaticModuleDefinition {
 
 const FACINGS: HorizontalFacing[] = ["north", "east", "south", "west"];
 const FACING_INDEX = new Map(FACINGS.map((facing, index) => [facing, index]));
-const UNSUPPORTED_DIRECTIONAL_PROPERTIES = new Set(["axis", "hinge", "orientation", "rotation", "shape"]);
+// These properties occur in the two verified topologies and do not encode a
+// horizontal direction. Unknown properties must not silently survive rotation.
+const INVARIANT_PROPERTIES = new Set([
+  "delay",
+  "enabled",
+  "extended",
+  "face",
+  "lit",
+  "locked",
+  "mode",
+  "power",
+  "powered",
+  "type",
+  "waterlogged",
+]);
 
 function assertFacing(value: string): asserts value is HorizontalFacing {
   if (!FACING_INDEX.has(value as HorizontalFacing)) throw new Error(`unsupported horizontal facing: ${value}`);
@@ -67,15 +81,14 @@ function rotateState(properties: Record<string, string>, turns: number): Record<
   const output: Record<string, string> = {};
   for (const property of Object.keys(properties).sort()) {
     const value = properties[property];
-    if (UNSUPPORTED_DIRECTIONAL_PROPERTIES.has(property) && turns !== 0) {
-      throw new Error(`unsupported directional block-state property: ${property}`);
-    }
     if (property === "facing") {
       output[property] = value === "up" || value === "down" ? value : rotateFacing(value as HorizontalFacing, turns);
     } else if (FACING_INDEX.has(property as HorizontalFacing)) {
       output[rotateFacing(property as HorizontalFacing, turns)] = value;
-    } else {
+    } else if (turns === 0 || INVARIANT_PROPERTIES.has(property)) {
       output[property] = value;
+    } else {
+      throw new Error(`unsupported block-state property during rotation: ${property}`);
     }
   }
   return output;
