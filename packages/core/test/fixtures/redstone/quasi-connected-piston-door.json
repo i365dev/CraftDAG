@@ -1,0 +1,407 @@
+{
+  "identity": {
+    "id": "minepilot:quasi_connected_piston_door",
+    "version": "1.0"
+  },
+  "canonicalFacing": "east",
+  "bounds": [
+    3,
+    2,
+    1
+  ],
+  "blocks": [
+    {
+      "role": "support",
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "block": "minecraft:stone",
+      "properties": {}
+    },
+    {
+      "role": "lever",
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "block": "minecraft:lever",
+      "properties": {
+        "face": "floor",
+        "facing": "north",
+        "powered": "false"
+      }
+    },
+    {
+      "role": "lower_sticky_piston",
+      "pos": [
+        1,
+        0,
+        0
+      ],
+      "block": "minecraft:sticky_piston",
+      "properties": {
+        "facing": "east",
+        "extended": "false"
+      }
+    },
+    {
+      "role": "upper_sticky_piston",
+      "pos": [
+        1,
+        1,
+        0
+      ],
+      "block": "minecraft:sticky_piston",
+      "properties": {
+        "facing": "east",
+        "extended": "false"
+      }
+    },
+    {
+      "role": "lower_movable",
+      "pos": [
+        2,
+        0,
+        0
+      ],
+      "block": "minecraft:stone",
+      "properties": {}
+    },
+    {
+      "role": "upper_movable",
+      "pos": [
+        2,
+        1,
+        0
+      ],
+      "block": "minecraft:stone",
+      "properties": {}
+    }
+  ],
+  "expected": {
+    "north": {
+      "bounds": [
+        1,
+        2,
+        3
+      ],
+      "blocks": [
+        {
+          "role": "support",
+          "pos": [
+            0,
+            0,
+            2
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "lever",
+          "pos": [
+            0,
+            1,
+            2
+          ],
+          "block": "minecraft:lever",
+          "properties": {
+            "face": "floor",
+            "facing": "west",
+            "powered": "false"
+          }
+        },
+        {
+          "role": "lower_sticky_piston",
+          "pos": [
+            0,
+            0,
+            1
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "north",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "upper_sticky_piston",
+          "pos": [
+            0,
+            1,
+            1
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "north",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "lower_movable",
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "upper_movable",
+          "pos": [
+            0,
+            1,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        }
+      ]
+    },
+    "east": {
+      "bounds": [
+        3,
+        2,
+        1
+      ],
+      "blocks": [
+        {
+          "role": "support",
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "lever",
+          "pos": [
+            0,
+            1,
+            0
+          ],
+          "block": "minecraft:lever",
+          "properties": {
+            "face": "floor",
+            "facing": "north",
+            "powered": "false"
+          }
+        },
+        {
+          "role": "lower_sticky_piston",
+          "pos": [
+            1,
+            0,
+            0
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "east",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "upper_sticky_piston",
+          "pos": [
+            1,
+            1,
+            0
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "east",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "lower_movable",
+          "pos": [
+            2,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "upper_movable",
+          "pos": [
+            2,
+            1,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        }
+      ]
+    },
+    "south": {
+      "bounds": [
+        1,
+        2,
+        3
+      ],
+      "blocks": [
+        {
+          "role": "support",
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "lever",
+          "pos": [
+            0,
+            1,
+            0
+          ],
+          "block": "minecraft:lever",
+          "properties": {
+            "face": "floor",
+            "facing": "east",
+            "powered": "false"
+          }
+        },
+        {
+          "role": "lower_sticky_piston",
+          "pos": [
+            0,
+            0,
+            1
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "south",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "upper_sticky_piston",
+          "pos": [
+            0,
+            1,
+            1
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "south",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "lower_movable",
+          "pos": [
+            0,
+            0,
+            2
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "upper_movable",
+          "pos": [
+            0,
+            1,
+            2
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        }
+      ]
+    },
+    "west": {
+      "bounds": [
+        3,
+        2,
+        1
+      ],
+      "blocks": [
+        {
+          "role": "support",
+          "pos": [
+            2,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "lever",
+          "pos": [
+            2,
+            1,
+            0
+          ],
+          "block": "minecraft:lever",
+          "properties": {
+            "face": "floor",
+            "facing": "south",
+            "powered": "false"
+          }
+        },
+        {
+          "role": "lower_sticky_piston",
+          "pos": [
+            1,
+            0,
+            0
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "west",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "upper_sticky_piston",
+          "pos": [
+            1,
+            1,
+            0
+          ],
+          "block": "minecraft:sticky_piston",
+          "properties": {
+            "facing": "west",
+            "extended": "false"
+          }
+        },
+        {
+          "role": "lower_movable",
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        },
+        {
+          "role": "upper_movable",
+          "pos": [
+            0,
+            1,
+            0
+          ],
+          "block": "minecraft:stone",
+          "properties": {}
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "verifiedProof": "https://github.com/i365dev/MinePilot/pull/136",
+    "pullRequest": 136,
+    "mergedCommit": "171926a535389a3446dcc9a1f4ca52f0a38e8afc"
+  }
+}
